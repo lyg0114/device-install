@@ -17,11 +17,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-/**
- * @author : iyeong-gyo
- * @package : com.apipractice.domain.member.entity
- * @since : 23.05.24
- */
 @Getter
 @Builder
 @AllArgsConstructor

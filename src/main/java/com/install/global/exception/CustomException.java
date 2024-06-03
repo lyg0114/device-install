@@ -2,11 +2,6 @@ package com.install.global.exception;
 
 import lombok.Getter;
 
-/**
- * @author : iyeong-gyo
- * @package : com.apipractice.global.exception
- * @since : 18.05.24
- */
 @Getter
 public class CustomException extends RuntimeException {
 

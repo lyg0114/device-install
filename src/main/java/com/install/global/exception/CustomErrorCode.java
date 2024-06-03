@@ -10,11 +10,6 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 
-/**
- * @author : iyeong-gyo
- * @package : com.apipractice.global.exception
- * @since : 18.05.24
- */
 @Getter
 @RequiredArgsConstructor
 public enum CustomErrorCode {

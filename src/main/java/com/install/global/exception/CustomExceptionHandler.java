@@ -14,11 +14,6 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
-/**
- * @author : iyeong-gyo
- * @package : com.apipractice.global.exception
- * @since : 18.05.24
- */
 @Slf4j
 @RestControllerAdvice
 public class CustomExceptionHandler {
