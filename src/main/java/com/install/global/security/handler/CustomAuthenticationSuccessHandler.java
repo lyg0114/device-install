@@ -3,7 +3,7 @@ package com.install.global.security.handler;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.install.domain.member.application.repository.MemberRepository;
+import com.install.domain.member.entity.repository.MemberRepository;
 import com.install.domain.member.entity.Member;
 import com.install.global.security.service.CustomUserDetails;
 import com.install.global.security.service.JwtService;

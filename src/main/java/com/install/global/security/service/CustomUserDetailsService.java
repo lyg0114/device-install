@@ -1,7 +1,7 @@
 package com.install.global.security.service;
 
-import com.install.domain.member.application.repository.MemberRepository;
-import com.install.domain.member.application.repository.RoleRepository;
+import com.install.domain.member.entity.repository.MemberRepository;
+import com.install.domain.member.entity.repository.RoleRepository;
 import com.install.domain.member.entity.Member;
 import com.install.domain.member.entity.Role;
 import java.util.List;

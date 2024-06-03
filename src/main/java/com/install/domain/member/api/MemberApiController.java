@@ -1,6 +1,6 @@
 package com.install.domain.member.api;
 
-import com.install.domain.member.application.service.MemberService;
+import com.install.domain.member.service.MemberService;
 import com.install.domain.member.dto.MemberDto;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

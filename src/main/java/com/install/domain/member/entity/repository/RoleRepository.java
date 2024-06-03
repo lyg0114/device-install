@@ -1,4 +1,4 @@
-package com.install.domain.member.application.repository;
+package com.install.domain.member.entity.repository;
 
 import com.install.domain.member.entity.Role;
 import java.util.List;

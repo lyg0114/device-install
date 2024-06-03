@@ -1,10 +1,10 @@
-package com.install.domain.member.application.service;
+package com.install.domain.member.service;
 
 import static com.install.global.exception.CustomErrorCode.EMAIL_ALREADY_EXIST;
 import static com.install.global.exception.CustomErrorCode.NICKNAME_ALREADY_EXIST;
 import static org.springframework.util.StringUtils.hasText;
 
-import com.install.domain.member.application.repository.MemberRepository;
+import com.install.domain.member.entity.repository.MemberRepository;
 import com.install.domain.member.dto.MemberDto;
 import com.install.domain.member.dto.MemberDto.SignUpRequest;
 import com.install.global.exception.CustomException;
