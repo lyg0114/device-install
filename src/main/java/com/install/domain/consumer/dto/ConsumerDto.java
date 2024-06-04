@@ -2,6 +2,7 @@ package com.install.domain.consumer.dto;
 
 import static lombok.AccessLevel.PRIVATE;
 
+import com.install.domain.consumer.entity.Consumer;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -31,13 +32,16 @@ public class ConsumerDto {
 
     private String consumerNo;
     private String consumerName;
-    private String meterId;
+    private String meterNo;
     private String city;
     private String street;
     private String zipcode;
     private String geoX;
     private String geoY;
 
+    public Consumer toEntity() {
+      return null;
+    }
   }
 
   @ToString

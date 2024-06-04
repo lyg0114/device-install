@@ -4,7 +4,6 @@ import static jakarta.persistence.GenerationType.IDENTITY;
 import static lombok.AccessLevel.PROTECTED;
 
 import com.install.domain.common.BaseTimeEntity;
-import com.install.domain.consumer.entity.repository.Location;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
@@ -40,8 +39,8 @@ public class Consumer extends BaseTimeEntity {
   @Column(name = "consumer_nm")
   private String consumerName;
 
-  @Column(name = "meter_id")
-  private String meterId;
+  @Column(name = "meter_no")
+  private String meterNo;
 
   @Embedded
   private Address address;

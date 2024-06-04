@@ -2,6 +2,7 @@ package com.install.domain.consumer.api;
 
 
 import com.install.domain.consumer.dto.ConsumerDto;
+import com.install.domain.consumer.service.ConsumerService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -36,6 +37,8 @@ import org.springframework.web.multipart.MultipartFile;
 @RestController
 public class ConsumerApiController {
 
+  private final ConsumerService consumerService;
+
   /**
    * - 수용가 조회
    */
@@ -55,8 +58,7 @@ public class ConsumerApiController {
   public ResponseEntity<Void> addConsumer(
       @RequestBody @Valid ConsumerDto.ConsumerRequest requestDto) {
 
-    // business logic
-
+    consumerService.addConsumer(requestDto);
     return ResponseEntity.ok().build();
   }
 

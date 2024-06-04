@@ -1,4 +1,4 @@
-package com.install.domain.consumer.entity.repository;
+package com.install.domain.consumer.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
