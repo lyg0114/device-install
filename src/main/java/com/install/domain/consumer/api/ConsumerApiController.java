@@ -16,7 +16,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  * @author : iyeong-gyo
@@ -52,6 +54,17 @@ public class ConsumerApiController {
   @PostMapping
   public ResponseEntity<Void> addConsumer(
       @RequestBody @Valid ConsumerDto.ConsumerRequest requestDto) {
+
+    // business logic
+
+    return ResponseEntity.ok().build();
+  }
+
+  /**
+   * - 수용가 일괄 엑셀 등록
+   */
+  @PostMapping("/excel")
+  public ResponseEntity<Void> addConsumersByExcel(@RequestParam("file") MultipartFile file) {
 
     // business logic
 
