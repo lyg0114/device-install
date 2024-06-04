@@ -20,6 +20,7 @@ public class ConsumerDto {
   @Builder
   @AllArgsConstructor(access = PRIVATE)
   public class ConsumerSearchCondition {
+
   }
 
   @ToString
@@ -27,6 +28,16 @@ public class ConsumerDto {
   @Builder
   @AllArgsConstructor(access = PRIVATE)
   public static class ConsumerRequest {
+
+    private String consumerNo;
+    private String consumerName;
+    private String meterId;
+    private String city;
+    private String street;
+    private String zipcode;
+    private String geoX;
+    private String geoY;
+
   }
 
   @ToString
@@ -34,6 +45,7 @@ public class ConsumerDto {
   @Builder
   @AllArgsConstructor
   public static class ConsumerResponse {
+
   }
 
 }
