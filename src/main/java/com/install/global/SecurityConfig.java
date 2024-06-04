@@ -57,12 +57,12 @@ public class SecurityConfig {
     http
         .csrf(AbstractHttpConfigurer::disable)
         .sessionManagement((session) -> session.sessionCreationPolicy(STATELESS))
-        .addFilter(getAuthenticationFilter())
-        .authenticationProvider(authenticationProvider)
-        .addFilterBefore(getAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class)
-        .addFilterBefore(getLoginMethodTypeCheckFilter(), CustomAuthorizationFilter.class)
+//        .addFilter(getAuthenticationFilter())
+//        .authenticationProvider(authenticationProvider)
+//        .addFilterBefore(getAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class)
+//        .addFilterBefore(getLoginMethodTypeCheckFilter(), CustomAuthorizationFilter.class)
+//        .exceptionHandling(customizer -> customizer.accessDeniedHandler(accessDeniedHandler))
         .authorizeHttpRequests(checkResourceAuth())
-        .exceptionHandling(customizer -> customizer.accessDeniedHandler(accessDeniedHandler))
     ;
     return http.build();
   }
