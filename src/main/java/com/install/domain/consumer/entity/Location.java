@@ -3,6 +3,7 @@ package com.install.domain.consumer.entity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -11,6 +12,7 @@ import lombok.NoArgsConstructor;
  * @package : com.install.domain.consumer.entity.repository
  * @since : 04.06.24
  */
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
