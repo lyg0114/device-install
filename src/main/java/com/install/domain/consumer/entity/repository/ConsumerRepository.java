@@ -12,5 +12,5 @@ public interface ConsumerRepository extends JpaRepository<Consumer, Long> {
 
   boolean existsByconsumerNo(String consumerNo);
 
-  boolean existsByMeterId(String meterId);
+  boolean existsByMeterNo(String meterNo);
 }

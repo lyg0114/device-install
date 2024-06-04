@@ -18,7 +18,7 @@ public class ModemDto {
   @Getter
   @Builder
   @AllArgsConstructor(access = PRIVATE)
-  public class ModemSearchCondition {
+  public static class ModemSearchCondition {
   }
 
   @ToString

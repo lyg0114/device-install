@@ -21,12 +21,11 @@ import lombok.ToString;
  */
 public class ConsumerDto {
 
-
   @ToString
   @Getter
   @Builder
   @AllArgsConstructor(access = PRIVATE)
-  public class ConsumerSearchCondition {
+  public static class ConsumerSearchCondition {
 
   }
 

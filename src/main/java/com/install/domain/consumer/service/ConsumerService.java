@@ -37,7 +37,7 @@ public class ConsumerService {
   }
 
   private void validateDuplicateMeterNo(String meterId) {
-    if (consumerRepository.existsByMeterId(meterId)) {
+    if (consumerRepository.existsByMeterNo(meterId)) {
       throw new CustomException(METER_NO_ALREADY_EXIST);
     }
   }

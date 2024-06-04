@@ -18,7 +18,7 @@ public class InstallDto {
   @Getter
   @Builder
   @AllArgsConstructor(access = PRIVATE)
-  public class InstallSearchCondition {
+  public static class InstallSearchCondition {
   }
 
   @ToString
