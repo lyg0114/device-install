@@ -1,6 +1,7 @@
 package com.install.domain.consumer.entity.repository;
 
 import com.install.domain.consumer.entity.Consumer;
+import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 /**
@@ -13,4 +14,6 @@ public interface ConsumerRepository extends JpaRepository<Consumer, Long> {
   boolean existsByconsumerNo(String consumerNo);
 
   boolean existsByMeterNo(String meterNo);
+
+  Optional<Consumer> findByConsumerNo(String consumerNo);
 }
