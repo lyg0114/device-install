@@ -6,12 +6,14 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 /**
  * @author : iyeong-gyo
  * @package : com.install.domain.consumer.entity
  * @since : 04.06.24
  */
+@ToString
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
