@@ -12,10 +12,13 @@ import org.springframework.data.jpa.repository.Query;
 public interface InstallRepository extends JpaRepository<InstallInfo, Long> {
 
   @Query(
-      "select i1 from InstallInfo i1 "
+      "select case when count(i1) > 0 then true "
+          + "else false "
+          + "end "
+          + "from InstallInfo i1 "
           + "where i1.modem.id = :modemId "
           + "and i1.workTypeCd.code !='cd0303'"
           + "and i1.workTime in (select max(i2.workTime) from InstallInfo i2)"
   )
-  InstallInfo isInstalledModem(Long modemId);
+  boolean isInstalledModem(Long modemId);
 }

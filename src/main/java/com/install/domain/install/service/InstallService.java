@@ -80,7 +80,7 @@ public class InstallService {
    * 이미 다른 고객에게 설치된 모뎀이 아닌가?
    */
   private void validateIsInstalledModem(Long modemId) {
-    if (installRepository.isInstalledModem(modemId) != null) {
+    if (installRepository.isInstalledModem(modemId)) {
       throw new CustomException(ALREADY_INSTALLED_MODEM);
     }
   }

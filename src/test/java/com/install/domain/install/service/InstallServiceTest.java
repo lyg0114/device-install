@@ -171,10 +171,7 @@ class InstallServiceTest {
     em.clear();
 
     //then
-    InstallInfo demolishModem = installRepository.isInstalledModem(modem1.getId());
-    assertThat(demolishModem).isNull();
-
-    InstallInfo installedModem = installRepository.isInstalledModem(modem2.getId());
-    assertThat(installedModem).isNotNull();
+    assertThat(installRepository.isInstalledModem(modem1.getId())).isFalse();
+    assertThat(installRepository.isInstalledModem(modem2.getId())).isTrue();
   }
 }
