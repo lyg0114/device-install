@@ -21,7 +21,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
 
 /**
  * @author : iyeong-gyo
@@ -58,7 +57,7 @@ public class InstallInfo extends BaseTimeEntity {
   @JoinColumn(name = "work_type_cd")
   private Code workTypeCd;
 
-  @OneToOne(fetch = LAZY)
+  @ManyToOne(fetch = LAZY)
   @JoinColumn(name = "member_id")
   private Member worker;
 
