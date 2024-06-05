@@ -38,10 +38,10 @@ public class Code extends BaseTimeEntity {
   @Column(name = "name")
   private String name;
 
-  @Column(name = "desc")
+  @Column(name = "code_desc")
   private String desc;
 
-  @Column(name = "level")
+  @Column(name = "code_level")
   private Integer level;
 
   // 셀프로 양방향 연관관계를 맺어서 계층구조를 구현
