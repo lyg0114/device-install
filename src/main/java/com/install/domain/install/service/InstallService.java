@@ -47,7 +47,9 @@ public class InstallService {
   /**
    * @param modemId
    * @param consumerId
-   * @param requestDto 단말기 설치
+   * @param requestDto
+   *
+   * 단말기 설치
    */
   public void installModem(Long modemId, Long consumerId, InstallDto.InstallRequest requestDto) {
     validateIsExistModem(modemId);
@@ -71,8 +73,22 @@ public class InstallService {
   }
 
   /**
+   *
    * @param modemId
-   * @param requestDto 단말기 유지보수
+   * @param consumerId
+   * @param requestDto
+   *
+   * 단말기 교체
+   */
+  public void changeModem(Long modemId, Long consumerId, InstallRequest requestDto) {
+
+  }
+
+  /**
+   * @param modemId
+   * @param requestDto
+   *
+   * 단말기 유지보수
    */
   public void maintenanceModem(Long modemId, InstallRequest requestDto) {
     validateIsExistModem(modemId);
@@ -101,6 +117,38 @@ public class InstallService {
             .build());
   }
 
+  /**
+   * @param modemId
+   * @param requestDto
+   *
+   * 단말기 철거
+   */
+  public void demolishModem(Long modemId, InstallRequest requestDto) {
+    validateIsExistModem(modemId);
+    validateShouldInstalledModem(modemId);
+
+    Long installedConsumerSid = installRepository.currentInstalledInfo(modemId)
+        .orElseThrow(() -> new CustomException(NOT_FOUND_INSTALL_INFO))
+        .getConsumer()
+        .getId();
+
+    Member worker = memberRepository.findById(jwtService.getId())
+        .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
+
+    installRepository.save(
+        InstallInfo.builder()
+            .modem(Modem.builder().id(modemId).build())
+            .comment(requestDto.getComment())
+            .worker(worker)
+            .consumer(Consumer.builder()
+                .id(installedConsumerSid)
+                .build())
+            .workTypeCd(Code.builder()
+                .code(requestDto.getWorkTypeCd()) // TODO : 추후 Enum으로 변경
+                .build())
+            .workTime(LocalDateTime.now())
+            .build());
+  }
 
   /**
    * 시스템에 등록된 모뎀인가
@@ -137,5 +185,4 @@ public class InstallService {
       throw new CustomException(NOT_INSTALLED_MODEM);
     }
   }
-
 }

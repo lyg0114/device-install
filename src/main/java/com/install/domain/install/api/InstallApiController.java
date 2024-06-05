@@ -107,6 +107,20 @@ public class InstallApiController {
   }
 
   /**
+   * - 단말기 교체
+   */
+  @PatchMapping("/change/{modemId}/{consumerId}")
+  public ResponseEntity<Void> changeModem(
+      @PathVariable Long modemId,
+      @PathVariable Long consumerId,
+      @RequestBody @Valid InstallDto.InstallRequest requestDto
+  ) {
+
+    installService.changeModem(modemId, consumerId, requestDto);
+    return ResponseEntity.ok().build();
+  }
+
+  /**
    * - 단말기 유지보수
    */
   @PatchMapping("/maintenance/{modemId}")
@@ -123,10 +137,12 @@ public class InstallApiController {
    * - 단말기 철거
    */
   @PatchMapping("/demolish/{modemId}")
-  public ResponseEntity<Void> demolishModem(@PathVariable Long modemId) {
+  public ResponseEntity<Void> demolishModem(
+      @PathVariable Long modemId,
+      @RequestBody @Valid InstallDto.InstallRequest requestDto
+  ) {
 
-    // business logic
-
+    installService.demolishModem(modemId, requestDto);
     return ResponseEntity.ok().build();
   }
 }

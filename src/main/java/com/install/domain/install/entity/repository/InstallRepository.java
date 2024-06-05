@@ -12,6 +12,7 @@ import org.springframework.data.jpa.repository.Query;
  */
 public interface InstallRepository extends JpaRepository<InstallInfo, Long> {
 
+  // TODO : workTypeCd.code -> Enum 값으로 개선필요
   @Query(
       "select case when count(i1) > 0 then true "
           + "else false "

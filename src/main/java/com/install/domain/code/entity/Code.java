@@ -6,7 +6,6 @@ import static lombok.AccessLevel.PROTECTED;
 import com.install.domain.common.BaseTimeEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -24,6 +23,7 @@ import lombok.Setter;
  * @package : com.install.domain.code.entity
  * @since : 05.06.24
  */
+// TODO : 코드 종류 정리 필요
 @Getter
 @Setter
 @Builder
