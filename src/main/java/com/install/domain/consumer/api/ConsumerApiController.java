@@ -26,10 +26,10 @@ import org.springframework.web.multipart.MultipartFile;
  * @package : com.install.domain.consumer.api
  * @since : 03.06.24
  *
- *  - 수용가 조회
- *  - 수용가 등록
- *  - 수용가 수정
- *  - 수용가 삭제
+ *  - 고객정보 조회
+ *  - 고객정보 등록
+ *  - 고객정보 수정
+ *  - 고객정보 삭제
  */
 @Slf4j
 @RequiredArgsConstructor
@@ -40,7 +40,7 @@ public class ConsumerApiController {
   private final ConsumerService consumerService;
 
   /**
-   * - 수용가 조회
+   * - 고객정보 조회
    */
   @GetMapping
   public ResponseEntity<Page<ConsumerDto.ConsumerResponse>> searchConsumers(
@@ -52,7 +52,7 @@ public class ConsumerApiController {
   }
 
   /**
-   * - 수용가 등록
+   * - 고객정보 등록
    */
   @PostMapping
   public ResponseEntity<Void> addConsumer(
@@ -63,7 +63,7 @@ public class ConsumerApiController {
   }
 
   /**
-   * - 수용가 수정
+   * - 고객정보 수정
    */
   @PatchMapping("/{consumerId}")
   public ResponseEntity<Void> updateConsumer(
@@ -76,7 +76,7 @@ public class ConsumerApiController {
   }
 
   /**
-   * - 수용가 삭제
+   * - 고객정보 삭제
    */
   @DeleteMapping("/{modemId}")
   public ResponseEntity<Void> deleteItem(@PathVariable Long modemId) {
@@ -87,7 +87,7 @@ public class ConsumerApiController {
   }
 
   /**
-   * - 수용가 일괄 엑셀 등록
+   * - 고객정보 일괄 엑셀 등록
    */
   @PostMapping("/excel")
   public ResponseEntity<Void> addConsumersByExcel(@RequestParam("file") MultipartFile file) {
