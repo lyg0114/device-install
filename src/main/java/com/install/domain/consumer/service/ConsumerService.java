@@ -51,7 +51,7 @@ public class ConsumerService {
         .updateConsumer(requestDto);
   }
 
-  public void delete(Long consumerId) {
+  public void deleteConsumer(Long consumerId) {
     Consumer consumer = consumerRepository.findById(consumerId)
         .orElseThrow(() -> new CustomException(CONSUMER_NOT_EXIST));
     consumerRepository.delete(consumer);

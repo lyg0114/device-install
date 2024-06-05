@@ -81,7 +81,7 @@ public class ConsumerApiController {
   @DeleteMapping("/{consumerId}")
   public ResponseEntity<Void> deleteItem(@PathVariable Long consumerId) {
 
-    consumerService.delete(consumerId);
+    consumerService.deleteConsumer(consumerId);
     return ResponseEntity.ok().build();
   }
 

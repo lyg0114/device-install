@@ -9,6 +9,7 @@ import com.install.domain.consumer.entity.Address;
 import com.install.domain.consumer.entity.Consumer;
 import com.install.domain.consumer.entity.Location;
 import com.install.domain.consumer.entity.repository.ConsumerRepository;
+import jakarta.persistence.EntityManager;
 import java.util.NoSuchElementException;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,19 +31,21 @@ class ConsumerServiceTest {
   @Autowired
   private ConsumerRepository consumerRepository;
 
+  @Autowired
+  EntityManager em;
+
   private ConsumerRequest createConsumerRequest(Long id) {
-    ConsumerDto.ConsumerRequest request = ConsumerRequest.builder()
+    return ConsumerRequest.builder()
         .consumerNo("consumerNo-" + id)
         .consumerName("consumerName" + id)
         .meterNo("meterNo-" + id)
         .city("city-" + id)
         .build();
-
-    return request;
   }
 
   private Consumer createConsumer(Long id) {
     return Consumer.builder()
+        .id(id)
         .consumerNo("consumerNo-" + id)
         .consumerName("consumerName" + id)
         .meterNo("meterNo-" + id)
@@ -65,6 +68,8 @@ class ConsumerServiceTest {
 
     //when
     consumerService.addConsumer(consumerRequest);
+    em.flush();
+    em.clear();
 
     //then
     Consumer findConsumer = consumerRepository.findByConsumerNo("consumerNo-1").orElseThrow();
@@ -82,6 +87,8 @@ class ConsumerServiceTest {
 
     //when
     consumerService.updateConsumer(savedConsumer.getId(), consumerRequest);
+    em.flush();
+    em.clear();
 
     //then
     Consumer findConsumer = consumerRepository.findByConsumerNo("consumerNo-2")
@@ -99,7 +106,9 @@ class ConsumerServiceTest {
     Long targetConsumerId = savedConsumer.getId();
 
     //when
-    consumerService.delete(targetConsumerId);
+    consumerService.deleteConsumer(targetConsumerId);
+    em.flush();
+    em.clear();
 
     //then
     assertThrows(NoSuchElementException.class, () -> {

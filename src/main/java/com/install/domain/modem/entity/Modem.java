@@ -2,9 +2,11 @@ package com.install.domain.modem.entity;
 
 import static jakarta.persistence.GenerationType.IDENTITY;
 import static lombok.AccessLevel.PROTECTED;
+import static org.springframework.util.StringUtils.hasText;
 
 import com.install.domain.code.entity.Code;
 import com.install.domain.common.BaseTimeEntity;
+import com.install.domain.modem.dto.ModemDto.ModemRequest;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -59,4 +61,29 @@ public class Modem extends BaseTimeEntity {
   @JoinColumn(name = "modem_status_cd")
   private Code modemStatusCd;
 
+  public void updateModem(ModemRequest requestDto) {
+    if (hasText(requestDto.getModemNo())) {
+      this.modemNo = requestDto.getModemNo();
+    }
+
+    if (hasText(requestDto.getImei())) {
+      this.imei = requestDto.getImei();
+    }
+
+    if (hasText(requestDto.getBuildCompany())) {
+      this.buildCompany = requestDto.getBuildCompany();
+    }
+
+    if (hasText(requestDto.getModemTypeCd())) {
+      this.modemTypeCd = createCode(requestDto.getModemTypeCd());
+    }
+
+    if (hasText(requestDto.getModemStatusCd())) {
+      this.modemStatusCd = createCode(requestDto.getModemStatusCd());
+    }
+  }
+
+  private Code createCode(String code) {
+    return Code.builder().code(code).build();
+  }
 }

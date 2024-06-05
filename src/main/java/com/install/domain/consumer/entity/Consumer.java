@@ -57,19 +57,12 @@ public class Consumer extends BaseTimeEntity {
   private Location location;
 
   public void updateConsumer(ConsumerRequest consumerDto) {
-    this.consumerNo = consumerDto.getConsumerNo();
-    this.consumerName = consumerDto.getConsumerName();
-    this.meterNo = consumerDto.getMeterNo();
-    this.address.setCity(consumerDto.getCity());
-
-    if (hasText(consumerDto.getStreet())) {
-      this.address.setStreet(consumerDto.getStreet());
-    }
-
-    if (hasText(consumerDto.getZipcode())) {
-      this.address.setZipcode(consumerDto.getZipcode());
-    }
-
+    if (hasText(consumerDto.getConsumerNo())) { this.consumerNo = consumerDto.getConsumerNo(); }
+    if (hasText(consumerDto.getConsumerName())) { this.consumerName = consumerDto.getConsumerName(); }
+    if (hasText(consumerDto.getMeterNo())) { this.meterNo = consumerDto.getMeterNo(); }
+    if (hasText(consumerDto.getCity())) { this.address.setCity(consumerDto.getCity()); }
+    if (hasText(consumerDto.getStreet())) { this.address.setStreet(consumerDto.getStreet()); }
+    if (hasText(consumerDto.getZipcode())) { this.address.setZipcode(consumerDto.getZipcode()); }
     if (hasText(consumerDto.getGeoX()) && hasText(consumerDto.getGeoY())) {
       this.location.setGeoX(consumerDto.getGeoX());
       this.location.setGeoY(consumerDto.getGeoY());

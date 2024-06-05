@@ -1,6 +1,14 @@
 package com.install.domain.modem.service;
 
+import static com.install.global.exception.CustomErrorCode.CONSUMER_NOT_EXIST;
+import static com.install.global.exception.CustomErrorCode.CONSUMER_NO_ALREADY_EXIST;
+import static com.install.global.exception.CustomErrorCode.IMEI_ALREADY_EXIST;
+import static com.install.global.exception.CustomErrorCode.MODEM_NOT_EXIST;
+
+import com.install.domain.modem.dto.ModemDto.ModemRequest;
+import com.install.domain.modem.entity.Modem;
 import com.install.domain.modem.entity.repository.ModemRepository;
+import com.install.global.exception.CustomException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -19,4 +27,33 @@ public class ModemService {
 
   private final ModemRepository modemRepository;
 
+  public void addModem(ModemRequest requestDto) {
+    validateDuplicateModemNo(requestDto.getModemNo());
+    validateDuplicateImei(requestDto.getImei());
+    modemRepository.save(requestDto.toEntity());
+  }
+
+  private void validateDuplicateModemNo(String modemNo) {
+    if (modemRepository.existsByModemNo(modemNo)) {
+      throw new CustomException(CONSUMER_NO_ALREADY_EXIST);
+    }
+  }
+
+  private void validateDuplicateImei(String imei) {
+    if (modemRepository.existsByImei(imei)) {
+      throw new CustomException(IMEI_ALREADY_EXIST);
+    }
+  }
+
+  public void updateModem(Long modemId, ModemRequest requestDto) {
+    modemRepository.findById(modemId)
+        .orElseThrow(() -> new CustomException(MODEM_NOT_EXIST))
+        .updateModem(requestDto);
+  }
+
+  public void deleteModem(Long modemId) {
+    Modem modem = modemRepository.findById(modemId)
+        .orElseThrow(() -> new CustomException(MODEM_NOT_EXIST));
+    modemRepository.delete(modem);
+  }
 }
