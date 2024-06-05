@@ -2,8 +2,10 @@ package com.install.domain.consumer.entity;
 
 import static jakarta.persistence.GenerationType.IDENTITY;
 import static lombok.AccessLevel.PROTECTED;
+import static org.springframework.util.StringUtils.hasText;
 
 import com.install.domain.common.BaseTimeEntity;
+import com.install.domain.consumer.dto.ConsumerDto.ConsumerRequest;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
@@ -50,4 +52,23 @@ public class Consumer extends BaseTimeEntity {
   @Embedded
   private Location location;
 
+  public void updateConsumer(ConsumerRequest consumerDto) {
+    this.consumerNo = consumerDto.getConsumerNo();
+    this.consumerName = consumerDto.getConsumerName();
+    this.meterNo = consumerDto.getMeterNo();
+    this.address.setCity(consumerDto.getCity());
+
+    if (hasText(consumerDto.getStreet())) {
+      this.address.setStreet(consumerDto.getStreet());
+    }
+
+    if (hasText(consumerDto.getZipcode())) {
+      this.address.setZipcode(consumerDto.getZipcode());
+    }
+
+    if (hasText(consumerDto.getGeoX()) && hasText(consumerDto.getGeoY())) {
+      this.location.setGeoX(consumerDto.getGeoX());
+      this.location.setGeoY(consumerDto.getGeoY());
+    }
+  }
 }

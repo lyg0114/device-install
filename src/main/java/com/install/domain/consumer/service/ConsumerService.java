@@ -1,9 +1,11 @@
 package com.install.domain.consumer.service;
 
+import static com.install.global.exception.CustomErrorCode.CONSUMER_NOT_EXIST;
 import static com.install.global.exception.CustomErrorCode.CONSUMER_NO_ALREADY_EXIST;
 import static com.install.global.exception.CustomErrorCode.METER_NO_ALREADY_EXIST;
 
 import com.install.domain.consumer.dto.ConsumerDto;
+import com.install.domain.consumer.dto.ConsumerDto.ConsumerRequest;
 import com.install.domain.consumer.entity.repository.ConsumerRepository;
 import com.install.global.exception.CustomException;
 import lombok.RequiredArgsConstructor;
@@ -42,4 +44,9 @@ public class ConsumerService {
     }
   }
 
+  public void updateConsumer(Long consumerId, ConsumerRequest requestDto) {
+    consumerRepository.findById(consumerId)
+        .orElseThrow(() -> new CustomException(CONSUMER_NOT_EXIST))
+        .updateConsumer(requestDto);
+  }
 }

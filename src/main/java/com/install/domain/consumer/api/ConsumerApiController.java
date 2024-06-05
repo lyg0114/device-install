@@ -63,28 +63,16 @@ public class ConsumerApiController {
   }
 
   /**
-   * - 수용가 일괄 엑셀 등록
-   */
-  @PostMapping("/excel")
-  public ResponseEntity<Void> addConsumersByExcel(@RequestParam("file") MultipartFile file) {
-
-    // business logic
-
-    return ResponseEntity.ok().build();
-  }
-
-  /**
    * - 수용가 수정
    */
   @PatchMapping("/{consumerId}")
-  public ResponseEntity<ConsumerDto.ConsumerResponse> updateConsumer(
+  public ResponseEntity<Void> updateConsumer(
       @PathVariable Long consumerId,
       @RequestBody @Valid ConsumerDto.ConsumerRequest requestDto
   ) {
 
-    // business logic
-
-    return ResponseEntity.status(HttpStatus.OK).body(null);
+    consumerService.updateConsumer(consumerId, requestDto);
+    return ResponseEntity.ok().build();
   }
 
   /**
@@ -97,4 +85,16 @@ public class ConsumerApiController {
 
     return ResponseEntity.ok().build();
   }
+
+  /**
+   * - 수용가 일괄 엑셀 등록
+   */
+  @PostMapping("/excel")
+  public ResponseEntity<Void> addConsumersByExcel(@RequestParam("file") MultipartFile file) {
+
+    // business logic
+
+    return ResponseEntity.ok().build();
+  }
+
 }

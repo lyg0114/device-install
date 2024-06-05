@@ -35,6 +35,7 @@ public enum CustomErrorCode {
 
   // Consumer
   CONSUMER_NO_ALREADY_EXIST(BAD_REQUEST, "이미 존재하는 고객번호 입니다."),
+  CONSUMER_NOT_EXIST(BAD_REQUEST, "존재하지 않는 고객정보 입니다."),
   METER_NO_ALREADY_EXIST(BAD_REQUEST, "이미 존재하는 계량기 입니다.");
 
   private final HttpStatus httpStatus;
