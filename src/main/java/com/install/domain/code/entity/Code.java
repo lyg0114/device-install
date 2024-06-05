@@ -1,5 +1,6 @@
 package com.install.domain.code.entity;
 
+import static jakarta.persistence.FetchType.LAZY;
 import static lombok.AccessLevel.PROTECTED;
 
 import com.install.domain.common.BaseTimeEntity;
@@ -45,7 +46,7 @@ public class Code extends BaseTimeEntity {
   private Integer level;
 
   // 셀프로 양방향 연관관계를 맺어서 계층구조를 구현
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne(fetch = LAZY)
   @JoinColumn(name = "parent_id")
   private Code parent;
 
