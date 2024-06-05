@@ -12,6 +12,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -28,7 +29,10 @@ import lombok.ToString;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = PROTECTED)
-@Table(name = "consumer")
+@Table(name = "consumer",
+    uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"consumer_no"})
+    })
 @Entity
 public class Consumer extends BaseTimeEntity {
 
