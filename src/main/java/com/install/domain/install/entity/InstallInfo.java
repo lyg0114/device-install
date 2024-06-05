@@ -28,7 +28,6 @@ import lombok.ToString;
  * @package : com.install.domain.install.entity
  * @since : 05.06.24
  */
-@ToString
 @Getter
 @Builder
 @AllArgsConstructor

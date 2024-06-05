@@ -1,6 +1,7 @@
 package com.install.domain.install.api;
 
 import com.install.domain.install.dto.InstallDto;
+import com.install.domain.install.service.InstallService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,6 +27,7 @@ import org.springframework.web.bind.annotation.RestController;
  *    - 단말기 기준으로 설치내역 조회
  *    - 고객정보 기준으로 설치내역 조회
  *  - 단말기 설치
+ *  - 단말기 유지보수
  *  - 단말기 철거
  *  - 설치 현황 카운트
  */
@@ -34,6 +36,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/install/v1")
 @RestController
 public class InstallApiController {
+
+  private final InstallService installService;
 
   /**
    *  - 기간별 단말기 설치 내역 조회
@@ -91,21 +95,22 @@ public class InstallApiController {
   /**
    * - 단말기 설치
    */
-  @PostMapping
+  @PostMapping("/{modemId}/{consumerId}")
   public ResponseEntity<Void> installModem(
+      @PathVariable Long modemId,
+      @PathVariable Long consumerId,
       @RequestBody @Valid InstallDto.InstallRequest requestDto
   ) {
 
-    // business logic
-
+    installService.installModem(modemId, consumerId, requestDto);
     return ResponseEntity.ok().build();
   }
 
   /**
    * - 단말기 유지보수
    */
-  @PostMapping("/{modemId}")
-  public ResponseEntity<Void> updateModem(
+  @PatchMapping("/maintenance/{modemId}")
+  public ResponseEntity<Void> maintenanceModem(
       @PathVariable Long modemId,
       @RequestBody @Valid InstallDto.InstallRequest requestDto
   ) {
@@ -118,7 +123,7 @@ public class InstallApiController {
   /**
    * - 단말기 철거
    */
-  @PatchMapping("/{modemId}")
+  @PatchMapping("/demolish/{modemId}")
   public ResponseEntity<Void> demolishModem(@PathVariable Long modemId) {
 
     // business logic

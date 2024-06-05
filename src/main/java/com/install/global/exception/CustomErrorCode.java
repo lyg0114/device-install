@@ -34,14 +34,17 @@ public enum CustomErrorCode {
   USER_NOT_HAVE_ROLE(NOT_FOUND, "권한을 찾을 수 없습니다."),
 
   // Consumer
-  CONSUMER_NO_ALREADY_EXIST(BAD_REQUEST, "이미 존재하는 고객번호 입니다."),
   CONSUMER_NOT_EXIST(BAD_REQUEST, "고객정보를 찾을 수 없습니다."),
+  CONSUMER_NO_ALREADY_EXIST(BAD_REQUEST, "이미 존재하는 고객번호 입니다."),
   METER_NO_ALREADY_EXIST(BAD_REQUEST, "이미 존재하는 계량기 입니다."),
 
   // Modem
   MODEM_NOT_EXIST(BAD_REQUEST, "단말기 정보를 찾을 수 없습니다."),
   MODEM_NO_ALREADY_EXIST(BAD_REQUEST, "이미 존재하는 단말기번호 입니다."),
-  IMEI_ALREADY_EXIST(BAD_REQUEST, "이미 존재하는 IMEI 입니다.");
+  IMEI_ALREADY_EXIST(BAD_REQUEST, "이미 존재하는 IMEI 입니다."),
+
+  // Install
+  ALREADY_INSTALLED_MODEM(BAD_REQUEST, "이미 설치된 단말기 입니다.");
 
   private final HttpStatus httpStatus;
   private final String errorMessage;

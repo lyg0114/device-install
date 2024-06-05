@@ -41,6 +41,10 @@ class ModemServiceTest {
 
   @BeforeEach
   public void before() {
+    createCodes();
+  }
+
+  private void createCodes() {
     codeRepository.save(Code.builder().code("cd01").name("type-1").level(1).build());
     codeRepository.save(Code.builder().code("cd02").name("status-1").level(1).build());
   }

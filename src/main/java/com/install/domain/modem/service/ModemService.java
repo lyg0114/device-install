@@ -1,9 +1,9 @@
 package com.install.domain.modem.service;
 
-import static com.install.global.exception.CustomErrorCode.CONSUMER_NOT_EXIST;
 import static com.install.global.exception.CustomErrorCode.CONSUMER_NO_ALREADY_EXIST;
 import static com.install.global.exception.CustomErrorCode.IMEI_ALREADY_EXIST;
 import static com.install.global.exception.CustomErrorCode.MODEM_NOT_EXIST;
+import static com.install.global.exception.CustomErrorCode.MODEM_NO_ALREADY_EXIST;
 
 import com.install.domain.modem.dto.ModemDto.ModemRequest;
 import com.install.domain.modem.entity.Modem;
@@ -35,7 +35,7 @@ public class ModemService {
 
   private void validateDuplicateModemNo(String modemNo) {
     if (modemRepository.existsByModemNo(modemNo)) {
-      throw new CustomException(CONSUMER_NO_ALREADY_EXIST);
+      throw new CustomException(MODEM_NO_ALREADY_EXIST);
     }
   }
 

@@ -2,6 +2,7 @@ package com.install.domain.install.dto;
 
 import static lombok.AccessLevel.PRIVATE;
 
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -19,6 +20,7 @@ public class InstallDto {
   @Builder
   @AllArgsConstructor(access = PRIVATE)
   public static class InstallSearchCondition {
+
   }
 
   @ToString
@@ -26,6 +28,11 @@ public class InstallDto {
   @Builder
   @AllArgsConstructor(access = PRIVATE)
   public static class InstallRequest {
+
+    @NotBlank(message = "작업 유형을 입력해 주세요.")
+    private String workTypeCd;
+
+    private String comment;
   }
 
   @ToString
@@ -33,6 +40,7 @@ public class InstallDto {
   @Builder
   @AllArgsConstructor
   public static class InstallResponse {
+
   }
 
   @ToString
@@ -40,6 +48,7 @@ public class InstallDto {
   @Builder
   @AllArgsConstructor
   public static class ModemHistory {
+
   }
 
   @ToString
@@ -47,6 +56,7 @@ public class InstallDto {
   @Builder
   @AllArgsConstructor
   public static class ConsumerHistory {
+
   }
 
   @ToString
@@ -54,5 +64,6 @@ public class InstallDto {
   @Builder
   @AllArgsConstructor
   public static class InstallCount {
+
   }
 }
