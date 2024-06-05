@@ -115,8 +115,7 @@ public class InstallApiController {
       @RequestBody @Valid InstallDto.InstallRequest requestDto
   ) {
 
-    // business logic
-
+    installService.maintenanceModem(modemId, requestDto);
     return ResponseEntity.ok().build();
   }
 

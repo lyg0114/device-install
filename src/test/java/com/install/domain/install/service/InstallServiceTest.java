@@ -117,6 +117,41 @@ class InstallServiceTest {
   }
 
   @Test
+  void 단말기_유지보수를_성공한다() {
+    //given
+    Modem modem = modemRepository.save(createModem("modem1"));
+    Consumer consumer = consumerRepository.save(createConsumer("test"));
+    installService.installModem(modem.getId(), consumer.getId(),
+        InstallRequest.builder()
+            .workTypeCd("cd0301")
+            .comment("신규설치 완료")
+            .build());
+
+    em.flush();
+    em.clear();
+
+    //when
+    InstallDto.InstallRequest requestDto = InstallRequest.builder()
+        .workTypeCd("cd0302")
+        .comment("유지보수 성공")
+        .build();
+
+    installService.maintenanceModem(modem.getId(), requestDto);
+
+    em.flush();
+    em.clear();
+
+    //then
+    InstallInfo installInfo = installRepository.currentInstalledInfo(modem.getId())
+        .orElseThrow();
+
+    assertThat(installInfo.getConsumer().getConsumerNo()).isEqualTo(consumer.getConsumerNo());
+    assertThat(installInfo.getModem().getModemNo()).isEqualTo(modem.getModemNo());
+    assertThat(installInfo.getComment()).isEqualTo(requestDto.getComment());
+    assertThat(installInfo.getWorkTypeCd().getCode()).isEqualTo(requestDto.getWorkTypeCd());
+  }
+
+  @Test
   void 가장_최근_작업된_단말기상태를_조회한다() {
     //given
     Modem modem1 = modemRepository.save(createModem("modem1"));

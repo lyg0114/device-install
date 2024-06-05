@@ -44,7 +44,9 @@ public enum CustomErrorCode {
   IMEI_ALREADY_EXIST(BAD_REQUEST, "이미 존재하는 IMEI 입니다."),
 
   // Install
-  ALREADY_INSTALLED_MODEM(BAD_REQUEST, "이미 설치된 단말기 입니다.");
+  NOT_FOUND_INSTALL_INFO(BAD_REQUEST, "설치정보를 찾을 수 없습니다."),
+  ALREADY_INSTALLED_MODEM(BAD_REQUEST, "이미 설치된 단말기 입니다."),
+  NOT_INSTALLED_MODEM(BAD_REQUEST, "설치되지 않은 단말기 입니다.");
 
   private final HttpStatus httpStatus;
   private final String errorMessage;
