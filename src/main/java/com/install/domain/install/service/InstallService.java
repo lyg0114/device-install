@@ -5,6 +5,7 @@ import static com.install.global.exception.CustomErrorCode.CONSUMER_NOT_EXIST;
 import static com.install.global.exception.CustomErrorCode.MODEM_NOT_EXIST;
 import static com.install.global.exception.CustomErrorCode.NOT_FOUND_INSTALL_INFO;
 import static com.install.global.exception.CustomErrorCode.NOT_INSTALLED_MODEM;
+import static com.install.global.exception.CustomErrorCode.USER_NOT_FOUND;
 
 import com.install.domain.code.entity.Code;
 import com.install.domain.consumer.entity.Consumer;
@@ -13,9 +14,12 @@ import com.install.domain.install.dto.InstallDto;
 import com.install.domain.install.dto.InstallDto.InstallRequest;
 import com.install.domain.install.entity.InstallInfo;
 import com.install.domain.install.entity.repository.InstallRepository;
+import com.install.domain.member.entity.Member;
+import com.install.domain.member.entity.repository.MemberRepository;
 import com.install.domain.modem.entity.Modem;
 import com.install.domain.modem.entity.repository.ModemRepository;
 import com.install.global.exception.CustomException;
+import com.install.global.security.service.JwtService;
 import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,9 +37,12 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class InstallService {
 
+  private final MemberRepository memberRepository;
+
   private final InstallRepository installRepository;
   private final ModemRepository modemRepository;
   private final ConsumerRepository consumerRepository;
+  private final JwtService jwtService;
 
   /**
    * @param modemId
@@ -46,11 +53,16 @@ public class InstallService {
     validateIsExistModem(modemId);
     validateIsExistConsumer(consumerId);
     validateShouldNotInstalledModem(modemId);
+
+    Member worker = memberRepository.findById(jwtService.getId())
+        .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
+
     installRepository.save(
         InstallInfo.builder()
             .modem(Modem.builder().id(modemId).build())
             .consumer(Consumer.builder().id(consumerId).build())
             .comment(requestDto.getComment())
+            .worker(worker)
             .workTypeCd(Code.builder()
                 .code(requestDto.getWorkTypeCd())  // TODO : 추후 Enum으로 변경
                 .build())
@@ -71,11 +83,17 @@ public class InstallService {
         .getConsumer()
         .getId();
 
+    Member worker = memberRepository.findById(jwtService.getId())
+        .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
+
     installRepository.save(
         InstallInfo.builder()
             .modem(Modem.builder().id(modemId).build())
-            .consumer(Consumer.builder().id(installedConsumerSid).build())
             .comment(requestDto.getComment())
+            .worker(worker)
+            .consumer(Consumer.builder()
+                .id(installedConsumerSid)
+                .build())
             .workTypeCd(Code.builder()
                 .code(requestDto.getWorkTypeCd()) // TODO : 추후 Enum으로 변경
                 .build())

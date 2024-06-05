@@ -1,6 +1,8 @@
 package com.install.domain.install.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
 import com.install.domain.code.entity.Code;
 import com.install.domain.code.entity.repository.CodeRepository;
@@ -12,14 +14,21 @@ import com.install.domain.install.dto.InstallDto;
 import com.install.domain.install.dto.InstallDto.InstallRequest;
 import com.install.domain.install.entity.InstallInfo;
 import com.install.domain.install.entity.repository.InstallRepository;
+import com.install.domain.member.entity.Member;
+import com.install.domain.member.entity.repository.MemberRepository;
 import com.install.domain.modem.entity.Modem;
 import com.install.domain.modem.entity.repository.ModemRepository;
+import com.install.global.security.service.JwtService;
 import jakarta.persistence.EntityManager;
 import java.time.LocalDateTime;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -46,8 +55,13 @@ class InstallServiceTest {
   @Autowired
   private CodeRepository codeRepository;
 
+  @MockBean
+  private JwtService jwtService;
+
   @Autowired
   EntityManager em;
+  @Autowired
+  private MemberRepository memberRepository;
 
   @BeforeEach
   void before() {
@@ -93,6 +107,15 @@ class InstallServiceTest {
   @Test
   void 단말기_설치를_성공한다() {
     //given
+    Member worker = Member.builder()
+        .name("작업자")
+        .nickname("에이스")
+        .email("worker@example.com")
+        .password("1234")
+        .build();
+
+    Member savedWorker = memberRepository.save(worker);
+    when(jwtService.getId()).thenReturn(savedWorker.getId());
     Modem savedModem = modemRepository.save(createModem("test"));
     Consumer savedConsumer = consumerRepository.save(createConsumer("test"));
     InstallDto.InstallRequest requestDto = InstallRequest.builder()
@@ -119,6 +142,15 @@ class InstallServiceTest {
   @Test
   void 단말기_유지보수를_성공한다() {
     //given
+    Member worker = Member.builder()
+        .name("작업자")
+        .nickname("에이스")
+        .email("worker@example.com")
+        .password("1234")
+        .build();
+
+    Member savedWorker = memberRepository.save(worker);
+    when(jwtService.getId()).thenReturn(savedWorker.getId());
     Modem modem = modemRepository.save(createModem("modem1"));
     Consumer consumer = consumerRepository.save(createConsumer("test"));
     installService.installModem(modem.getId(), consumer.getId(),
@@ -130,12 +162,12 @@ class InstallServiceTest {
     em.flush();
     em.clear();
 
-    //when
     InstallDto.InstallRequest requestDto = InstallRequest.builder()
         .workTypeCd("cd0302")
         .comment("유지보수 성공")
         .build();
 
+    //when
     installService.maintenanceModem(modem.getId(), requestDto);
 
     em.flush();
