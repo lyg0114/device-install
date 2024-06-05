@@ -78,11 +78,10 @@ public class ConsumerApiController {
   /**
    * - 고객정보 삭제
    */
-  @DeleteMapping("/{modemId}")
-  public ResponseEntity<Void> deleteItem(@PathVariable Long modemId) {
+  @DeleteMapping("/{consumerId}")
+  public ResponseEntity<Void> deleteItem(@PathVariable Long consumerId) {
 
-    // business logic
-
+    consumerService.delete(consumerId);
     return ResponseEntity.ok().build();
   }
 

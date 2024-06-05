@@ -1,6 +1,7 @@
 package com.install.domain.consumer.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.install.domain.consumer.dto.ConsumerDto;
 import com.install.domain.consumer.dto.ConsumerDto.ConsumerRequest;
@@ -8,6 +9,7 @@ import com.install.domain.consumer.entity.Address;
 import com.install.domain.consumer.entity.Consumer;
 import com.install.domain.consumer.entity.Location;
 import com.install.domain.consumer.entity.repository.ConsumerRepository;
+import java.util.NoSuchElementException;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -88,5 +90,21 @@ class ConsumerServiceTest {
     assertThat(findConsumer.getConsumerNo()).isEqualTo(consumerRequest.getConsumerNo());
     assertThat(findConsumer.getConsumerName()).isEqualTo(consumerRequest.getConsumerName());
     assertThat(findConsumer.getMeterNo()).isEqualTo(consumerRequest.getMeterNo());
+  }
+
+  @Test
+  void 고객정보_삭제에_성공한다() {
+    //given
+    Consumer savedConsumer = consumerRepository.save(createConsumer(1L));
+    Long targetConsumerId = savedConsumer.getId();
+
+    //when
+    consumerService.delete(targetConsumerId);
+
+    //then
+    assertThrows(NoSuchElementException.class, () -> {
+      consumerRepository.findById(targetConsumerId)
+          .orElseThrow();
+    });
   }
 }

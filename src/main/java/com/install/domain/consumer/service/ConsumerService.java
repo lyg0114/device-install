@@ -6,6 +6,7 @@ import static com.install.global.exception.CustomErrorCode.METER_NO_ALREADY_EXIS
 
 import com.install.domain.consumer.dto.ConsumerDto;
 import com.install.domain.consumer.dto.ConsumerDto.ConsumerRequest;
+import com.install.domain.consumer.entity.Consumer;
 import com.install.domain.consumer.entity.repository.ConsumerRepository;
 import com.install.global.exception.CustomException;
 import lombok.RequiredArgsConstructor;
@@ -48,5 +49,11 @@ public class ConsumerService {
     consumerRepository.findById(consumerId)
         .orElseThrow(() -> new CustomException(CONSUMER_NOT_EXIST))
         .updateConsumer(requestDto);
+  }
+
+  public void delete(Long consumerId) {
+    Consumer consumer = consumerRepository.findById(consumerId)
+        .orElseThrow(() -> new CustomException(CONSUMER_NOT_EXIST));
+    consumerRepository.delete(consumer);
   }
 }
