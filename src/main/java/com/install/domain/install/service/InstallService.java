@@ -70,7 +70,7 @@ public class InstallService {
             .comment(requestDto.getComment())
             .worker(worker)
             .workTypeCd(Code.builder()
-                .code(requestDto.getWorkTypeCd())  // TODO : 추후 Enum으로 변경
+                .code(requestDto.getWorkTypeCd())
                 .build())
             .workTime(LocalDateTime.now())
             .build());
@@ -115,7 +115,7 @@ public class InstallService {
                 .id(installedConsumerSid)
                 .build())
             .workTypeCd(Code.builder()
-                .code(requestDto.getWorkTypeCd()) // TODO : 추후 Enum으로 변경
+                .code(requestDto.getWorkTypeCd())
                 .build())
             .workTime(LocalDateTime.now())
             .build());
@@ -148,7 +148,7 @@ public class InstallService {
                 .id(installedConsumerSid)
                 .build())
             .workTypeCd(Code.builder()
-                .code(requestDto.getWorkTypeCd()) // TODO : 추후 Enum으로 변경
+                .code(requestDto.getWorkTypeCd())
                 .build())
             .workTime(LocalDateTime.now())
             .build());

@@ -1,9 +1,11 @@
 package com.install.domain.modem.service;
 
+import static com.install.domain.code.entity.CodeSet.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.install.domain.code.entity.Code;
+import com.install.domain.code.entity.CodeSet;
 import com.install.domain.code.entity.repository.CodeRepository;
 import com.install.domain.modem.dto.ModemDto;
 import com.install.domain.modem.dto.ModemDto.ModemRequest;
@@ -44,8 +46,16 @@ class ModemServiceTest {
   }
 
   private void createCodes() {
-    codeRepository.save(Code.builder().code("cd01").name("type-1").level(1).build());
-    codeRepository.save(Code.builder().code("cd02").name("status-1").level(1).build());
+    codeRepository.save(createCode(MODEM_TYPE));
+    codeRepository.save(createCode(MODEM_STAUTS));
+  }
+
+  private Code createCode(CodeSet codeSet) {
+    return Code.builder()
+        .code(codeSet.getCode())
+        .name(codeSet.getName())
+        .level(codeSet.getLevel())
+        .build();
   }
 
   private ModemRequest createModemRequest(Long id) {
@@ -53,8 +63,8 @@ class ModemServiceTest {
         .modemNo("modemNo-" + id)
         .imei("imei-" + id)
         .buildCompany("comapnty-" + id)
-        .modemTypeCd("cd01")
-        .modemStatusCd("cd02")
+        .modemTypeCd(MODEM_TYPE.getCode())
+        .modemStatusCd(MODEM_STAUTS.getCode())
         .build();
   }
 
@@ -64,8 +74,8 @@ class ModemServiceTest {
         .modemNo("modemNo-" + id)
         .imei("imei-" + id)
         .buildCompany("comapnty-" + id)
-        .modemTypeCd(Code.builder().code("cd01").build())
-        .modemStatusCd(Code.builder().code("cd02").build())
+        .modemTypeCd(Code.builder().code(MODEM_TYPE.getCode()).build())
+        .modemStatusCd(Code.builder().code(MODEM_STAUTS.getCode()).build())
         .build();
   }
 

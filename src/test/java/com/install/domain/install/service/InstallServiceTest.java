@@ -1,10 +1,17 @@
 package com.install.domain.install.service;
 
+import static com.install.domain.code.entity.CodeSet.MODEM_INSTALL_STATUS;
+import static com.install.domain.code.entity.CodeSet.MODEM_INSTALL_STATUS_DEMOLISH;
+import static com.install.domain.code.entity.CodeSet.MODEM_INSTALL_STATUS_INSTALLED;
+import static com.install.domain.code.entity.CodeSet.MODEM_INSTALL_STATUS_UPDATE;
+import static com.install.domain.code.entity.CodeSet.MODEM_STAUTS;
+import static com.install.domain.code.entity.CodeSet.MODEM_TYPE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 import com.install.domain.code.entity.Code;
+import com.install.domain.code.entity.CodeSet;
 import com.install.domain.code.entity.repository.CodeRepository;
 import com.install.domain.consumer.entity.Address;
 import com.install.domain.consumer.entity.Consumer;
@@ -73,12 +80,20 @@ class InstallServiceTest {
   }
 
   private void createCodes() {
-    codeRepository.save(Code.builder().code("cd01").name("type-1").level(1).build());
-    codeRepository.save(Code.builder().code("cd02").name("status-1").level(1).build());
-    codeRepository.save(Code.builder().code("cd03").name("작업종류").level(1).build());
-    codeRepository.save(Code.builder().code("cd0301").name("신규설치").level(2).build());
-    codeRepository.save(Code.builder().code("cd0302").name("유지보수").level(2).build());
-    codeRepository.save(Code.builder().code("cd0303").name("철거").level(2).build());
+    codeRepository.save(createCode(MODEM_TYPE));
+    codeRepository.save(createCode(MODEM_STAUTS));
+    codeRepository.save(createCode(MODEM_INSTALL_STATUS));
+    codeRepository.save(createCode(MODEM_INSTALL_STATUS_INSTALLED));
+    codeRepository.save(createCode(MODEM_INSTALL_STATUS_UPDATE));
+    codeRepository.save(createCode(MODEM_INSTALL_STATUS_DEMOLISH));
+  }
+
+  private Code createCode(CodeSet codeSet) {
+    return Code.builder()
+        .code(codeSet.getCode())
+        .name(codeSet.getName())
+        .level(codeSet.getLevel())
+        .build();
   }
 
   private Consumer createConsumer(String str) {
@@ -103,17 +118,17 @@ class InstallServiceTest {
         .modemNo("modemNo-" + str)
         .imei("imei-" + str)
         .buildCompany("comapnty-" + str)
-        .modemTypeCd(Code.builder().code("cd01").build())
-        .modemStatusCd(Code.builder().code("cd02").build())
+        .modemTypeCd(Code.builder().code(MODEM_TYPE.getCode()).build())
+        .modemStatusCd(Code.builder().code(MODEM_STAUTS.getCode()).build())
         .build();
   }
 
-  private InstallInfo createInstallInfo(Modem modem, Consumer consumer, String workTypeCode,
+  private InstallInfo createInstallInfo(Modem modem, Consumer consumer, CodeSet workTypeCode,
       String comment, LocalDateTime workTime) {
     return InstallInfo.builder()
         .modem(Modem.builder().id(modem.getId()).build())
         .consumer(Consumer.builder().id(consumer.getId()).build())
-        .workTypeCd(Code.builder().code(workTypeCode).build())
+        .workTypeCd(Code.builder().code(workTypeCode.getCode()).build())
         .comment(comment)
         .workTime(workTime)
         .build();
@@ -134,7 +149,7 @@ class InstallServiceTest {
     Modem savedModem = modemRepository.save(createModem("test"));
     Consumer savedConsumer = consumerRepository.save(createConsumer("test"));
     InstallDto.InstallRequest requestDto = InstallRequest.builder()
-        .workTypeCd("cd0301")
+        .workTypeCd(MODEM_INSTALL_STATUS_INSTALLED.getCode())
         .comment("install success")
         .build();
 
@@ -170,7 +185,7 @@ class InstallServiceTest {
     Consumer consumer = consumerRepository.save(createConsumer("test"));
     installService.installModem(modem.getId(), consumer.getId(),
         InstallRequest.builder()
-            .workTypeCd("cd0301")
+            .workTypeCd(MODEM_INSTALL_STATUS_INSTALLED.getCode())
             .comment("신규설치 완료")
             .build());
 
@@ -178,7 +193,7 @@ class InstallServiceTest {
     em.clear();
 
     InstallDto.InstallRequest requestDto = InstallRequest.builder()
-        .workTypeCd("cd0302")
+        .workTypeCd(MODEM_INSTALL_STATUS_UPDATE.getCode())
         .comment("유지보수 성공")
         .build();
 
@@ -214,7 +229,7 @@ class InstallServiceTest {
     Consumer consumer = consumerRepository.save(createConsumer("test"));
     installService.installModem(modem.getId(), consumer.getId(),
         InstallRequest.builder()
-            .workTypeCd("cd0301")
+            .workTypeCd(MODEM_INSTALL_STATUS_INSTALLED.getCode())
             .comment("신규설치 완료")
             .build());
 
@@ -222,7 +237,7 @@ class InstallServiceTest {
     em.clear();
 
     InstallDto.InstallRequest requestDto = InstallRequest.builder()
-        .workTypeCd("cd0303")
+        .workTypeCd(MODEM_INSTALL_STATUS_DEMOLISH.getCode())
         .comment("단말기 철거 성공")
         .build();
 
@@ -253,11 +268,11 @@ class InstallServiceTest {
     em.clear();
 
     //when
-    installRepository.save(createInstallInfo(modem, consumer1, "cd0301", "신규설치 했음", LocalDateTime.now().minusDays(5L)));
-    installRepository.save(createInstallInfo(modem, consumer1, "cd0302", "유지보수 했음", LocalDateTime.now().minusDays(4L)));
-    installRepository.save(createInstallInfo(modem, consumer1, "cd0303", "철거 했음", LocalDateTime.now().minusDays(3L)));
-    installRepository.save(createInstallInfo(modem, consumer2, "cd0301", "다른 수용가에 신규설치", LocalDateTime.now().minusDays(2L)));
-    installRepository.save(createInstallInfo(modem, consumer2, "cd0303", "철거", LocalDateTime.now().minusDays(1)));
+    installRepository.save(createInstallInfo(modem, consumer1, MODEM_INSTALL_STATUS_INSTALLED, "신규설치 했음", LocalDateTime.now().minusDays(5L)));
+    installRepository.save(createInstallInfo(modem, consumer1, MODEM_INSTALL_STATUS_UPDATE, "유지보수 했음", LocalDateTime.now().minusDays(4L)));
+    installRepository.save(createInstallInfo(modem, consumer1, MODEM_INSTALL_STATUS_DEMOLISH, "철거 했음", LocalDateTime.now().minusDays(3L)));
+    installRepository.save(createInstallInfo(modem, consumer2, MODEM_INSTALL_STATUS_INSTALLED, "다른 수용가에 신규설치", LocalDateTime.now().minusDays(2L)));
+    installRepository.save(createInstallInfo(modem, consumer2, MODEM_INSTALL_STATUS_DEMOLISH, "철거", LocalDateTime.now().minusDays(1)));
 
     em.flush();
     em.clear();
@@ -287,13 +302,13 @@ class InstallServiceTest {
     //when
 
     // modem1 신규설치
-    installRepository.save(createInstallInfo(modem1, consumer, "cd0301", "신규설치 했음", LocalDateTime.now().minusDays(3L)));
+    installRepository.save(createInstallInfo(modem1, consumer, MODEM_INSTALL_STATUS_INSTALLED, "신규설치 했음", LocalDateTime.now().minusDays(3L)));
     // modem1 유지보수
-    installRepository.save(createInstallInfo(modem1, consumer, "cd0302", "유지보수 했음", LocalDateTime.now().minusDays(2L)));
+    installRepository.save(createInstallInfo(modem1, consumer, MODEM_INSTALL_STATUS_UPDATE, "유지보수 했음", LocalDateTime.now().minusDays(2L)));
     // modem1 철거
-    installRepository.save(createInstallInfo(modem1, consumer, "cd0303", "철거 했음", LocalDateTime.now().minusDays(1L)));
+    installRepository.save(createInstallInfo(modem1, consumer, MODEM_INSTALL_STATUS_DEMOLISH, "철거 했음", LocalDateTime.now().minusDays(1L)));
     // modem2 신규설치
-    installRepository.save(createInstallInfo(modem2, consumer, "cd0301", "다른 단말기로 신규 설치", LocalDateTime.now()));
+    installRepository.save(createInstallInfo(modem2, consumer, MODEM_INSTALL_STATUS_INSTALLED, "다른 단말기로 신규 설치", LocalDateTime.now()));
 
     em.flush();
     em.clear();

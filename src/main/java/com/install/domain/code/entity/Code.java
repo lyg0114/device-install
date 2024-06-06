@@ -23,7 +23,6 @@ import lombok.Setter;
  * @package : com.install.domain.code.entity
  * @since : 05.06.24
  */
-// TODO : 코드 종류 정리 필요
 @Getter
 @Setter
 @Builder
