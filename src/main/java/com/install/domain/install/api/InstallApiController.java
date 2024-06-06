@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @since : 03.06.24
  *
  *  - 기간별 단말기 설치 내역 조회
+ *  - 단말기 상태 판별 (외부 api 연동)
  *  - 설치내역 조회
  *    - 단말기 기준으로 설치내역 조회
  *    - 고객정보 기준으로 설치내역 조회
@@ -86,6 +87,17 @@ public class InstallApiController {
   @GetMapping("/count")
   public ResponseEntity<Page<InstallDto.InstallCount>> searchInstallCount() {
 
+    // business logic
+
+    return ResponseEntity
+        .status(HttpStatus.OK).body(null);
+  }
+
+  /**
+   * - 고객정보 기준으로 설치내역 조회
+   */
+  @GetMapping("/status/{modemNo}")
+  public ResponseEntity<InstallDto.InstallResponse> searchByConsumer(@PathVariable Integer modemNo) {
     // business logic
 
     return ResponseEntity
