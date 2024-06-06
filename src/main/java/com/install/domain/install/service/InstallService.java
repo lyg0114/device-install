@@ -1,5 +1,6 @@
 package com.install.domain.install.service;
 
+import static com.install.domain.code.entity.CodeSet.MODEM_INSTALL_STATUS_DEMOLISH;
 import static com.install.global.exception.CustomErrorCode.ALREADY_INSTALLED_MODEM;
 import static com.install.global.exception.CustomErrorCode.CONSUMER_NOT_EXIST;
 import static com.install.global.exception.CustomErrorCode.MODEM_NOT_EXIST;
@@ -11,9 +12,10 @@ import com.install.domain.code.entity.Code;
 import com.install.domain.consumer.entity.Consumer;
 import com.install.domain.consumer.entity.repository.ConsumerRepository;
 import com.install.domain.install.dto.InstallDto;
-import com.install.domain.install.dto.InstallDto.InstallHistoryByModem.historyInfo;
+import com.install.domain.install.dto.InstallDto.InstallHistoryByConsumer;
 import com.install.domain.install.dto.InstallDto.InstallRequest;
 import com.install.domain.install.dto.InstallDto.InstallHistoryByModem;
+import com.install.domain.install.dto.InstallDto.historyInfo;
 import com.install.domain.install.entity.InstallInfo;
 import com.install.domain.install.entity.repository.InstallRepository;
 import com.install.domain.member.entity.Member;
@@ -23,6 +25,8 @@ import com.install.domain.modem.entity.repository.ModemRepository;
 import com.install.global.exception.CustomException;
 import com.install.global.security.service.JwtService;
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.function.Function;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -157,18 +161,48 @@ public class InstallService {
   @Transactional(readOnly = true)
   public InstallHistoryByModem searchHistoryByModem(Long modemId, Pageable pageable) {
     Page<historyInfo> historyInfos = installRepository.searchInstallInfoPageByModem(modemId, pageable)
-        .map(installInfo -> historyInfo.builder()
-            .workTime(installInfo.getWorkTime())
-            .consumerNo(installInfo.getConsumer().getConsumerNo())
-            .consumerName(installInfo.getConsumer().getConsumerName())
-            .meterNo(installInfo.getConsumer().getMeterNo())
-            .city(installInfo.getConsumer().getAddress().getCity())
-            .build());
+        .map(getInstallInfohistoryInfoFunction());
 
     return InstallHistoryByModem.builder()
         .historys(historyInfos)
-        .currentState(installRepository.isInstalledModem(modemId) ? "설치" : "철거")
+        .currentState(installRepository.isInstalledModem(modemId) ? "설치" : "미설치") // TODO : enum 으로 대체
         .build();
+  }
+
+  @Transactional(readOnly = true)
+  public InstallHistoryByConsumer searchHistoryByConsumer(Long consumerId, Pageable pageable) {
+    Page<historyInfo> historyInfos = installRepository.searchInstallInfoPageByConsumer(consumerId, pageable)
+        .map(getInstallInfohistoryInfoFunction());
+
+    return InstallHistoryByConsumer.builder()
+        .historys(historyInfos)
+        .currentState(checkState(historyInfos.getContent()))
+        .build();
+  }
+
+  private Function<InstallInfo, historyInfo> getInstallInfohistoryInfoFunction() {
+    return installInfo -> historyInfo.builder()
+        .workTime(installInfo.getWorkTime())
+        .workType(installInfo.getWorkTypeCd().getCode())
+        .modemNo(installInfo.getModem().getModemNo())
+        .consumerNo(installInfo.getConsumer().getConsumerNo())
+        .consumerName(installInfo.getConsumer().getConsumerName())
+        .meterNo(installInfo.getConsumer().getMeterNo())
+        .city(installInfo.getConsumer().getAddress().getCity())
+        .build();
+  }
+
+  private String checkState(List<historyInfo> historyInfos) {
+    if (historyInfos == null || historyInfos.size() == 0) {
+      return "미설치"; // TODO : enum 으로 대체
+    }
+
+    historyInfo historyInfo = historyInfos.get(0);
+    if (historyInfo.getWorkType().equals(MODEM_INSTALL_STATUS_DEMOLISH.getCode())) {
+      return "미설치";
+    }
+
+    return "설치";
   }
 
   /**

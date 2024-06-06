@@ -55,17 +55,6 @@ public class InstallDto {
     private String currentState;
     private Page<historyInfo> historys;
 
-    @ToString
-    @Getter
-    @Builder
-    @AllArgsConstructor
-    public static class historyInfo {
-      private LocalDateTime workTime;
-      private String consumerNo;
-      private String consumerName;
-      private String meterNo;
-      private String city;
-    }
   }
 
   @ToString
@@ -74,6 +63,23 @@ public class InstallDto {
   @AllArgsConstructor
   public static class InstallHistoryByConsumer {
 
+    private String currentState;
+    private Page<historyInfo> historys;
+  }
+
+  @ToString
+  @Getter
+  @Builder
+  @AllArgsConstructor
+  public static class historyInfo {
+
+    private LocalDateTime workTime;
+    private String workType;
+    private String consumerNo;
+    private String modemNo;
+    private String consumerName;
+    private String meterNo;
+    private String city;
   }
 
   @ToString

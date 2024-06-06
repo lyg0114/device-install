@@ -18,9 +18,10 @@ import com.install.domain.consumer.entity.Consumer;
 import com.install.domain.consumer.entity.Location;
 import com.install.domain.consumer.entity.repository.ConsumerRepository;
 import com.install.domain.install.dto.InstallDto;
+import com.install.domain.install.dto.InstallDto.InstallHistoryByConsumer;
 import com.install.domain.install.dto.InstallDto.InstallHistoryByModem;
-import com.install.domain.install.dto.InstallDto.InstallHistoryByModem.historyInfo;
 import com.install.domain.install.dto.InstallDto.InstallRequest;
+import com.install.domain.install.dto.InstallDto.historyInfo;
 import com.install.domain.install.entity.InstallInfo;
 import com.install.domain.install.entity.repository.InstallRepository;
 import com.install.domain.member.entity.Member;
@@ -277,13 +278,43 @@ class InstallServiceTest {
     em.flush();
     em.clear();
 
-    InstallHistoryByModem installHistoryByModem = installService.searchHistoryByModem(modem.getId(),
-        PageRequest.of(0, 10));
+    InstallHistoryByModem installHistoryByModem = installService.searchHistoryByModem(modem.getId(), PageRequest.of(0, 10));
 
     //TODO : 검증로직 개선 필요
     String currentState = installHistoryByModem.getCurrentState();
     System.out.println("currentState = " + currentState);
     Page<historyInfo> historys = installHistoryByModem.getHistorys();
+    for (historyInfo history : historys) {
+      System.out.println("history = " + history);
+    }
+  }
+
+  @Test
+  void 고객_기준으로_설치내역_조회에_성공한다() {
+    //given
+    Consumer consumer = consumerRepository.save(createConsumer("consumer"));
+    Modem modem1 = modemRepository.save(createModem("modem1"));
+    Modem modem2 = modemRepository.save(createModem("modem2"));
+
+    // modem1 신규설치
+    installRepository.save(createInstallInfo(modem1, consumer, MODEM_INSTALL_STATUS_INSTALLED, "신규설치 했음", LocalDateTime.now().minusDays(3L)));
+    // modem1 유지보수
+    installRepository.save(createInstallInfo(modem1, consumer, MODEM_INSTALL_STATUS_UPDATE, "유지보수 했음", LocalDateTime.now().minusDays(2L)));
+    // modem1 철거
+    installRepository.save(createInstallInfo(modem1, consumer, MODEM_INSTALL_STATUS_DEMOLISH, "철거 했음", LocalDateTime.now().minusDays(1L)));
+    // modem2 신규설치
+    installRepository.save(createInstallInfo(modem2, consumer, MODEM_INSTALL_STATUS_INSTALLED, "다른 단말기로 신규 설치", LocalDateTime.now()));
+
+    em.flush();
+    em.clear();
+
+    //when
+    InstallHistoryByConsumer installHistoryByConsumer = installService.searchHistoryByConsumer(
+        consumer.getId(), PageRequest.of(0, 10));
+
+    //then
+    System.out.println("installHistoryByConsumer.getCurrentState() = " + installHistoryByConsumer.getCurrentState());
+    Page<historyInfo> historys = installHistoryByConsumer.getHistorys();
     for (historyInfo history : historys) {
       System.out.println("history = " + history);
     }

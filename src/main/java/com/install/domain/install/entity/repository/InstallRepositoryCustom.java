@@ -12,4 +12,6 @@ import org.springframework.data.domain.Pageable;
 public interface InstallRepositoryCustom {
 
   Page<InstallInfo> searchInstallInfoPageByModem(Long modemId, Pageable pageable);
+
+  Page<InstallInfo> searchInstallInfoPageByConsumer(Long consumerId, Pageable pageable);
 }

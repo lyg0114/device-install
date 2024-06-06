@@ -72,14 +72,13 @@ public class InstallApiController {
    * - 고객정보 기준으로 설치내역 조회
    */
   @GetMapping("/consumer/{consumerId}")
-  public ResponseEntity<Page<InstallHistoryByConsumer>> searchHistoryByConsumer(
+  public ResponseEntity<InstallHistoryByConsumer> searchHistoryByConsumer(
       @PathVariable Long consumerId, Pageable pageable
   ) {
 
-    // business logic
-
     return ResponseEntity
-        .status(HttpStatus.OK).body(null);
+        .status(HttpStatus.OK)
+        .body(installService.searchHistoryByConsumer(consumerId, pageable));
   }
 
   /**
