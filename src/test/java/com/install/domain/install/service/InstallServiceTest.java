@@ -285,45 +285,15 @@ class InstallServiceTest {
     em.clear();
 
     //when
+
     // modem1 신규설치
-    installRepository.save(
-        InstallInfo.builder()
-            .modem(Modem.builder().id(modem1.getId()).build())
-            .consumer(Consumer.builder().id(consumer.getId()).build())
-            .workTypeCd(Code.builder().code("cd0301").build())
-            .comment("신규설치 했음")
-            .workTime(LocalDateTime.now().minusDays(3L))
-            .build());
-
+    installRepository.save(createInstallInfo(modem1, consumer, "cd0301", "신규설치 했음", LocalDateTime.now().minusDays(3L)));
     // modem1 유지보수
-    installRepository.save(
-        InstallInfo.builder()
-            .modem(Modem.builder().id(modem1.getId()).build())
-            .consumer(Consumer.builder().id(consumer.getId()).build())
-            .workTypeCd(Code.builder().code("cd0302").build())
-            .comment("유지보수 했음")
-            .workTime(LocalDateTime.now().minusDays(2L))
-            .build());
-
+    installRepository.save(createInstallInfo(modem1, consumer, "cd0302", "유지보수 했음", LocalDateTime.now().minusDays(2L)));
     // modem1 철거
-    installRepository.save(
-        InstallInfo.builder()
-            .modem(Modem.builder().id(modem1.getId()).build())
-            .consumer(Consumer.builder().id(consumer.getId()).build())
-            .workTypeCd(Code.builder().code("cd0303").build())
-            .comment("철거 했음")
-            .workTime(LocalDateTime.now().minusDays(1L))
-            .build());
-
+    installRepository.save(createInstallInfo(modem1, consumer, "cd0303", "철거 했음", LocalDateTime.now().minusDays(1L)));
     // modem2 신규설치
-    installRepository.save(
-        InstallInfo.builder()
-            .modem(Modem.builder().id(modem2.getId()).build())
-            .consumer(Consumer.builder().id(consumer.getId()).build())
-            .workTypeCd(Code.builder().code("cd0301").build())
-            .comment("다른 단말기로 신규 설치")
-            .workTime(LocalDateTime.now())
-            .build());
+    installRepository.save(createInstallInfo(modem2, consumer, "cd0301", "다른 단말기로 신규 설치", LocalDateTime.now()));
 
     em.flush();
     em.clear();
