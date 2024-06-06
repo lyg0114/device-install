@@ -1,6 +1,8 @@
 package com.install.domain.install.api;
 
 import com.install.domain.install.dto.InstallDto;
+import com.install.domain.install.dto.InstallDto.InstallHistoryByConsumer;
+import com.install.domain.install.dto.InstallDto.InstallHistoryByModem;
 import com.install.domain.install.service.InstallService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -57,21 +59,20 @@ public class InstallApiController {
    * - 단말기 기준으로 설치내역 조회
    */
   @GetMapping("/modem/{modemId}")
-  public ResponseEntity<Page<InstallDto.ModemHistory>> searchByModem(
+  public ResponseEntity<Page<InstallHistoryByModem>> searchHistoryByModem(
       @PathVariable Long modemId, Pageable pageable
   ) {
 
-    // business logic
-
     return ResponseEntity
-        .status(HttpStatus.OK).body(null);
+        .status(HttpStatus.OK)
+        .body(installService.searchHistoryByModem(modemId, pageable));
   }
 
   /**
    * - 고객정보 기준으로 설치내역 조회
    */
   @GetMapping("/consumer/{consumerId}")
-  public ResponseEntity<Page<InstallDto.ConsumerHistory>> searchByConsumer(
+  public ResponseEntity<Page<InstallHistoryByConsumer>> searchHistoryByConsumer(
       @PathVariable Long consumerId, Pageable pageable
   ) {
 

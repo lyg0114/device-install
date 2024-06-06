@@ -12,6 +12,7 @@ import com.install.domain.consumer.entity.Consumer;
 import com.install.domain.consumer.entity.repository.ConsumerRepository;
 import com.install.domain.install.dto.InstallDto;
 import com.install.domain.install.dto.InstallDto.InstallRequest;
+import com.install.domain.install.dto.InstallDto.InstallHistoryByModem;
 import com.install.domain.install.entity.InstallInfo;
 import com.install.domain.install.entity.repository.InstallRepository;
 import com.install.domain.member.entity.Member;
@@ -23,6 +24,8 @@ import com.install.global.security.service.JwtService;
 import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -148,6 +151,10 @@ public class InstallService {
                 .build())
             .workTime(LocalDateTime.now())
             .build());
+  }
+
+  public Page<InstallHistoryByModem> searchHistoryByModem(Long modemId, Pageable pageable) {
+    return null;
   }
 
   /**

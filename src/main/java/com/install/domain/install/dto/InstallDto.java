@@ -3,6 +3,7 @@ package com.install.domain.install.dto;
 import static lombok.AccessLevel.PRIVATE;
 
 import jakarta.validation.constraints.NotBlank;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -47,15 +48,30 @@ public class InstallDto {
   @Getter
   @Builder
   @AllArgsConstructor
-  public static class ModemHistory {
+  public static class InstallHistoryByModem {
 
+    private String currentState;
+    private List<historyInfo> historys;
+
+    @ToString
+    @Getter
+    @Builder
+    @AllArgsConstructor
+    static class historyInfo {
+      private String consumerNo;
+      private String consumerName;
+      private String meterNo;
+      private String city;
+      private String street;
+      private String zipcode;
+    }
   }
 
   @ToString
   @Getter
   @Builder
   @AllArgsConstructor
-  public static class ConsumerHistory {
+  public static class InstallHistoryByConsumer {
 
   }
 
