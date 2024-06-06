@@ -11,6 +11,8 @@ import com.install.domain.consumer.entity.Consumer;
 import com.install.domain.consumer.entity.Location;
 import com.install.domain.consumer.entity.repository.ConsumerRepository;
 import com.install.domain.install.dto.InstallDto;
+import com.install.domain.install.dto.InstallDto.InstallHistoryByModem;
+import com.install.domain.install.dto.InstallDto.InstallHistoryByModem.historyInfo;
 import com.install.domain.install.dto.InstallDto.InstallRequest;
 import com.install.domain.install.entity.InstallInfo;
 import com.install.domain.install.entity.repository.InstallRepository;
@@ -26,6 +28,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.test.annotation.Rollback;
@@ -41,27 +44,28 @@ import org.springframework.transaction.annotation.Transactional;
 class InstallServiceTest {
 
   @Autowired
-  private InstallService installService;
+  InstallService installService;
 
   @Autowired
-  private InstallRepository installRepository;
+  InstallRepository installRepository;
 
   @Autowired
-  private ModemRepository modemRepository;
+  ModemRepository modemRepository;
 
   @Autowired
-  private ConsumerRepository consumerRepository;
+  ConsumerRepository consumerRepository;
 
   @Autowired
-  private CodeRepository codeRepository;
+  CodeRepository codeRepository;
 
   @MockBean
-  private JwtService jwtService;
+  JwtService jwtService;
 
   @Autowired
   EntityManager em;
+
   @Autowired
-  private MemberRepository memberRepository;
+  MemberRepository memberRepository;
 
   @BeforeEach
   void before() {
@@ -101,6 +105,17 @@ class InstallServiceTest {
         .buildCompany("comapnty-" + str)
         .modemTypeCd(Code.builder().code("cd01").build())
         .modemStatusCd(Code.builder().code("cd02").build())
+        .build();
+  }
+
+  private InstallInfo createInstallInfo(Modem modem, Consumer consumer, String workTypeCode,
+      String comment, LocalDateTime workTime) {
+    return InstallInfo.builder()
+        .modem(Modem.builder().id(modem.getId()).build())
+        .consumer(Consumer.builder().id(consumer.getId()).build())
+        .workTypeCd(Code.builder().code(workTypeCode).build())
+        .comment(comment)
+        .workTime(workTime)
         .build();
   }
 
@@ -225,6 +240,38 @@ class InstallServiceTest {
     assertThat(installInfo.getModem().getModemNo()).isEqualTo(modem.getModemNo());
     assertThat(installInfo.getComment()).isEqualTo(requestDto.getComment());
     assertThat(installInfo.getWorkTypeCd().getCode()).isEqualTo(requestDto.getWorkTypeCd());
+  }
+
+  @Test
+  void 단말기_기준으로_설치내역_조회에_성공한다() {
+    //given
+    Modem modem = modemRepository.save(createModem("modem"));
+    Consumer consumer1 = consumerRepository.save(createConsumer("consumer1"));
+    Consumer consumer2 = consumerRepository.save(createConsumer("consumer2"));
+
+    em.flush();
+    em.clear();
+
+    //when
+    installRepository.save(createInstallInfo(modem, consumer1, "cd0301", "신규설치 했음", LocalDateTime.now().minusDays(5L)));
+    installRepository.save(createInstallInfo(modem, consumer1, "cd0302", "유지보수 했음", LocalDateTime.now().minusDays(4L)));
+    installRepository.save(createInstallInfo(modem, consumer1, "cd0303", "철거 했음", LocalDateTime.now().minusDays(3L)));
+    installRepository.save(createInstallInfo(modem, consumer2, "cd0301", "다른 수용가에 신규설치", LocalDateTime.now().minusDays(2L)));
+    installRepository.save(createInstallInfo(modem, consumer2, "cd0303", "철거", LocalDateTime.now().minusDays(1)));
+
+    em.flush();
+    em.clear();
+
+    InstallHistoryByModem installHistoryByModem = installService.searchHistoryByModem(modem.getId(),
+        PageRequest.of(0, 10));
+
+    //TODO : 검증로직 개선 필요
+    String currentState = installHistoryByModem.getCurrentState();
+    System.out.println("currentState = " + currentState);
+    Page<historyInfo> historys = installHistoryByModem.getHistorys();
+    for (historyInfo history : historys) {
+      System.out.println("history = " + history);
+    }
   }
 
   @Test

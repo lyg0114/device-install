@@ -26,10 +26,10 @@ import org.springframework.transaction.annotation.Transactional;
 class ConsumerServiceTest {
 
   @Autowired
-  private ConsumerService consumerService;
+  ConsumerService consumerService;
 
   @Autowired
-  private ConsumerRepository consumerRepository;
+  ConsumerRepository consumerRepository;
 
   @Autowired
   EntityManager em;

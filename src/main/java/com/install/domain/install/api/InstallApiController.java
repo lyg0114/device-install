@@ -59,7 +59,7 @@ public class InstallApiController {
    * - 단말기 기준으로 설치내역 조회
    */
   @GetMapping("/modem/{modemId}")
-  public ResponseEntity<Page<InstallHistoryByModem>> searchHistoryByModem(
+  public ResponseEntity<InstallHistoryByModem> searchHistoryByModem(
       @PathVariable Long modemId, Pageable pageable
   ) {
 

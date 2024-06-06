@@ -10,7 +10,8 @@ import org.springframework.data.jpa.repository.Query;
  * @package : com.install.domain.install.entity.repository
  * @since : 05.06.24
  */
-public interface InstallRepository extends JpaRepository<InstallInfo, Long> {
+public interface InstallRepository
+    extends JpaRepository<InstallInfo, Long>, InstallRepositoryCustom {
 
   // TODO : workTypeCd.code -> Enum 값으로 개선필요
   @Query(

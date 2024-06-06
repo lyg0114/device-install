@@ -60,4 +60,16 @@ public class InstallInfo extends BaseTimeEntity {
   @JoinColumn(name = "member_id")
   private Member worker;
 
+  @Override
+  public String toString() {
+    return "InstallInfo{" +
+        "workTime=" + workTime +
+        ", comment='" + comment + '\'' +
+        ", consumerNo=" + consumer.getConsumerNo() +
+        ", consumerName=" + consumer.getConsumerName() +
+        ", modemNo =" + modem.getModemNo() +
+        ", imei =" + modem.getImei() +
+        ", workTypeCd.code =" + workTypeCd.getCode() +
+        '}';
+  }
 }

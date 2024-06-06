@@ -11,6 +11,7 @@ import com.install.domain.code.entity.Code;
 import com.install.domain.consumer.entity.Consumer;
 import com.install.domain.consumer.entity.repository.ConsumerRepository;
 import com.install.domain.install.dto.InstallDto;
+import com.install.domain.install.dto.InstallDto.InstallHistoryByModem.historyInfo;
 import com.install.domain.install.dto.InstallDto.InstallRequest;
 import com.install.domain.install.dto.InstallDto.InstallHistoryByModem;
 import com.install.domain.install.entity.InstallInfo;
@@ -153,8 +154,21 @@ public class InstallService {
             .build());
   }
 
-  public Page<InstallHistoryByModem> searchHistoryByModem(Long modemId, Pageable pageable) {
-    return null;
+  @Transactional(readOnly = true)
+  public InstallHistoryByModem searchHistoryByModem(Long modemId, Pageable pageable) {
+    Page<historyInfo> historyInfos = installRepository.searchInstallInfoPageByModem(modemId, pageable)
+        .map(installInfo -> historyInfo.builder()
+            .workTime(installInfo.getWorkTime())
+            .consumerNo(installInfo.getConsumer().getConsumerNo())
+            .consumerName(installInfo.getConsumer().getConsumerName())
+            .meterNo(installInfo.getConsumer().getMeterNo())
+            .city(installInfo.getConsumer().getAddress().getCity())
+            .build());
+
+    return InstallHistoryByModem.builder()
+        .historys(historyInfos)
+        .currentState(installRepository.isInstalledModem(modemId) ? "설치" : "철거")
+        .build();
   }
 
   /**

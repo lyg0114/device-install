@@ -3,11 +3,13 @@ package com.install.domain.install.dto;
 import static lombok.AccessLevel.PRIVATE;
 
 import jakarta.validation.constraints.NotBlank;
+import java.time.LocalDateTime;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.ToString;
+import org.springframework.data.domain.Page;
 
 /**
  * @author : iyeong-gyo
@@ -51,19 +53,18 @@ public class InstallDto {
   public static class InstallHistoryByModem {
 
     private String currentState;
-    private List<historyInfo> historys;
+    private Page<historyInfo> historys;
 
     @ToString
     @Getter
     @Builder
     @AllArgsConstructor
-    static class historyInfo {
+    public static class historyInfo {
+      private LocalDateTime workTime;
       private String consumerNo;
       private String consumerName;
       private String meterNo;
       private String city;
-      private String street;
-      private String zipcode;
     }
   }
 
