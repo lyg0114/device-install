@@ -94,7 +94,7 @@ public class InstallApiController {
   }
 
   /**
-   * - 고객정보 기준으로 설치내역 조회
+   * - 단말기 상태 검증 ( 정상 , 비정상)
    */
   @GetMapping("/status/{modemNo}")
   public ResponseEntity<InstallDto.InstallResponse> searchByConsumer(@PathVariable Integer modemNo) {
