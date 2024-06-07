@@ -11,21 +11,16 @@ import com.install.domain.consumer.entity.Consumer;
 import com.install.domain.consumer.entity.Location;
 import com.install.domain.consumer.entity.repository.ConsumerRepository;
 import com.install.domain.install.entity.InstallInfo;
-import com.install.domain.install.service.InstallService;
-import com.install.domain.member.entity.repository.MemberRepository;
 import com.install.domain.modem.entity.Modem;
 import com.install.domain.modem.entity.repository.ModemRepository;
-import com.install.global.security.service.JwtService;
 import jakarta.persistence.EntityManager;
 import java.time.LocalDateTime;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -37,20 +32,11 @@ import org.springframework.transaction.annotation.Transactional;
 @SpringBootTest
 class InstallRepositoryImplTest {
 
-  @Autowired
-  InstallRepository installRepository;
-
-  @Autowired
-  ModemRepository modemRepository;
-
-  @Autowired
-  ConsumerRepository consumerRepository;
-
-  @Autowired
-  CodeRepository codeRepository;
-
-  @Autowired
-  EntityManager em;
+  @Autowired InstallRepository installRepository;
+  @Autowired ModemRepository modemRepository;
+  @Autowired ConsumerRepository consumerRepository;
+  @Autowired CodeRepository codeRepository;
+  @Autowired EntityManager em;
 
   @BeforeEach
   void before() {
@@ -62,7 +48,8 @@ class InstallRepositoryImplTest {
     codeRepository.save(createCode(MODEM_STAUTS));
     codeRepository.save(createCode(MODEM_INSTALL_STATUS));
     codeRepository.save(createCode(MODEM_INSTALL_STATUS_INSTALLED));
-    codeRepository.save(createCode(MODEM_INSTALL_STATUS_UPDATE));
+    codeRepository.save(createCode(MODEM_INSTALL_STATUS_CHANGE));
+    codeRepository.save(createCode(MODEM_INSTALL_STATUS_MAINTANCE));
     codeRepository.save(createCode(MODEM_INSTALL_STATUS_DEMOLISH));
   }
 
@@ -132,7 +119,7 @@ class InstallRepositoryImplTest {
 
     //when
     installRepository.save(createInstallInfo(modem, consumer1, MODEM_INSTALL_STATUS_INSTALLED, "신규설치 했음", LocalDateTime.now().minusDays(5L)));
-    installRepository.save(createInstallInfo(modem, consumer1, MODEM_INSTALL_STATUS_UPDATE, "유지보수 했음", LocalDateTime.now().minusDays(4L)));
+    installRepository.save(createInstallInfo(modem, consumer1, MODEM_INSTALL_STATUS_MAINTANCE, "유지보수 했음", LocalDateTime.now().minusDays(4L)));
     installRepository.save(createInstallInfo(modem, consumer1, MODEM_INSTALL_STATUS_DEMOLISH, "철거 했음", LocalDateTime.now().minusDays(3L)));
     installRepository.save(createInstallInfo(modem, consumer2, MODEM_INSTALL_STATUS_INSTALLED, "다른 수용가에 신규설치", LocalDateTime.now().minusDays(2L)));
     installRepository.save(createInstallInfo(modem, consumer2, MODEM_INSTALL_STATUS_DEMOLISH, "철거", LocalDateTime.now().minusDays(1)));

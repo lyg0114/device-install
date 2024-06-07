@@ -11,6 +11,7 @@ import com.install.domain.consumer.entity.Location;
 import com.install.domain.consumer.entity.repository.ConsumerRepository;
 import jakarta.persistence.EntityManager;
 import java.util.NoSuchElementException;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -21,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
  * @package : com.install.domain.consumer.service
  * @since : 04.06.24
  */
+@DisplayName("고객정보 테스트")
 @Transactional
 @SpringBootTest
 class ConsumerServiceTest {

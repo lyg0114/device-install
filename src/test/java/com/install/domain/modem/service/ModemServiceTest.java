@@ -14,6 +14,7 @@ import com.install.domain.modem.entity.repository.ModemRepository;
 import jakarta.persistence.EntityManager;
 import java.util.NoSuchElementException;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -24,21 +25,15 @@ import org.springframework.transaction.annotation.Transactional;
  * @package : com.install.domain.modem.service
  * @since : 05.06.24
  */
+@DisplayName("단말기 정보 테스트")
 @Transactional
 @SpringBootTest
 class ModemServiceTest {
 
-  @Autowired
-  ModemService modemService;
-
-  @Autowired
-  ModemRepository modemRepository;
-
-  @Autowired
-  CodeRepository codeRepository;
-
-  @Autowired
-  EntityManager em;
+  @Autowired ModemService modemService;
+  @Autowired ModemRepository modemRepository;
+  @Autowired CodeRepository codeRepository;
+  @Autowired EntityManager em;
 
   @BeforeEach
   public void before() {
