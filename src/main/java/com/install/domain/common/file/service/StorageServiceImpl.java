@@ -2,6 +2,7 @@ package com.install.domain.common.file.service;
 
 import static com.install.global.exception.CustomErrorCode.FAIL_ITIT_FILE_DIRECTORY;
 import static com.install.global.exception.CustomErrorCode.FILE_NOT_EXIST;
+import static com.install.global.exception.CustomErrorCode.FILE_STORE_ERROR;
 import static java.nio.file.Files.copy;
 import static java.nio.file.Files.createDirectories;
 import static java.nio.file.Path.of;
@@ -47,10 +48,7 @@ public class StorageServiceImpl implements StorageService {
     try {
       createDirectories(rootLocation);
     } catch (IOException ex) {
-      log.error("[CustomException] errorCode: {} | errorMessage: {} | cause Exception: ",
-          FAIL_ITIT_FILE_DIRECTORY.getHttpStatus().value(),
-          FAIL_ITIT_FILE_DIRECTORY.getErrorMessage(), ex);
-      throw new CustomException(FAIL_ITIT_FILE_DIRECTORY);
+      throw new CustomException(FAIL_ITIT_FILE_DIRECTORY, ex);
     }
   }
 
@@ -69,11 +67,11 @@ public class StorageServiceImpl implements StorageService {
 
       try (InputStream inputStream = multipartFile.getInputStream()) {
         copy(inputStream, destinationFile, REPLACE_EXISTING);
-      } catch (IOException e) {
-        throw new RuntimeException(e); // TODO : 예외처리 개선 필요
+      } catch (IOException ex) {
+        throw new CustomException(FILE_STORE_ERROR, ex);
       }
-    } catch (IOException e) {
-      throw new RuntimeException(e); // TODO : 예외처리 개선 필요
+    } catch (IOException ex) {
+      throw new CustomException(FILE_STORE_ERROR, ex);
     }
   }
 
@@ -91,7 +89,6 @@ public class StorageServiceImpl implements StorageService {
     return rootLocation.resolve(fileInfo.getFileUri());
   }
 
-  //TODO : 예외처리 추가 작업 필요
   @Override
   public Resource loadAsResource(Long fileId) {
     try {
@@ -100,13 +97,10 @@ public class StorageServiceImpl implements StorageService {
       if (resource.exists() || resource.isReadable()) {
         return resource;
       } else {
-        return null;
-//        throw new StorageFileNotFoundException("Could not read fileId: " + fileId);
+        throw new CustomException(FILE_NOT_EXIST, "Could not read fileId: " + fileId);
       }
-    } catch (MalformedURLException e) {
-      e.printStackTrace();
-      return null;
-//      throw new StorageFileNotFoundException("Could not read fileId: " + fileId, e);
+    } catch (MalformedURLException ex) {
+      throw new CustomException(FILE_NOT_EXIST, "Could not read fileId: " + fileId, ex);
     }
   }
 }
