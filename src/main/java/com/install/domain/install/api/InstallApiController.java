@@ -127,10 +127,11 @@ public class InstallApiController {
   public ResponseEntity<Void> changeModem(
       @PathVariable Long modemId,
       @PathVariable Long consumerId,
-      @RequestBody @Valid InstallDto.InstallRequest requestDto
+      @RequestBody @Valid InstallDto.InstallRequest requestDto,
+      @RequestPart(value = "images", required = false) List<MultipartFile> images
   ) {
 
-    installService.changeModem(modemId, consumerId, requestDto);
+    installService.changeModem(modemId, consumerId, requestDto, images);
     return ResponseEntity.ok().build();
   }
 
@@ -140,10 +141,11 @@ public class InstallApiController {
   @PatchMapping("/maintenance/{modemId}")
   public ResponseEntity<Void> maintenanceModem(
       @PathVariable Long modemId,
-      @RequestBody @Valid InstallDto.InstallRequest requestDto
+      @RequestBody @Valid InstallDto.InstallRequest requestDto,
+      @RequestPart(value = "images", required = false) List<MultipartFile> images
   ) {
 
-    installService.maintenanceModem(modemId, requestDto);
+    installService.maintenanceModem(modemId, requestDto, images);
     return ResponseEntity.ok().build();
   }
 
@@ -153,10 +155,11 @@ public class InstallApiController {
   @PatchMapping("/demolish/{modemId}")
   public ResponseEntity<Void> demolishModem(
       @PathVariable Long modemId,
-      @RequestBody @Valid InstallDto.InstallRequest requestDto
+      @RequestBody @Valid InstallDto.InstallRequest requestDto,
+      @RequestPart(value = "images", required = false) List<MultipartFile> images
   ) {
 
-    installService.demolishModem(modemId, requestDto);
+    installService.demolishModem(modemId, requestDto, images);
     return ResponseEntity.ok().build();
   }
 }

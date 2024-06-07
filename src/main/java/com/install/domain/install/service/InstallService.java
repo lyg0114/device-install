@@ -33,7 +33,6 @@ import com.install.global.exception.CustomException;
 import com.install.global.security.service.JwtService;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Objects;
 import java.util.function.Function;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -69,7 +68,8 @@ public class InstallService {
    * @param requestDto 단말기 설치
    */
   public void installModem(
-      Long modemId, Long consumerId, InstallDto.InstallRequest requestDto, List<MultipartFile> installImages
+      Long modemId, Long consumerId, InstallDto.InstallRequest requestDto,
+      List<MultipartFile> installImages
   ) {
 
     validateIsExistFiles(installImages);
@@ -93,11 +93,11 @@ public class InstallService {
             .build());
 
     for (MultipartFile image : installImages) {
-      installModemFileUpload(savedInstallInfo, image);
+      workSpaceImagesUpload(savedInstallInfo, image);
     }
   }
 
-  public void installModemFileUpload(InstallInfo installInfo, MultipartFile multipartFile) {
+  public void workSpaceImagesUpload(InstallInfo installInfo, MultipartFile multipartFile) {
     // 파일경로 DB 저장
     StringBuilder builder = new StringBuilder();
     String fileType = "." + multipartFile.getContentType().split("/")[1];
@@ -130,15 +130,39 @@ public class InstallService {
    * @param consumerId
    * @param requestDto 단말기 교체
    */
-  public void changeModem(Long modemId, Long consumerId, InstallRequest requestDto) {
+  public void changeModem(
+      Long modemId, Long consumerId, InstallRequest requestDto, List<MultipartFile> installImages
+  ) {
+    validateIsExistFiles(installImages);
+    validateIsExistModem(modemId);
+    validateIsExistConsumer(consumerId);
+    validateShouldNotInstalledModem(modemId);
 
+    Member worker = memberRepository.findById(jwtService.getId())
+        .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
+
+    InstallInfo savedInstallInfo = installRepository.save(
+        InstallInfo.builder()
+            .modem(Modem.builder().id(modemId).build())
+            .consumer(Consumer.builder().id(consumerId).build())
+            .comment(requestDto.getComment())
+            .worker(worker)
+            .workTypeCd(Code.builder()
+                .code(requestDto.getWorkTypeCd())
+                .build())
+            .workTime(LocalDateTime.now())
+            .build());
+
+    for (MultipartFile image : installImages) {
+      workSpaceImagesUpload(savedInstallInfo, image);
+    }
   }
 
   /**
    * @param modemId
    * @param requestDto 단말기 유지보수
    */
-  public void maintenanceModem(Long modemId, InstallRequest requestDto) {
+  public void maintenanceModem(Long modemId, InstallRequest requestDto, List<MultipartFile> maintenanceImages) {
     validateIsExistModem(modemId);
     validateShouldInstalledModem(modemId);
 
@@ -150,7 +174,7 @@ public class InstallService {
     Member worker = memberRepository.findById(jwtService.getId())
         .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
 
-    installRepository.save(
+    InstallInfo savedMaintanceInfo = installRepository.save(
         InstallInfo.builder()
             .modem(Modem.builder().id(modemId).build())
             .comment(requestDto.getComment())
@@ -163,13 +187,17 @@ public class InstallService {
                 .build())
             .workTime(LocalDateTime.now())
             .build());
+
+    for (MultipartFile image : maintenanceImages) {
+      workSpaceImagesUpload(savedMaintanceInfo, image);
+    }
   }
 
   /**
    * @param modemId
    * @param requestDto 단말기 철거
    */
-  public void demolishModem(Long modemId, InstallRequest requestDto) {
+  public void demolishModem(Long modemId, InstallRequest requestDto, List<MultipartFile> demolishImages) {
     validateIsExistModem(modemId);
     validateShouldInstalledModem(modemId);
 
@@ -181,7 +209,7 @@ public class InstallService {
     Member worker = memberRepository.findById(jwtService.getId())
         .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
 
-    installRepository.save(
+    InstallInfo savedDemolishInfo = installRepository.save(
         InstallInfo.builder()
             .modem(Modem.builder().id(modemId).build())
             .comment(requestDto.getComment())
@@ -194,6 +222,10 @@ public class InstallService {
                 .build())
             .workTime(LocalDateTime.now())
             .build());
+
+    for (MultipartFile image : demolishImages) {
+      workSpaceImagesUpload(savedDemolishInfo, image);
+    }
   }
 
   @Transactional(readOnly = true)
@@ -229,7 +261,7 @@ public class InstallService {
         .consumerNo(installInfo.getConsumer().getConsumerNo())
         .consumerName(installInfo.getConsumer().getConsumerName())
         .meterNo(installInfo.getConsumer().getMeterNo())
-        .city(installInfo.getConsumer().getAddress().getCity())
+        .city(installInfo.getConsumer().getAddress() != null ? installInfo.getConsumer().getAddress().getCity() : null)
         .build();
   }
 
