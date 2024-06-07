@@ -50,6 +50,7 @@ public class Code extends BaseTimeEntity {
   private Code parent;
 
   // 셀프로 양방향 연관관계를 맺어서 계층구조를 구현
+  @Builder.Default
   @OneToMany(mappedBy = "parent")
   private List<Code> child = new ArrayList<>();
 

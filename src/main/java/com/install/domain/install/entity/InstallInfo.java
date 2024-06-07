@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Builder.Default;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -65,6 +66,7 @@ public class InstallInfo extends BaseTimeEntity {
   @JoinColumn(name = "member_id")
   private Member worker;
 
+  @Builder.Default
   @OneToMany(mappedBy = "installInfo")
   private List<FileInfo> fileInfos = new ArrayList<>();
 
