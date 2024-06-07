@@ -166,7 +166,7 @@ public class InstallService {
     validateIsExistModem(modemId);
     validateShouldInstalledModem(modemId);
 
-    Long installedConsumerSid = installRepository.currentInstalledInfo(modemId)
+    Long installedConsumerSid = installRepository.currentInstallStateInfo(modemId)
         .orElseThrow(() -> new CustomException(NOT_FOUND_INSTALL_INFO))
         .getConsumer()
         .getId();
@@ -201,7 +201,7 @@ public class InstallService {
     validateIsExistModem(modemId);
     validateShouldInstalledModem(modemId);
 
-    Long installedConsumerSid = installRepository.currentInstalledInfo(modemId)
+    Long installedConsumerSid = installRepository.currentInstallStateInfo(modemId)
         .orElseThrow(() -> new CustomException(NOT_FOUND_INSTALL_INFO))
         .getConsumer()
         .getId();

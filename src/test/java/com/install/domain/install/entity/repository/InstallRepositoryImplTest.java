@@ -32,20 +32,11 @@ import org.springframework.transaction.annotation.Transactional;
 @SpringBootTest
 class InstallRepositoryImplTest {
 
-  @Autowired
-  InstallRepository installRepository;
-
-  @Autowired
-  ModemRepository modemRepository;
-
-  @Autowired
-  ConsumerRepository consumerRepository;
-
-  @Autowired
-  CodeRepository codeRepository;
-
-  @Autowired
-  EntityManager em;
+  @Autowired InstallRepository installRepository;
+  @Autowired ModemRepository modemRepository;
+  @Autowired ConsumerRepository consumerRepository;
+  @Autowired CodeRepository codeRepository;
+  @Autowired EntityManager em;
 
   @BeforeEach
   void before() {

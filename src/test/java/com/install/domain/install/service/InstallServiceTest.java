@@ -34,6 +34,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -42,7 +43,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -51,38 +51,22 @@ import org.springframework.web.multipart.MultipartFile;
  * @package : com.install.domain.install.service
  * @since : 05.06.24
  */
+@DisplayName("단말기 설치 테스트")
 @Transactional
 @SpringBootTest
 class InstallServiceTest {
 
-  @Autowired
-  InstallService installService;
+  @Autowired InstallService installService;
+  @Autowired InstallRepository installRepository;
+  @Autowired ModemRepository modemRepository;
+  @Autowired ConsumerRepository consumerRepository;
+  @Autowired CodeRepository codeRepository;
+  @Autowired EntityManager em;
+  @Autowired MemberRepository memberRepository;
 
-  @Autowired
-  InstallRepository installRepository;
+  @MockBean JwtService jwtService;
 
-  @Autowired
-  ModemRepository modemRepository;
-
-  @Autowired
-  ConsumerRepository consumerRepository;
-
-  @Autowired
-  CodeRepository codeRepository;
-
-  @MockBean
-  JwtService jwtService;
-
-  @Autowired
-  EntityManager em;
-
-  @Autowired
-  MemberRepository memberRepository;
-
-  @BeforeEach
-  void before() {
-    createCodes();
-  }
+  @BeforeEach void before() { createCodes(); }
 
   private void createCodes() {
     codeRepository.save(createCode(MODEM_TYPE));
@@ -155,8 +139,9 @@ class InstallServiceTest {
         .build();
   }
 
-  private InstallInfo createInstallInfo(Modem modem, Consumer consumer, CodeSet workTypeCode,
-      String comment, LocalDateTime workTime) {
+  private InstallInfo createInstallInfo(
+      Modem modem, Consumer consumer, CodeSet workTypeCode, String comment, LocalDateTime workTime
+  ) {
     return InstallInfo.builder()
         .modem(Modem.builder().id(modem.getId()).build())
         .consumer(Consumer.builder().id(consumer.getId()).build())
@@ -187,11 +172,11 @@ class InstallServiceTest {
     em.clear();
 
     //then
+    // TODO : 파일 검증 로직 추가 필요
     InstallInfo installInfo = installRepository.findAll().get(0);
     assertThat(installInfo.getWorkTypeCd().getCode()).isEqualTo(requestDto.getWorkTypeCd());
     assertThat(installInfo.getModem().getModemNo()).isEqualTo(savedModem.getModemNo());
     assertThat(installInfo.getConsumer().getConsumerNo()).isEqualTo(savedConsumer.getConsumerNo());
-    // TODO : 파일 검증 로직 추가 필요
   }
 
   @Test
@@ -260,7 +245,7 @@ class InstallServiceTest {
     em.clear();
 
     //then
-    InstallInfo installInfo = installRepository.currentInstalledInfo(modem.getId()).orElseThrow();
+    InstallInfo installInfo = installRepository.currentInstallStateInfo(modem.getId()).orElseThrow();
 
     assertThat(installInfo.getConsumer().getConsumerNo()).isEqualTo(consumer.getConsumerNo());
     assertThat(installInfo.getModem().getModemNo()).isEqualTo(modem.getModemNo());
@@ -297,13 +282,12 @@ class InstallServiceTest {
     em.clear();
 
     //then
-    InstallInfo installInfo = installRepository.currentInstalledInfo(modem.getId())
-        .orElseThrow();
+    InstallInfo currentInstallInfo = installRepository.currentInstallStateInfo(modem.getId()).orElseThrow();
 
-    assertThat(installInfo.getConsumer().getConsumerNo()).isEqualTo(consumer.getConsumerNo());
-    assertThat(installInfo.getModem().getModemNo()).isEqualTo(modem.getModemNo());
-    assertThat(installInfo.getComment()).isEqualTo(demolishRequestDto.getComment());
-    assertThat(installInfo.getWorkTypeCd().getCode()).isEqualTo(demolishRequestDto.getWorkTypeCd());
+    assertThat(currentInstallInfo.getConsumer().getConsumerNo()).isEqualTo(consumer.getConsumerNo());
+    assertThat(currentInstallInfo.getModem().getModemNo()).isEqualTo(modem.getModemNo());
+    assertThat(currentInstallInfo.getComment()).isEqualTo(demolishRequestDto.getComment());
+    assertThat(currentInstallInfo.getWorkTypeCd().getCode()).isEqualTo(demolishRequestDto.getWorkTypeCd());
   }
 
   @Test
@@ -344,13 +328,9 @@ class InstallServiceTest {
     Modem modem1 = modemRepository.save(createModem("modem1"));
     Modem modem2 = modemRepository.save(createModem("modem2"));
 
-    // modem1 신규설치
     installRepository.save(createInstallInfo(modem1, consumer, MODEM_INSTALL_STATUS_INSTALLED, "신규설치 했음", LocalDateTime.now().minusDays(3L)));
-    // modem1 유지보수
     installRepository.save(createInstallInfo(modem1, consumer, MODEM_INSTALL_STATUS_MAINTANCE, "유지보수 했음", LocalDateTime.now().minusDays(2L)));
-    // modem1 철거
     installRepository.save(createInstallInfo(modem1, consumer, MODEM_INSTALL_STATUS_DEMOLISH, "철거 했음", LocalDateTime.now().minusDays(1L)));
-    // modem2 신규설치
     installRepository.save(createInstallInfo(modem2, consumer, MODEM_INSTALL_STATUS_INSTALLED, "다른 단말기로 신규 설치", LocalDateTime.now()));
 
     em.flush();
@@ -372,19 +352,15 @@ class InstallServiceTest {
     //given
     Modem modem1 = modemRepository.save(createModem("modem1"));
     Modem modem2 = modemRepository.save(createModem("modem2"));
-    Consumer consumer = consumerRepository.save(createConsumer("test"));
+    Consumer consumer = consumerRepository.save(createConsumer("consumer"));
 
     em.flush();
     em.clear();
 
     //when
-    // modem1 신규설치
     installRepository.save(createInstallInfo(modem1, consumer, MODEM_INSTALL_STATUS_INSTALLED, "신규설치 했음", LocalDateTime.now().minusDays(3L)));
-    // modem1 유지보수
     installRepository.save(createInstallInfo(modem1, consumer, MODEM_INSTALL_STATUS_MAINTANCE, "유지보수 했음", LocalDateTime.now().minusDays(2L)));
-    // modem1 철거
     installRepository.save(createInstallInfo(modem1, consumer, MODEM_INSTALL_STATUS_DEMOLISH, "철거 했음", LocalDateTime.now().minusDays(1L)));
-    // modem2 신규설치
     installRepository.save(createInstallInfo(modem2, consumer, MODEM_INSTALL_STATUS_INSTALLED, "다른 단말기로 신규 설치", LocalDateTime.now()));
 
     em.flush();

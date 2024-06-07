@@ -31,5 +31,5 @@ public interface InstallRepository
           + "where i1.modem.id = :modemId "
           + "and i1.workTime in (select max(i2.workTime) from InstallInfo i2)"
   )
-  Optional<InstallInfo> currentInstalledInfo(Long modemId);
+  Optional<InstallInfo> currentInstallStateInfo(Long modemId);
 }
