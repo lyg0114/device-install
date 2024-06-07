@@ -21,7 +21,7 @@ public interface InstallRepository
           + "end "
           + "from InstallInfo i1 "
           + "where i1.modem.id = :modemId "
-          + "and i1.workTypeCd.code !='cd0303'"
+          + "and i1.workTypeCd.code !='cd0304'"
           + "and i1.workTime in (select max(i2.workTime) from InstallInfo i2)"
   )
   boolean isInstalledModem(Long modemId);
