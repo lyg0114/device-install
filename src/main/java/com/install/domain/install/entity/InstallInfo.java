@@ -6,6 +6,7 @@ import static lombok.AccessLevel.PROTECTED;
 
 import com.install.domain.code.entity.Code;
 import com.install.domain.common.BaseTimeEntity;
+import com.install.domain.common.file.entity.FileInfo;
 import com.install.domain.consumer.entity.Consumer;
 import com.install.domain.member.entity.Member;
 import com.install.domain.modem.entity.Modem;
@@ -15,7 +16,11 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import java.net.FileNameMap;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -59,6 +64,9 @@ public class InstallInfo extends BaseTimeEntity {
   @ManyToOne(fetch = LAZY)
   @JoinColumn(name = "member_id")
   private Member worker;
+
+  @OneToMany(mappedBy = "installInfo")
+  private List<FileInfo> fileInfos = new ArrayList<>();
 
   @Override
   public String toString() {

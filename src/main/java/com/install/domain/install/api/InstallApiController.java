@@ -5,6 +5,7 @@ import com.install.domain.install.dto.InstallDto.InstallHistoryByConsumer;
 import com.install.domain.install.dto.InstallDto.InstallHistoryByModem;
 import com.install.domain.install.service.InstallService;
 import jakarta.validation.Valid;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -17,7 +18,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  * @author : iyeong-gyo
@@ -109,12 +112,11 @@ public class InstallApiController {
    */
   @PostMapping("/{modemId}/{consumerId}")
   public ResponseEntity<Void> installModem(
-      @PathVariable Long modemId,
-      @PathVariable Long consumerId,
-      @RequestBody @Valid InstallDto.InstallRequest requestDto
+      @PathVariable Long modemId, @PathVariable Long consumerId,
+      @RequestBody @Valid InstallDto.InstallRequest requestDto,
+      @RequestPart(value = "images", required = false) List<MultipartFile> images
   ) {
-
-    installService.installModem(modemId, consumerId, requestDto);
+    installService.installModem(modemId, consumerId, requestDto, images);
     return ResponseEntity.ok().build();
   }
 

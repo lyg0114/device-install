@@ -3,18 +3,25 @@ package com.install.domain.install.service;
 import static com.install.domain.code.entity.CodeSet.MODEM_INSTALL_STATUS_DEMOLISH;
 import static com.install.global.exception.CustomErrorCode.ALREADY_INSTALLED_MODEM;
 import static com.install.global.exception.CustomErrorCode.CONSUMER_NOT_EXIST;
+import static com.install.global.exception.CustomErrorCode.IMAGE_SIZE_NOT_ALLOW;
 import static com.install.global.exception.CustomErrorCode.MODEM_NOT_EXIST;
+import static com.install.global.exception.CustomErrorCode.NOT_FOUND_FILE_INFO;
 import static com.install.global.exception.CustomErrorCode.NOT_FOUND_INSTALL_INFO;
 import static com.install.global.exception.CustomErrorCode.NOT_INSTALLED_MODEM;
 import static com.install.global.exception.CustomErrorCode.USER_NOT_FOUND;
+import static java.util.Objects.isNull;
+import static java.util.UUID.randomUUID;
 
 import com.install.domain.code.entity.Code;
+import com.install.domain.common.file.entity.FileInfo;
+import com.install.domain.common.file.entity.repository.FileInfoRepository;
+import com.install.domain.common.file.service.StorageService;
 import com.install.domain.consumer.entity.Consumer;
 import com.install.domain.consumer.entity.repository.ConsumerRepository;
 import com.install.domain.install.dto.InstallDto;
 import com.install.domain.install.dto.InstallDto.InstallHistoryByConsumer;
-import com.install.domain.install.dto.InstallDto.InstallRequest;
 import com.install.domain.install.dto.InstallDto.InstallHistoryByModem;
+import com.install.domain.install.dto.InstallDto.InstallRequest;
 import com.install.domain.install.dto.InstallDto.historyInfo;
 import com.install.domain.install.entity.InstallInfo;
 import com.install.domain.install.entity.repository.InstallRepository;
@@ -26,6 +33,7 @@ import com.install.global.exception.CustomException;
 import com.install.global.security.service.JwtService;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Function;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,6 +41,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  * @author : iyeong-gyo
@@ -51,15 +60,19 @@ public class InstallService {
   private final ModemRepository modemRepository;
   private final ConsumerRepository consumerRepository;
   private final JwtService jwtService;
+  private final StorageService storageService;
+  private final FileInfoRepository fileInfoRepository;
 
   /**
    * @param modemId
    * @param consumerId
-   * @param requestDto
-   *
-   * 단말기 설치
+   * @param requestDto 단말기 설치
    */
-  public void installModem(Long modemId, Long consumerId, InstallDto.InstallRequest requestDto) {
+  public void installModem(
+      Long modemId, Long consumerId, InstallDto.InstallRequest requestDto, List<MultipartFile> installImages
+  ) {
+
+    validateIsExistFiles(installImages);
     validateIsExistModem(modemId);
     validateIsExistConsumer(consumerId);
     validateShouldNotInstalledModem(modemId);
@@ -67,7 +80,7 @@ public class InstallService {
     Member worker = memberRepository.findById(jwtService.getId())
         .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
 
-    installRepository.save(
+    InstallInfo savedInstallInfo = installRepository.save(
         InstallInfo.builder()
             .modem(Modem.builder().id(modemId).build())
             .consumer(Consumer.builder().id(consumerId).build())
@@ -78,15 +91,44 @@ public class InstallService {
                 .build())
             .workTime(LocalDateTime.now())
             .build());
+
+    for (MultipartFile image : installImages) {
+      installModemFileUpload(savedInstallInfo, image);
+    }
+  }
+
+  public void installModemFileUpload(InstallInfo installInfo, MultipartFile multipartFile) {
+    // 파일경로 DB 저장
+    StringBuilder builder = new StringBuilder();
+    String fileType = "." + multipartFile.getContentType().split("/")[1];
+    String randomNum = randomUUID().toString().substring(0, 6);
+
+    String fileName = builder.append(System.currentTimeMillis())
+        .append("_").append(randomNum)
+        .append(fileType)
+        .toString();
+
+    builder.delete(0, builder.length()); // builder 초기화
+    String dirPath = builder
+        .append("modeminstall")
+        .append("/")
+        .append(installInfo.getId()).append("/")
+        .toString();
+
+    FileInfo savedFileInfo = fileInfoRepository.save(FileInfo.builder()
+        .fileUri(dirPath + "/" + fileName)
+        .fileSize(multipartFile.getSize())
+        .installInfo(installInfo)
+        .build());
+
+    // 저장소에 실제 파일 저장
+    storageService.store(multipartFile, dirPath, fileName);
   }
 
   /**
-   *
    * @param modemId
    * @param consumerId
-   * @param requestDto
-   *
-   * 단말기 교체
+   * @param requestDto 단말기 교체
    */
   public void changeModem(Long modemId, Long consumerId, InstallRequest requestDto) {
 
@@ -94,9 +136,7 @@ public class InstallService {
 
   /**
    * @param modemId
-   * @param requestDto
-   *
-   * 단말기 유지보수
+   * @param requestDto 단말기 유지보수
    */
   public void maintenanceModem(Long modemId, InstallRequest requestDto) {
     validateIsExistModem(modemId);
@@ -127,9 +167,7 @@ public class InstallService {
 
   /**
    * @param modemId
-   * @param requestDto
-   *
-   * 단말기 철거
+   * @param requestDto 단말기 철거
    */
   public void demolishModem(Long modemId, InstallRequest requestDto) {
     validateIsExistModem(modemId);
@@ -160,18 +198,21 @@ public class InstallService {
 
   @Transactional(readOnly = true)
   public InstallHistoryByModem searchHistoryByModem(Long modemId, Pageable pageable) {
-    Page<historyInfo> historyInfos = installRepository.searchInstallInfoPageByModem(modemId, pageable)
+    Page<historyInfo> historyInfos = installRepository.searchInstallInfoPageByModem(modemId,
+            pageable)
         .map(getInstallInfohistoryInfoFunction());
 
     return InstallHistoryByModem.builder()
         .historys(historyInfos)
-        .currentState(installRepository.isInstalledModem(modemId) ? "설치" : "미설치") // TODO : enum 으로 대체
+        .currentState(
+            installRepository.isInstalledModem(modemId) ? "설치" : "미설치") // TODO : enum 으로 대체
         .build();
   }
 
   @Transactional(readOnly = true)
   public InstallHistoryByConsumer searchHistoryByConsumer(Long consumerId, Pageable pageable) {
-    Page<historyInfo> historyInfos = installRepository.searchInstallInfoPageByConsumer(consumerId, pageable)
+    Page<historyInfo> historyInfos = installRepository.searchInstallInfoPageByConsumer(consumerId,
+            pageable)
         .map(getInstallInfohistoryInfoFunction());
 
     return InstallHistoryByConsumer.builder()
@@ -203,6 +244,18 @@ public class InstallService {
     }
 
     return "설치";
+  }
+
+  private void validateIsExistFiles(List<MultipartFile> images) {
+    if (isNull(images) || images.size() == 0) {
+      throw new CustomException(NOT_FOUND_FILE_INFO);
+    }
+  }
+
+  private void validateMaxImages(List<MultipartFile> images) {
+    if (images.size() > 3) {
+      throw new CustomException(IMAGE_SIZE_NOT_ALLOW);
+    }
   }
 
   /**

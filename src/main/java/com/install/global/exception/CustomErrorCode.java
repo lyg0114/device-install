@@ -13,12 +13,19 @@ import org.springframework.http.HttpStatus;
 @Getter
 @RequiredArgsConstructor
 public enum CustomErrorCode {
+
+  // Server Error (5XX)
+  FAIL_ITIT_FILE_DIRECTORY(INTERNAL_SERVER_ERROR, "fail to initialize file directories"),
+
   // General
   INVALID_HTTP_METHOD(METHOD_NOT_ALLOWED, "잘못된 Http Method 요청입니다."),
   INVALID_VALUE(BAD_REQUEST, "잘못된 입력값입니다."),
   ACCESS_DENIED(UNAUTHORIZED, "접근권한이 없습니다."),
   UNKNON_INVALID_VALUE(BAD_REQUEST, "입력값을 확인해 주세요."),
   SERVER_INTERNAL_ERROR(INTERNAL_SERVER_ERROR, "서버 오류가 발생했습니다."),
+
+  // File
+  FILE_NOT_EXIST(BAD_REQUEST, "FILE이 존재하지 않습니다."),
 
   // JWT
   TOKEN_NOT_EXIST(BAD_REQUEST, "JWT Token이 존재하지 않습니다."),
@@ -44,8 +51,10 @@ public enum CustomErrorCode {
   IMEI_ALREADY_EXIST(BAD_REQUEST, "이미 존재하는 IMEI 입니다."),
 
   // Install
+  NOT_FOUND_FILE_INFO(BAD_REQUEST, "설치사진이 존재하지 않습니다."),
   NOT_FOUND_INSTALL_INFO(BAD_REQUEST, "설치정보를 찾을 수 없습니다."),
   ALREADY_INSTALLED_MODEM(BAD_REQUEST, "이미 설치된 단말기 입니다."),
+  IMAGE_SIZE_NOT_ALLOW(BAD_REQUEST, "이미지는 최대 3개만 업로드 할 수 있습니다."),
   NOT_INSTALLED_MODEM(BAD_REQUEST, "설치되지 않은 단말기 입니다.");
 
   private final HttpStatus httpStatus;
