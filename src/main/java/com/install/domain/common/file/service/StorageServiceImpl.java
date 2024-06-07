@@ -9,12 +9,16 @@ import static java.nio.file.Paths.get;
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 import com.install.domain.common.file.config.StorageProperties;
+import com.install.domain.common.file.entity.FileInfo;
 import com.install.domain.common.file.entity.repository.FileInfoRepository;
 import com.install.global.exception.CustomException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.nio.file.Path;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -30,9 +34,12 @@ import org.springframework.web.multipart.MultipartFile;
 public class StorageServiceImpl implements StorageService {
 
   private final Path rootLocation;
+  private final FileInfoRepository fileInfoRepository;
 
-  public StorageServiceImpl(StorageProperties properties, FileInfoRepository fileInfoRepository) {
+  public StorageServiceImpl(
+      StorageProperties properties, FileInfoRepository fileInfoRepository) {
     this.rootLocation = get(properties.getLocation());
+    this.fileInfoRepository = fileInfoRepository;
   }
 
   @Override
@@ -78,6 +85,28 @@ public class StorageServiceImpl implements StorageService {
 
   @Override
   public Path load(Long fileId) {
-    return null;
+    FileInfo fileInfo = fileInfoRepository.findById(fileId)
+        .orElseThrow((() -> new CustomException(FILE_NOT_EXIST)));
+
+    return rootLocation.resolve(fileInfo.getFileUri());
+  }
+
+  //TODO : 예외처리 추가 작업 필요
+  @Override
+  public Resource loadAsResource(Long fileId) {
+    try {
+      Path file = load(fileId);
+      Resource resource = new UrlResource(file.toUri());
+      if (resource.exists() || resource.isReadable()) {
+        return resource;
+      } else {
+        return null;
+//        throw new StorageFileNotFoundException("Could not read fileId: " + fileId);
+      }
+    } catch (MalformedURLException e) {
+      e.printStackTrace();
+      return null;
+//      throw new StorageFileNotFoundException("Could not read fileId: " + fileId, e);
+    }
   }
 }
