@@ -31,6 +31,7 @@ import com.install.domain.modem.entity.repository.ModemRepository;
 import com.install.global.security.service.JwtService;
 import jakarta.persistence.EntityManager;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -93,6 +94,16 @@ class InstallServiceTest {
     codeRepository.save(createCode(MODEM_INSTALL_STATUS_DEMOLISH));
   }
 
+  private Member createMember(String name) {
+    Member worker = Member.builder()
+        .name(name)
+        .nickname("에이스")
+        .email("worker@example.com")
+        .password("1234")
+        .build();
+    return worker;
+  }
+
   private Code createCode(CodeSet codeSet) {
     return Code.builder()
         .code(codeSet.getCode())
@@ -124,6 +135,16 @@ class InstallServiceTest {
     return sameplFile;
   }
 
+  private List<MultipartFile> createSampleFiles(String content, int count) {
+    List<MultipartFile> sampleFiles = new ArrayList<>();
+    for (int i = 0; i < count; i++) {
+      sampleFiles.add(createMockFile(new StringBuilder(content)
+          .append("-")
+          .append(i).toString()));
+    }
+    return sampleFiles;
+  }
+
   private Modem createModem(String str) {
     return Modem.builder()
         .modemNo("modemNo-" + str)
@@ -148,15 +169,7 @@ class InstallServiceTest {
   @Test
   void 단말기_설치를_성공한다() {
     //given
-    Member worker = Member.builder()
-        .name("작업자")
-        .nickname("에이스")
-        .email("worker@example.com")
-        .password("1234")
-        .build();
-
-    Member savedWorker = memberRepository.save(worker);
-    when(jwtService.getId()).thenReturn(savedWorker.getId());
+    when(jwtService.getId()).thenReturn(memberRepository.save(createMember("worker")).getId());
     Modem savedModem = modemRepository.save(createModem("modem"));
     Consumer savedConsumer = consumerRepository.save(createConsumer("consumer"));
     InstallDto.InstallRequest requestDto = InstallRequest.builder()
@@ -164,17 +177,11 @@ class InstallServiceTest {
         .comment("install success !!")
         .build();
 
-    List<MultipartFile> sampleFiles = List.of(
-       createMockFile("Hello word 1"),
-        createMockFile("Hello word 2"),
-        createMockFile("Hello word 3")
-    );
-
     em.flush();
     em.clear();
 
     //when
-    installService.installModem(savedModem.getId(), savedConsumer.getId(), requestDto, sampleFiles);
+    installService.installModem(savedModem.getId(), savedConsumer.getId(), requestDto, createSampleFiles("install success", 2));
 
     em.flush();
     em.clear();
@@ -190,82 +197,53 @@ class InstallServiceTest {
   @Test
   void 단말기_교체를_성공한다() {
     //given
-    Member worker = Member.builder()
-        .name("작업자")
-        .nickname("에이스")
-        .email("worker@example.com")
-        .password("1234")
-        .build();
-
-    Member savedWorker = memberRepository.save(worker);
-    when(jwtService.getId()).thenReturn(savedWorker.getId());
+    when(jwtService.getId()).thenReturn(memberRepository.save(createMember("worker")).getId());
     Modem savedModem = modemRepository.save(createModem("modem"));
     Consumer savedConsumer = consumerRepository.save(createConsumer("consumer"));
     InstallDto.InstallRequest requestDto = InstallRequest.builder()
         .workTypeCd(MODEM_INSTALL_STATUS_INSTALLED.getCode())
-        .comment("install success !!")
+        .comment("신규설치 성공")
         .build();
 
-    installService.installModem(
-        savedModem.getId(), savedConsumer.getId(), requestDto,
-        List.of(
-            createMockFile("Hello word 1"),
-            createMockFile("Hello word 2"),
-            createMockFile("Hello word 3")
-        )
-    );
+    installService.installModem(savedModem.getId(), savedConsumer.getId(), requestDto, createSampleFiles("install success", 2));
 
-//    em.flush();
-//    em.clear();
+    em.flush();
+    em.clear();
 
     //when
     Modem modem2 = modemRepository.save(createModem("modem2"));
     InstallDto.InstallRequest changeModemRequestDto = InstallRequest.builder()
         .workTypeCd(MODEM_INSTALL_STATUS_CHANGE.getCode())
-        .comment("change success !!")
+        .comment("단말기 교체 성공")
         .build();
 
-    installService.changeModem(modem2.getId(), savedConsumer.getId(), changeModemRequestDto,
-        List.of(createMockFile("change word 1"), createMockFile("change word 2")));
+    installService.changeModem(modem2.getId(), savedConsumer.getId(), changeModemRequestDto, createSampleFiles("change success", 2));
 
     em.flush();
     em.clear();
 
     //then
-    InstallHistoryByConsumer historyByConsumer = installService.searchHistoryByConsumer(
-        savedConsumer.getId(), PageRequest.of(0, 10));
+    InstallHistoryByConsumer historyByConsumer = installService.searchHistoryByConsumer(savedConsumer.getId(), PageRequest.of(0, 10));
 
     String currentState = historyByConsumer.getCurrentState();
     Page<historyInfo> historys = historyByConsumer.getHistorys();
     for (historyInfo history : historys) {
       System.out.println("history = " + history);
     }
-
   }
 
   @Test
   void 단말기_유지보수를_성공한다() {
     //given
-    Member worker = Member.builder()
-        .name("작업자")
-        .nickname("에이스")
-        .email("worker@example.com")
-        .password("1234")
-        .build();
-
+    when(jwtService.getId()).thenReturn(memberRepository.save(createMember("worker")).getId());
+    Modem modem = modemRepository.save(createModem("modem1"));
+    Consumer consumer = consumerRepository.save(createConsumer("test"));
     InstallRequest requestDto = InstallRequest.builder()
         .workTypeCd(MODEM_INSTALL_STATUS_INSTALLED.getCode())
         .comment("신규설치 완료")
         .build();
 
-    Member savedWorker = memberRepository.save(worker);
-    when(jwtService.getId()).thenReturn(savedWorker.getId());
-    Modem modem = modemRepository.save(createModem("modem1"));
-    Consumer consumer = consumerRepository.save(createConsumer("test"));
-    installService.installModem(modem.getId(), consumer.getId(), requestDto, List.of(
-            createMockFile("Hello word 1"),
-            createMockFile("Hello word 2"),
-            createMockFile("Hello word 3")));
+    installService.installModem(modem.getId(), consumer.getId(), requestDto, createSampleFiles("install success", 2));
 
     em.flush();
     em.clear();
@@ -276,14 +254,13 @@ class InstallServiceTest {
         .build();
 
     //when
-    installService.maintenanceModem(modem.getId(), maintenceRequestDto, List.of(createMockFile("유지보수 완료")));
+    installService.maintenanceModem(modem.getId(), maintenceRequestDto, createSampleFiles("maintence success", 2));
 
     em.flush();
     em.clear();
 
     //then
-    InstallInfo installInfo = installRepository.currentInstalledInfo(modem.getId())
-        .orElseThrow();
+    InstallInfo installInfo = installRepository.currentInstalledInfo(modem.getId()).orElseThrow();
 
     assertThat(installInfo.getConsumer().getConsumerNo()).isEqualTo(consumer.getConsumerNo());
     assertThat(installInfo.getModem().getModemNo()).isEqualTo(modem.getModemNo());
@@ -294,15 +271,7 @@ class InstallServiceTest {
   @Test
   void 단말기_철거를_성공한다() {
     //given
-    Member worker = Member.builder()
-        .name("작업자")
-        .nickname("에이스")
-        .email("worker@example.com")
-        .password("1234")
-        .build();
-
-    Member savedWorker = memberRepository.save(worker);
-    when(jwtService.getId()).thenReturn(savedWorker.getId());
+    when(jwtService.getId()).thenReturn(memberRepository.save(createMember("worker")).getId());
     Modem modem = modemRepository.save(createModem("modem"));
     Consumer consumer = consumerRepository.save(createConsumer("test"));
     InstallRequest requestDto = InstallRequest.builder()
@@ -310,11 +279,7 @@ class InstallServiceTest {
         .comment("신규설치 완료")
         .build();
 
-    installService.installModem(modem.getId(), consumer.getId(), requestDto, List.of(
-            createMockFile("Hello word 1"),
-            createMockFile("Hello word 2"),
-            createMockFile("Hello word 3"))
-    );
+    installService.installModem(modem.getId(), consumer.getId(), requestDto, createSampleFiles("install success", 2));
 
     em.flush();
     em.clear();
@@ -325,7 +290,8 @@ class InstallServiceTest {
         .build();
 
     //when
-    installService.demolishModem(modem.getId(), demolishRequestDto, List.of(createMockFile("demolish success")));
+
+    installService.demolishModem(modem.getId(), demolishRequestDto, createSampleFiles("demolish success", 2));
 
     em.flush();
     em.clear();
@@ -356,11 +322,11 @@ class InstallServiceTest {
     installRepository.save(createInstallInfo(modem, consumer1, MODEM_INSTALL_STATUS_DEMOLISH, "철거 했음", LocalDateTime.now().minusDays(3L)));
     installRepository.save(createInstallInfo(modem, consumer2, MODEM_INSTALL_STATUS_INSTALLED, "다른 수용가에 신규설치", LocalDateTime.now().minusDays(2L)));
     installRepository.save(createInstallInfo(modem, consumer2, MODEM_INSTALL_STATUS_DEMOLISH, "철거", LocalDateTime.now().minusDays(1)));
+
     em.flush();
     em.clear();
 
-    InstallHistoryByModem installHistoryByModem = installService.searchHistoryByModem(modem.getId(),
-        PageRequest.of(0, 10));
+    InstallHistoryByModem installHistoryByModem = installService.searchHistoryByModem(modem.getId(), PageRequest.of(0, 10));
 
     //TODO : 검증로직 개선 필요
     String currentState = installHistoryByModem.getCurrentState();
@@ -379,32 +345,22 @@ class InstallServiceTest {
     Modem modem2 = modemRepository.save(createModem("modem2"));
 
     // modem1 신규설치
-    installRepository.save(
-        createInstallInfo(modem1, consumer, MODEM_INSTALL_STATUS_INSTALLED, "신규설치 했음",
-            LocalDateTime.now().minusDays(3L)));
+    installRepository.save(createInstallInfo(modem1, consumer, MODEM_INSTALL_STATUS_INSTALLED, "신규설치 했음", LocalDateTime.now().minusDays(3L)));
     // modem1 유지보수
-    installRepository.save(
-        createInstallInfo(modem1, consumer, MODEM_INSTALL_STATUS_MAINTANCE, "유지보수 했음",
-            LocalDateTime.now().minusDays(2L)));
+    installRepository.save(createInstallInfo(modem1, consumer, MODEM_INSTALL_STATUS_MAINTANCE, "유지보수 했음", LocalDateTime.now().minusDays(2L)));
     // modem1 철거
-    installRepository.save(
-        createInstallInfo(modem1, consumer, MODEM_INSTALL_STATUS_DEMOLISH, "철거 했음",
-            LocalDateTime.now().minusDays(1L)));
+    installRepository.save(createInstallInfo(modem1, consumer, MODEM_INSTALL_STATUS_DEMOLISH, "철거 했음", LocalDateTime.now().minusDays(1L)));
     // modem2 신규설치
-    installRepository.save(
-        createInstallInfo(modem2, consumer, MODEM_INSTALL_STATUS_INSTALLED, "다른 단말기로 신규 설치",
-            LocalDateTime.now()));
+    installRepository.save(createInstallInfo(modem2, consumer, MODEM_INSTALL_STATUS_INSTALLED, "다른 단말기로 신규 설치", LocalDateTime.now()));
 
     em.flush();
     em.clear();
 
     //when
-    InstallHistoryByConsumer installHistoryByConsumer = installService.searchHistoryByConsumer(
-        consumer.getId(), PageRequest.of(0, 10));
+    InstallHistoryByConsumer installHistoryByConsumer = installService.searchHistoryByConsumer(consumer.getId(), PageRequest.of(0, 10));
 
     //then
-    System.out.println("installHistoryByConsumer.getCurrentState() = "
-        + installHistoryByConsumer.getCurrentState());
+    System.out.println("installHistoryByConsumer.getCurrentState() = " + installHistoryByConsumer.getCurrentState());
     Page<historyInfo> historys = installHistoryByConsumer.getHistorys();
     for (historyInfo history : historys) {
       System.out.println("history = " + history);
@@ -422,23 +378,14 @@ class InstallServiceTest {
     em.clear();
 
     //when
-
     // modem1 신규설치
-    installRepository.save(
-        createInstallInfo(modem1, consumer, MODEM_INSTALL_STATUS_INSTALLED, "신규설치 했음",
-            LocalDateTime.now().minusDays(3L)));
+    installRepository.save(createInstallInfo(modem1, consumer, MODEM_INSTALL_STATUS_INSTALLED, "신규설치 했음", LocalDateTime.now().minusDays(3L)));
     // modem1 유지보수
-    installRepository.save(
-        createInstallInfo(modem1, consumer, MODEM_INSTALL_STATUS_MAINTANCE, "유지보수 했음",
-            LocalDateTime.now().minusDays(2L)));
+    installRepository.save(createInstallInfo(modem1, consumer, MODEM_INSTALL_STATUS_MAINTANCE, "유지보수 했음", LocalDateTime.now().minusDays(2L)));
     // modem1 철거
-    installRepository.save(
-        createInstallInfo(modem1, consumer, MODEM_INSTALL_STATUS_DEMOLISH, "철거 했음",
-            LocalDateTime.now().minusDays(1L)));
+    installRepository.save(createInstallInfo(modem1, consumer, MODEM_INSTALL_STATUS_DEMOLISH, "철거 했음", LocalDateTime.now().minusDays(1L)));
     // modem2 신규설치
-    installRepository.save(
-        createInstallInfo(modem2, consumer, MODEM_INSTALL_STATUS_INSTALLED, "다른 단말기로 신규 설치",
-            LocalDateTime.now()));
+    installRepository.save(createInstallInfo(modem2, consumer, MODEM_INSTALL_STATUS_INSTALLED, "다른 단말기로 신규 설치", LocalDateTime.now()));
 
     em.flush();
     em.clear();
