@@ -26,6 +26,7 @@ public enum CustomErrorCode {
 
   // File
   FILE_NOT_EXIST(BAD_REQUEST, "FILE이 존재하지 않습니다."),
+  FILE_STORE_ERROR(BAD_REQUEST, "FILE 저장에 실패하였습니다."),
 
   // JWT
   TOKEN_NOT_EXIST(BAD_REQUEST, "JWT Token이 존재하지 않습니다."),
