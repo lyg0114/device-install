@@ -6,11 +6,17 @@ import static com.install.global.exception.CustomErrorCode.METER_NO_ALREADY_EXIS
 
 import com.install.domain.consumer.dto.ConsumerDto;
 import com.install.domain.consumer.dto.ConsumerDto.ConsumerRequest;
+import com.install.domain.consumer.dto.ConsumerDto.ConsumerResponse;
+import com.install.domain.consumer.dto.ConsumerDto.ConsumerSearchCondition;
 import com.install.domain.consumer.entity.Consumer;
 import com.install.domain.consumer.entity.repository.ConsumerRepository;
+import com.install.domain.install.entity.InstallInfo;
+import com.install.domain.install.entity.repository.InstallRepository;
 import com.install.global.exception.CustomException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,11 +32,29 @@ import org.springframework.transaction.annotation.Transactional;
 public class ConsumerService {
 
   private final ConsumerRepository consumerRepository;
+  private final InstallRepository installRepository;
+
+  public Page<ConsumerResponse> searchConsumers(ConsumerSearchCondition condition, Pageable pageable) {
+    return installRepository.searchConsumers(condition, pageable)
+        .map(InstallInfo::toConsumerResponse);
+  }
 
   public void addConsumer(ConsumerDto.ConsumerRequest requestDto) {
     validateDuplicateConsumerNo(requestDto.getConsumerNo());
     validateDuplicateMeterNo(requestDto.getMeterNo());
     consumerRepository.save(requestDto.toEntity());
+  }
+
+  public void updateConsumer(Long consumerId, ConsumerRequest requestDto) {
+    consumerRepository.findById(consumerId)
+        .orElseThrow(() -> new CustomException(CONSUMER_NOT_EXIST))
+        .updateConsumer(requestDto);
+  }
+
+  public void deleteConsumer(Long consumerId) {
+    Consumer consumer = consumerRepository.findById(consumerId)
+        .orElseThrow(() -> new CustomException(CONSUMER_NOT_EXIST));
+    consumerRepository.delete(consumer);
   }
 
   private void validateDuplicateConsumerNo(String consumerNo) {
@@ -45,15 +69,4 @@ public class ConsumerService {
     }
   }
 
-  public void updateConsumer(Long consumerId, ConsumerRequest requestDto) {
-    consumerRepository.findById(consumerId)
-        .orElseThrow(() -> new CustomException(CONSUMER_NOT_EXIST))
-        .updateConsumer(requestDto);
-  }
-
-  public void deleteConsumer(Long consumerId) {
-    Consumer consumer = consumerRepository.findById(consumerId)
-        .orElseThrow(() -> new CustomException(CONSUMER_NOT_EXIST));
-    consumerRepository.delete(consumer);
-  }
 }

@@ -1,5 +1,7 @@
 package com.install.domain.install.service;
 
+import static com.install.domain.code.entity.CodeSet.HAS_MODEM;
+import static com.install.domain.code.entity.CodeSet.HAS_NOT_MODEM;
 import static com.install.domain.code.entity.CodeSet.MODEM_INSTALL_STATUS;
 import static com.install.domain.code.entity.CodeSet.MODEM_INSTALL_STATUS_CHANGE;
 import static com.install.domain.code.entity.CodeSet.MODEM_INSTALL_STATUS_DEMOLISH;
@@ -7,6 +9,7 @@ import static com.install.domain.code.entity.CodeSet.MODEM_INSTALL_STATUS_INSTAL
 import static com.install.domain.code.entity.CodeSet.MODEM_INSTALL_STATUS_MAINTANCE;
 import static com.install.domain.code.entity.CodeSet.MODEM_STAUTS;
 import static com.install.domain.code.entity.CodeSet.MODEM_TYPE;
+import static com.install.domain.code.entity.CodeSet.getAllCodes;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
@@ -54,7 +57,7 @@ import org.springframework.web.multipart.MultipartFile;
  * @package : com.install.domain.install.service
  * @since : 05.06.24
  */
-@DisplayName("단말기 설치 테스트")
+@DisplayName("단말기 설치,교체,유지보수,철거 테스트")
 @Transactional
 @SpringBootTest
 class InstallServiceTest {
@@ -73,13 +76,7 @@ class InstallServiceTest {
   @BeforeEach void before() { createCodes(); }
 
   private void createCodes() {
-    codeRepository.save(createCode(MODEM_TYPE));
-    codeRepository.save(createCode(MODEM_STAUTS));
-    codeRepository.save(createCode(MODEM_INSTALL_STATUS));
-    codeRepository.save(createCode(MODEM_INSTALL_STATUS_INSTALLED));
-    codeRepository.save(createCode(MODEM_INSTALL_STATUS_CHANGE));
-    codeRepository.save(createCode(MODEM_INSTALL_STATUS_MAINTANCE));
-    codeRepository.save(createCode(MODEM_INSTALL_STATUS_DEMOLISH));
+    codeRepository.saveAll(getAllCodes());
   }
 
   private Member createMember(String name) {
@@ -161,10 +158,7 @@ class InstallServiceTest {
     when(jwtService.getId()).thenReturn(memberRepository.save(createMember("worker")).getId());
     Modem savedModem = modemRepository.save(createModem("modem"));
     Consumer savedConsumer = consumerRepository.save(createConsumer("consumer"));
-    InstallDto.InstallRequest requestDto = InstallRequest.builder()
-        .workTypeCd(MODEM_INSTALL_STATUS_INSTALLED.getCode())
-        .comment("install success !!")
-        .build();
+    InstallRequest requestDto = InstallRequest.builder().comment("install success !!").build();
 
     em.flush();
     em.clear();
@@ -192,10 +186,7 @@ class InstallServiceTest {
     when(jwtService.getId()).thenReturn(memberRepository.save(createMember("worker")).getId());
     Modem savedModem = modemRepository.save(createModem("modem"));
     Consumer savedConsumer = consumerRepository.save(createConsumer("consumer"));
-    InstallDto.InstallRequest requestDto = InstallRequest.builder()
-        .workTypeCd(MODEM_INSTALL_STATUS_INSTALLED.getCode())
-        .comment("신규설치 성공")
-        .build();
+    InstallRequest requestDto = InstallRequest.builder().comment("신규설치 성공").build();
 
     installService.installModem(savedModem.getId(), savedConsumer.getId(), requestDto, createSampleFiles("install success", 2));
 
@@ -204,10 +195,7 @@ class InstallServiceTest {
 
     //when
     Modem changedModem = modemRepository.save(createModem("modem2"));
-    InstallDto.InstallRequest changeModemRequestDto = InstallRequest.builder()
-        .workTypeCd(MODEM_INSTALL_STATUS_CHANGE.getCode())
-        .comment("단말기 교체 성공")
-        .build();
+    InstallRequest changeModemRequestDto = InstallRequest.builder().comment("단말기 교체 성공").build();
 
     installService.changeModem(changedModem.getId(), savedConsumer.getId(), changeModemRequestDto, createSampleFiles("change success", 2));
 
@@ -231,20 +219,14 @@ class InstallServiceTest {
     when(jwtService.getId()).thenReturn(memberRepository.save(createMember("worker")).getId());
     Modem modem = modemRepository.save(createModem("modem1"));
     Consumer consumer = consumerRepository.save(createConsumer("test"));
-    InstallRequest requestDto = InstallRequest.builder()
-        .workTypeCd(MODEM_INSTALL_STATUS_INSTALLED.getCode())
-        .comment("신규설치 완료")
-        .build();
+    InstallRequest requestDto = InstallRequest.builder().comment("신규설치 완료").build();
 
     installService.installModem(modem.getId(), consumer.getId(), requestDto, createSampleFiles("install success", 2));
 
     em.flush();
     em.clear();
 
-    InstallDto.InstallRequest maintenceRequestDto = InstallRequest.builder()
-        .workTypeCd(MODEM_INSTALL_STATUS_MAINTANCE.getCode())
-        .comment("유지보수 성공")
-        .build();
+    InstallRequest maintenceRequestDto = InstallRequest.builder().comment("유지보수 성공").build();
 
     //when
     installService.maintenanceModem(modem.getId(), maintenceRequestDto, createSampleFiles("maintence success", 2));
@@ -269,20 +251,14 @@ class InstallServiceTest {
     when(jwtService.getId()).thenReturn(memberRepository.save(createMember("worker")).getId());
     Modem modem = modemRepository.save(createModem("modem"));
     Consumer consumer = consumerRepository.save(createConsumer("test"));
-    InstallRequest requestDto = InstallRequest.builder()
-        .workTypeCd(MODEM_INSTALL_STATUS_INSTALLED.getCode())
-        .comment("신규설치 완료")
-        .build();
+    InstallRequest requestDto = InstallRequest.builder().comment("신규설치 완료").build();
 
     installService.installModem(modem.getId(), consumer.getId(), requestDto, createSampleFiles("install success", 2));
 
     em.flush();
     em.clear();
 
-    InstallDto.InstallRequest demolishRequestDto = InstallRequest.builder()
-        .workTypeCd(MODEM_INSTALL_STATUS_DEMOLISH.getCode())
-        .comment("단말기 철거 성공")
-        .build();
+    InstallRequest demolishRequestDto = InstallRequest.builder().comment("단말기 철거 성공").build();
 
     //when
     installService.demolishModem(modem.getId(), demolishRequestDto, createSampleFiles("demolish success", 2));
@@ -323,7 +299,7 @@ class InstallServiceTest {
 
     InstallHistoryByModem installHistoryByModem = installService.searchHistoryByModem(modem.getId(), PageRequest.of(0, 10));
 
-    assertThat(installHistoryByModem.getCurrentState()).isEqualTo("미설치");
+    assertThat(installHistoryByModem.getCurrentState()).isEqualTo(HAS_NOT_MODEM.getCode());
     List<historyInfo> historys = installHistoryByModem.getHistorys().getContent();
     assertThat(historys.get(0).getWorkType()).isEqualTo(MODEM_INSTALL_STATUS_DEMOLISH.getCode());
     assertThat(historys.get(1).getWorkType()).isEqualTo(MODEM_INSTALL_STATUS_INSTALLED.getCode());
@@ -352,7 +328,7 @@ class InstallServiceTest {
     List<historyInfo> historyInfos = installHistoryByConsumer.getHistorys().getContent();
 
     //then
-    assertThat(installHistoryByConsumer.getCurrentState()).isEqualTo("설치");
+    assertThat(installHistoryByConsumer.getCurrentState()).isEqualTo(HAS_MODEM.getCode());
     assertThat(historyInfos.get(0).getWorkType()).isEqualTo(MODEM_INSTALL_STATUS_INSTALLED.getCode());
     assertThat(historyInfos.get(1).getWorkType()).isEqualTo(MODEM_INSTALL_STATUS_DEMOLISH.getCode());
     assertThat(historyInfos.get(2).getWorkType()).isEqualTo(MODEM_INSTALL_STATUS_MAINTANCE.getCode());

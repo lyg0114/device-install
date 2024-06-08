@@ -44,11 +44,12 @@ public class ConsumerApiController {
    */
   @GetMapping
   public ResponseEntity<Page<ConsumerDto.ConsumerResponse>> searchConsumers(
-      ConsumerDto.ConsumerSearchCondition condition, Pageable pageable) {
+      ConsumerDto.ConsumerSearchCondition condition, Pageable pageable
+  ) {
 
-    // business logic
-
-    return ResponseEntity.status(HttpStatus.OK).body(null);
+    return ResponseEntity
+        .status(HttpStatus.OK)
+        .body(consumerService.searchConsumers(condition, pageable));
   }
 
   /**

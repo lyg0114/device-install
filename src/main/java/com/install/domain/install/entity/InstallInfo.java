@@ -7,6 +7,7 @@ import static lombok.AccessLevel.PROTECTED;
 import com.install.domain.code.entity.Code;
 import com.install.domain.common.BaseTimeEntity;
 import com.install.domain.common.file.entity.FileInfo;
+import com.install.domain.consumer.dto.ConsumerDto.ConsumerResponse;
 import com.install.domain.consumer.entity.Consumer;
 import com.install.domain.member.entity.Member;
 import com.install.domain.modem.entity.Modem;
@@ -81,5 +82,9 @@ public class InstallInfo extends BaseTimeEntity {
         ", imei =" + modem.getImei() +
         ", workTypeCd.code =" + workTypeCd.getCode() +
         '}';
+  }
+
+  public ConsumerResponse toConsumerResponse() {
+    return null;
   }
 }

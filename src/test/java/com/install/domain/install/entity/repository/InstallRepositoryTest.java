@@ -45,13 +45,7 @@ class InstallRepositoryTest {
   }
 
   private void createCodes() {
-    codeRepository.save(createCode(MODEM_TYPE));
-    codeRepository.save(createCode(MODEM_STAUTS));
-    codeRepository.save(createCode(MODEM_INSTALL_STATUS));
-    codeRepository.save(createCode(MODEM_INSTALL_STATUS_INSTALLED));
-    codeRepository.save(createCode(MODEM_INSTALL_STATUS_CHANGE));
-    codeRepository.save(createCode(MODEM_INSTALL_STATUS_MAINTANCE));
-    codeRepository.save(createCode(MODEM_INSTALL_STATUS_DEMOLISH));
+    codeRepository.saveAll(getAllCodes());
   }
 
   private Code createCode(CodeSet codeSet) {

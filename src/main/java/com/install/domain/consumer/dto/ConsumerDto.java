@@ -9,6 +9,7 @@ import com.install.domain.consumer.entity.Consumer;
 import com.install.domain.consumer.entity.Consumer.ConsumerBuilder;
 import com.install.domain.consumer.entity.Location;
 import jakarta.validation.constraints.NotBlank;
+import java.math.BigDecimal;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -85,6 +86,16 @@ public class ConsumerDto {
   @AllArgsConstructor
   public static class ConsumerResponse {
 
+    private String consumerNo;
+    private String consumerName;
+    private String meterNo;
+    private String installedModemNo;
+    private BigDecimal usage;
+    private String city;
+    private String street;
+    private String zipcode;
+    private String geoX;
+    private String geoY;
   }
 
 }
