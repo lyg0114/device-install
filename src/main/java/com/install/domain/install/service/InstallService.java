@@ -2,7 +2,6 @@ package com.install.domain.install.service;
 
 import static com.install.domain.code.entity.CodeSet.HAS_MODEM;
 import static com.install.domain.code.entity.CodeSet.HAS_NOT_MODEM;
-import static com.install.domain.code.entity.CodeSet.MODEM_INSTALL_STATUS_CHANGE;
 import static com.install.domain.code.entity.CodeSet.MODEM_INSTALL_STATUS_DEMOLISH;
 import static com.install.domain.code.entity.CodeSet.MODEM_INSTALL_STATUS_INSTALLED;
 import static com.install.domain.code.entity.CodeSet.MODEM_INSTALL_STATUS_MAINTANCE;
@@ -134,23 +133,6 @@ public class InstallService {
     validateShouldNotInstalledModem(modemId);
 
     modemInstallWork(modemId, consumerId, requestDto, MODEM_INSTALL_STATUS_INSTALLED, installImages);
-  }
-
-  /**
-   * @param modemId
-   * @param consumerId
-   * @param requestDto 단말기 교체
-   */
-  public void changeModem(
-      Long modemId, Long consumerId, InstallRequest requestDto, List<MultipartFile> installImages
-  ) {
-
-    validateIsExistFiles(installImages);
-    validateIsExistModem(modemId);
-    validateIsExistConsumer(consumerId);
-    validateShouldNotInstalledModem(modemId);
-
-    modemInstallWork(modemId, consumerId, requestDto, MODEM_INSTALL_STATUS_CHANGE, installImages);
   }
 
   /**

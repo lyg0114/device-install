@@ -27,10 +27,9 @@ public enum CodeSet {
 
   // 단말기 유지보수 코드
   MODEM_INSTALL_STATUS("cd03", "작업종류", 1),
-  MODEM_INSTALL_STATUS_INSTALLED("cd0301", "신규설치", 2),
+  MODEM_INSTALL_STATUS_INSTALLED("cd0301", "설치", 2),
   MODEM_INSTALL_STATUS_MAINTANCE("cd0302", "유지보수", 2),
-  MODEM_INSTALL_STATUS_CHANGE("cd0303", "교체", 2),
-  MODEM_INSTALL_STATUS_DEMOLISH("cd0304", "철거", 2);
+  MODEM_INSTALL_STATUS_DEMOLISH("cd0303", "철거", 2);
 
   private final String code;
   private final String name;

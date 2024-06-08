@@ -122,21 +122,6 @@ public class InstallApiController {
   }
 
   /**
-   * - 단말기 교체
-   */
-  @PatchMapping("/change/{modemId}/{consumerId}")
-  public ResponseEntity<Void> changeModem(
-      @PathVariable Long modemId,
-      @PathVariable Long consumerId,
-      @RequestBody @Valid InstallDto.InstallRequest requestDto,
-      @RequestPart(value = "images", required = false) List<MultipartFile> images
-  ) {
-
-    installService.changeModem(modemId, consumerId, requestDto, images);
-    return ResponseEntity.ok().build();
-  }
-
-  /**
    * - 단말기 유지보수
    */
   @PatchMapping("/maintenance/{modemId}")

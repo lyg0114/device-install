@@ -3,7 +3,6 @@ package com.install.domain.install.service;
 import static com.install.domain.code.entity.CodeSet.HAS_MODEM;
 import static com.install.domain.code.entity.CodeSet.HAS_NOT_MODEM;
 import static com.install.domain.code.entity.CodeSet.MODEM_INSTALL_STATUS;
-import static com.install.domain.code.entity.CodeSet.MODEM_INSTALL_STATUS_CHANGE;
 import static com.install.domain.code.entity.CodeSet.MODEM_INSTALL_STATUS_DEMOLISH;
 import static com.install.domain.code.entity.CodeSet.MODEM_INSTALL_STATUS_INSTALLED;
 import static com.install.domain.code.entity.CodeSet.MODEM_INSTALL_STATUS_MAINTANCE;
@@ -176,39 +175,6 @@ class InstallServiceTest {
 
     assertThat(installInfo.getWorkTypeCd().getCode()).isEqualTo(MODEM_INSTALL_STATUS_INSTALLED.getCode());
     assertThat(installInfo.getModem().getModemNo()).isEqualTo(savedModem.getModemNo());
-    assertThat(installInfo.getConsumer().getConsumerNo()).isEqualTo(savedConsumer.getConsumerNo());
-    assertThat(resource.exists()).isTrue();
-  }
-
-  @Test
-  void 단말기_교체를_성공한다() {
-    //given
-    when(jwtService.getId()).thenReturn(memberRepository.save(createMember("worker")).getId());
-    Modem savedModem = modemRepository.save(createModem("modem"));
-    Consumer savedConsumer = consumerRepository.save(createConsumer("consumer"));
-    InstallRequest requestDto = InstallRequest.builder().comment("신규설치 성공").build();
-
-    installService.installModem(savedModem.getId(), savedConsumer.getId(), requestDto, createSampleFiles("install success", 2));
-
-    em.flush();
-    em.clear();
-
-    //when
-    Modem changedModem = modemRepository.save(createModem("modem2"));
-    InstallRequest changeModemRequestDto = InstallRequest.builder().comment("단말기 교체 성공").build();
-
-    installService.changeModem(changedModem.getId(), savedConsumer.getId(), changeModemRequestDto, createSampleFiles("change success", 2));
-
-    em.flush();
-    em.clear();
-
-    //then
-    InstallInfo installInfo = installRepository.currentInstallStateInfo(changedModem.getId()).orElseThrow();
-    Long fileId = installInfo.getFileInfos().get(0).getId();
-    Resource resource = storageService.loadAsResource(fileId);
-
-    assertThat(installInfo.getWorkTypeCd().getCode()).isEqualTo(MODEM_INSTALL_STATUS_CHANGE.getCode());
-    assertThat(installInfo.getModem().getModemNo()).isEqualTo(changedModem.getModemNo());
     assertThat(installInfo.getConsumer().getConsumerNo()).isEqualTo(savedConsumer.getConsumerNo());
     assertThat(resource.exists()).isTrue();
   }
