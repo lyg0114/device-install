@@ -47,6 +47,8 @@ import org.springframework.web.multipart.MultipartFile;
  * @package : com.install.domain.install.service
  * @since : 05.06.24
  */
+// TODO : 중복 코드 제거, 설치, 교체, 유지보수,
+// TODO : 철거 관련코드는 클라이언트로부터 전달받는것이 아닌 서버쪽에서 바로 처리할 수 있도록 할것
 @Slf4j
 @Transactional
 @RequiredArgsConstructor
@@ -243,8 +245,7 @@ public class InstallService {
 
   @Transactional(readOnly = true)
   public InstallHistoryByConsumer searchHistoryByConsumer(Long consumerId, Pageable pageable) {
-    Page<historyInfo> historyInfos = installRepository.searchInstallInfoPageByConsumer(consumerId,
-            pageable)
+    Page<historyInfo> historyInfos = installRepository.searchInstallInfoPageByConsumer(consumerId, pageable)
         .map(getInstallInfohistoryInfoFunction());
 
     return InstallHistoryByConsumer.builder()
