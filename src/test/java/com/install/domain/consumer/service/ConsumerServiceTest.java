@@ -27,14 +27,9 @@ import org.springframework.transaction.annotation.Transactional;
 @SpringBootTest
 class ConsumerServiceTest {
 
-  @Autowired
-  ConsumerService consumerService;
-
-  @Autowired
-  ConsumerRepository consumerRepository;
-
-  @Autowired
-  EntityManager em;
+  @Autowired ConsumerService consumerService;
+  @Autowired ConsumerRepository consumerRepository;
+  @Autowired EntityManager em;
 
   private ConsumerRequest createConsumerRequest(Long id) {
     return ConsumerRequest.builder()

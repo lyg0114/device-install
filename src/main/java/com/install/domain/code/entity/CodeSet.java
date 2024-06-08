@@ -1,5 +1,7 @@
 package com.install.domain.code.entity;
 
+import java.util.ArrayList;
+import java.util.List;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -14,6 +16,7 @@ public enum CodeSet {
 
   // 단말기 타입 코드
   MODEM_TYPE("cd01", "단말기종류", 1),
+
   // 단말기 상태 코드
   MODEM_STAUTS("cd02", "단말기상태", 1),
 
@@ -32,4 +35,16 @@ public enum CodeSet {
   private final String code;
   private final String name;
   private final Integer level;
+
+  public static List<Code> getAllCodes() {
+    List<Code> codes = new ArrayList<>();
+    for (CodeSet codeSet : CodeSet.values()) {
+      codes.add(Code.builder()
+              .code(codeSet.getCode())
+              .name(codeSet.getName())
+              .level(codeSet.getLevel())
+          .build());
+    }
+    return codes;
+  }
 }

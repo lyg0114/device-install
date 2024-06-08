@@ -41,8 +41,7 @@ class ModemServiceTest {
   }
 
   private void createCodes() {
-    codeRepository.save(createCode(MODEM_TYPE));
-    codeRepository.save(createCode(MODEM_STAUTS));
+    codeRepository.saveAll(getAllCodes());
   }
 
   private Code createCode(CodeSet codeSet) {

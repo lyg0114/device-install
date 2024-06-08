@@ -9,6 +9,7 @@ import static com.install.domain.code.entity.CodeSet.MODEM_INSTALL_STATUS_INSTAL
 import static com.install.domain.code.entity.CodeSet.MODEM_INSTALL_STATUS_MAINTANCE;
 import static com.install.domain.code.entity.CodeSet.MODEM_STAUTS;
 import static com.install.domain.code.entity.CodeSet.MODEM_TYPE;
+import static com.install.domain.code.entity.CodeSet.getAllCodes;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
@@ -75,13 +76,7 @@ class InstallServiceTest {
   @BeforeEach void before() { createCodes(); }
 
   private void createCodes() {
-    codeRepository.save(createCode(MODEM_TYPE));
-    codeRepository.save(createCode(MODEM_STAUTS));
-    codeRepository.save(createCode(MODEM_INSTALL_STATUS));
-    codeRepository.save(createCode(MODEM_INSTALL_STATUS_INSTALLED));
-    codeRepository.save(createCode(MODEM_INSTALL_STATUS_CHANGE));
-    codeRepository.save(createCode(MODEM_INSTALL_STATUS_MAINTANCE));
-    codeRepository.save(createCode(MODEM_INSTALL_STATUS_DEMOLISH));
+    codeRepository.saveAll(getAllCodes());
   }
 
   private Member createMember(String name) {
