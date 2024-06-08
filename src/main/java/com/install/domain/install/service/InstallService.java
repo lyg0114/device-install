@@ -132,6 +132,13 @@ public class InstallService {
     validateIsExistConsumer(consumerId);
     validateShouldNotInstalledModem(modemId);
 
+    modemRepository.findById(modemId)
+        .orElseThrow(()-> new CustomException(MODEM_NOT_EXIST))
+        .installed();
+    consumerRepository.findById(consumerId)
+        .orElseThrow(()-> new CustomException(CONSUMER_NOT_EXIST))
+        .installed();
+
     modemInstallWork(modemId, consumerId, requestDto, MODEM_INSTALL_STATUS_INSTALLED, installImages);
   }
 
@@ -163,6 +170,13 @@ public class InstallService {
         .orElseThrow(() -> new CustomException(NOT_FOUND_INSTALL_INFO))
         .getConsumer()
         .getId();
+
+    modemRepository.findById(modemId)
+        .orElseThrow(()-> new CustomException(MODEM_NOT_EXIST))
+        .demolish();
+    consumerRepository.findById(installedConsumerSid)
+        .orElseThrow(()-> new CustomException(CONSUMER_NOT_EXIST))
+        .demolish();
 
     modemInstallWork(modemId, installedConsumerSid, requestDto, MODEM_INSTALL_STATUS_DEMOLISH, demolishImages);
   }

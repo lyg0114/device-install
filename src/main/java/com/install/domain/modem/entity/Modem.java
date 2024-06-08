@@ -63,6 +63,9 @@ public class Modem extends BaseTimeEntity {
   @JoinColumn(name = "modem_status_cd")
   private Code modemStatusCd;
 
+  @Column(name = "has_consumer")
+  private Boolean hasConsumer = false;
+
   public void updateModem(ModemRequest requestDto) {
     if (hasText(requestDto.getModemNo())) {
       this.modemNo = requestDto.getModemNo();
@@ -87,5 +90,13 @@ public class Modem extends BaseTimeEntity {
 
   private Code createCode(String code) {
     return Code.builder().code(code).build();
+  }
+
+  public void installed() {
+    hasConsumer = true;
+  }
+
+  public void demolish() {
+    hasConsumer = false;
   }
 }

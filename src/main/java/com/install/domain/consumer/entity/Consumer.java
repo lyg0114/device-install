@@ -11,8 +11,10 @@ import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
+import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -50,6 +52,9 @@ public class Consumer extends BaseTimeEntity {
   @Column(name = "meter_no")
   private String meterNo;
 
+  @Column(name = "has_modem")
+  private Boolean hasModem = false;
+
   @Embedded
   private Address address;
 
@@ -67,5 +72,13 @@ public class Consumer extends BaseTimeEntity {
       this.location.setGeoX(consumerDto.getGeoX());
       this.location.setGeoY(consumerDto.getGeoY());
     }
+  }
+
+  public void installed() {
+    this.hasModem = true;
+  }
+
+  public void demolish() {
+    this.hasModem = false;
   }
 }
