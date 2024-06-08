@@ -1,5 +1,7 @@
 package com.install.domain.install.service;
 
+import static com.install.domain.code.entity.CodeSet.HAS_MODEM;
+import static com.install.domain.code.entity.CodeSet.HAS_NOT_MODEM;
 import static com.install.domain.code.entity.CodeSet.MODEM_INSTALL_STATUS;
 import static com.install.domain.code.entity.CodeSet.MODEM_INSTALL_STATUS_CHANGE;
 import static com.install.domain.code.entity.CodeSet.MODEM_INSTALL_STATUS_DEMOLISH;
@@ -323,7 +325,7 @@ class InstallServiceTest {
 
     InstallHistoryByModem installHistoryByModem = installService.searchHistoryByModem(modem.getId(), PageRequest.of(0, 10));
 
-    assertThat(installHistoryByModem.getCurrentState()).isEqualTo("미설치");
+    assertThat(installHistoryByModem.getCurrentState()).isEqualTo(HAS_NOT_MODEM.getCode());
     List<historyInfo> historys = installHistoryByModem.getHistorys().getContent();
     assertThat(historys.get(0).getWorkType()).isEqualTo(MODEM_INSTALL_STATUS_DEMOLISH.getCode());
     assertThat(historys.get(1).getWorkType()).isEqualTo(MODEM_INSTALL_STATUS_INSTALLED.getCode());
@@ -352,7 +354,7 @@ class InstallServiceTest {
     List<historyInfo> historyInfos = installHistoryByConsumer.getHistorys().getContent();
 
     //then
-    assertThat(installHistoryByConsumer.getCurrentState()).isEqualTo("설치");
+    assertThat(installHistoryByConsumer.getCurrentState()).isEqualTo(HAS_MODEM.getCode());
     assertThat(historyInfos.get(0).getWorkType()).isEqualTo(MODEM_INSTALL_STATUS_INSTALLED.getCode());
     assertThat(historyInfos.get(1).getWorkType()).isEqualTo(MODEM_INSTALL_STATUS_DEMOLISH.getCode());
     assertThat(historyInfos.get(2).getWorkType()).isEqualTo(MODEM_INSTALL_STATUS_MAINTANCE.getCode());

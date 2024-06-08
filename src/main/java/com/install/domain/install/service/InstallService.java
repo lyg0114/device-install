@@ -1,5 +1,7 @@
 package com.install.domain.install.service;
 
+import static com.install.domain.code.entity.CodeSet.HAS_MODEM;
+import static com.install.domain.code.entity.CodeSet.HAS_NOT_MODEM;
 import static com.install.domain.code.entity.CodeSet.MODEM_INSTALL_STATUS_DEMOLISH;
 import static com.install.global.exception.CustomErrorCode.ALREADY_INSTALLED_MODEM;
 import static com.install.global.exception.CustomErrorCode.CONSUMER_NOT_EXIST;
@@ -238,8 +240,7 @@ public class InstallService {
 
     return InstallHistoryByModem.builder()
         .historys(historyInfos)
-        .currentState(
-            installRepository.isInstalledModem(modemId) ? "설치" : "미설치") // TODO : enum 으로 대체
+        .currentState(checkState(historyInfos.getContent()))
         .build();
   }
 
@@ -268,15 +269,15 @@ public class InstallService {
 
   private String checkState(List<historyInfo> historyInfos) {
     if (historyInfos == null || historyInfos.size() == 0) {
-      return "미설치"; // TODO : enum 으로 대체
+      return HAS_NOT_MODEM.getCode(); // TODO : enum 으로 대체
     }
 
     historyInfo historyInfo = historyInfos.get(0);
     if (historyInfo.getWorkType().equals(MODEM_INSTALL_STATUS_DEMOLISH.getCode())) {
-      return "미설치";
+      return HAS_NOT_MODEM.getCode();
     }
 
-    return "설치";
+    return HAS_MODEM.getCode();
   }
 
   private void validateIsExistFiles(List<MultipartFile> images) {
