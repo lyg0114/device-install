@@ -32,9 +32,6 @@ public class InstallDto {
   @AllArgsConstructor(access = PRIVATE)
   public static class InstallRequest {
 
-    @NotBlank(message = "작업 유형을 입력해 주세요.")
-    private String workTypeCd;
-
     private String comment;
   }
 

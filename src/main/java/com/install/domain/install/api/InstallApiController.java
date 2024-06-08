@@ -112,7 +112,8 @@ public class InstallApiController {
    */
   @PostMapping("/{modemId}/{consumerId}")
   public ResponseEntity<Void> installModem(
-      @PathVariable Long modemId, @PathVariable Long consumerId,
+      @PathVariable Long modemId,
+      @PathVariable Long consumerId,
       @RequestBody @Valid InstallDto.InstallRequest requestDto,
       @RequestPart(value = "images", required = false) List<MultipartFile> images
   ) {
