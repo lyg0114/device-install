@@ -10,8 +10,7 @@ import org.springframework.data.jpa.repository.Query;
  * @package : com.install.domain.install.entity.repository
  * @since : 05.06.24
  */
-public interface InstallRepository
-    extends JpaRepository<InstallInfo, Long>, InstallRepositoryCustom {
+public interface InstallRepository extends JpaRepository<InstallInfo, Long>, InstallRepositoryCustom {
 
   @Query(
       "select i1 from InstallInfo i1 "

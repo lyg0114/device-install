@@ -6,6 +6,7 @@ import static com.install.domain.install.entity.QInstallInfo.installInfo;
 import static com.install.domain.modem.entity.QModem.modem;
 import static java.util.Objects.isNull;
 
+import com.install.domain.consumer.dto.ConsumerDto.ConsumerSearchCondition;
 import com.install.domain.install.entity.InstallInfo;
 import com.install.domain.install.entity.QInstallInfo;
 import com.querydsl.core.types.dsl.BooleanExpression;
@@ -30,6 +31,12 @@ import org.springframework.data.support.PageableExecutionUtils;
 public class InstallRepositoryImpl implements InstallRepositoryCustom {
 
   private final JPAQueryFactory queryFactory;
+
+  @Override
+  public Page<InstallInfo> searchConsumers(ConsumerSearchCondition condition, Pageable pageable) {
+    return null;
+  }
+
 
   @Override
   public Page<InstallInfo> searchInstallInfoPageByModem(Long modemId, Pageable pageable) {
