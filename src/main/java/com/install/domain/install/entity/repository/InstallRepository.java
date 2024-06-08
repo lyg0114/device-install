@@ -15,7 +15,9 @@ public interface InstallRepository extends JpaRepository<InstallInfo, Long>, Ins
   @Query(
       "select i1 from InstallInfo i1 "
           + "where i1.modem.id = :modemId "
-          + "and i1.workTime in (select max(i2.workTime) from InstallInfo i2)"
+          + "and i1.workTime in (select max(i2.workTime) "
+          + "from InstallInfo i2 "
+          + "where i2.modem.id = :modemId)"
   )
   Optional<InstallInfo> currentInstallStateInfo(Long modemId);
 }
