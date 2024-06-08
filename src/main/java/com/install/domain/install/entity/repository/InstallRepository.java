@@ -13,19 +13,6 @@ import org.springframework.data.jpa.repository.Query;
 public interface InstallRepository
     extends JpaRepository<InstallInfo, Long>, InstallRepositoryCustom {
 
-  // TODO : QudryDSl로 변경
-  // TODO : workTypeCd.code -> Enum 값으로 개선필요
-  @Query(
-      "select case when count(i1) > 0 then true "
-          + "else false "
-          + "end "
-          + "from InstallInfo i1 "
-          + "where i1.modem.id = :modemId "
-          + "and i1.workTypeCd.code !='cd0304'"
-          + "and i1.workTime in (select max(i2.workTime) from InstallInfo i2)"
-  )
-  boolean isInstalledModem(Long modemId);
-
   @Query(
       "select i1 from InstallInfo i1 "
           + "where i1.modem.id = :modemId "
