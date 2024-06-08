@@ -16,7 +16,6 @@ import com.install.domain.modem.entity.repository.ModemRepository;
 import jakarta.persistence.EntityManager;
 import java.time.LocalDateTime;
 import java.util.List;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,7 +31,7 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Transactional
 @SpringBootTest
-class InstallRepositoryImplTest {
+class InstallRepositoryTest {
 
   @Autowired InstallRepository installRepository;
   @Autowired ModemRepository modemRepository;
@@ -144,5 +143,29 @@ class InstallRepositoryImplTest {
     assertThat(installInfo.getWorkTypeCd().getCode()).isEqualTo(MODEM_INSTALL_STATUS_DEMOLISH.getCode());
     assertThat(installInfo.getWorkTime()).isEqualTo(now.minusDays(1L));
     assertThat(installInfo.getWorker()).isNull();
+  }
+
+  @Test
+  void 가장_최근_작업된_단말기상태를_조회한다() {
+    //given
+    Modem modem1 = modemRepository.save(createModem("modem1"));
+    Modem modem2 = modemRepository.save(createModem("modem2"));
+    Consumer consumer = consumerRepository.save(createConsumer("consumer"));
+
+    em.flush();
+    em.clear();
+
+    //when
+    installRepository.save(createInstallInfo(modem1, consumer, MODEM_INSTALL_STATUS_INSTALLED, "신규설치 했음", LocalDateTime.now().minusDays(3L)));
+    installRepository.save(createInstallInfo(modem1, consumer, MODEM_INSTALL_STATUS_MAINTANCE, "유지보수 했음", LocalDateTime.now().minusDays(2L)));
+    installRepository.save(createInstallInfo(modem1, consumer, MODEM_INSTALL_STATUS_DEMOLISH, "철거 했음", LocalDateTime.now().minusDays(1L)));
+    installRepository.save(createInstallInfo(modem2, consumer, MODEM_INSTALL_STATUS_INSTALLED, "다른 단말기로 신규 설치", LocalDateTime.now()));
+
+    em.flush();
+    em.clear();
+
+    //then
+    assertThat(installRepository.isInstalledModem(modem1.getId())).isFalse();
+    assertThat(installRepository.isInstalledModem(modem2.getId())).isTrue();
   }
 }

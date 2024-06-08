@@ -13,6 +13,8 @@ import static org.mockito.Mockito.when;
 import com.install.domain.code.entity.Code;
 import com.install.domain.code.entity.CodeSet;
 import com.install.domain.code.entity.repository.CodeRepository;
+import com.install.domain.common.file.entity.FileInfo;
+import com.install.domain.common.file.service.StorageService;
 import com.install.domain.consumer.entity.Address;
 import com.install.domain.consumer.entity.Consumer;
 import com.install.domain.consumer.entity.Location;
@@ -39,6 +41,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.MediaType;
@@ -63,6 +66,7 @@ class InstallServiceTest {
   @Autowired CodeRepository codeRepository;
   @Autowired EntityManager em;
   @Autowired MemberRepository memberRepository;
+  @Autowired StorageService storageService;
 
   @MockBean JwtService jwtService;
 
@@ -172,11 +176,14 @@ class InstallServiceTest {
     em.clear();
 
     //then
-    // TODO : 파일 검증 로직 추가 필요
     InstallInfo installInfo = installRepository.findAll().get(0);
-    assertThat(installInfo.getWorkTypeCd().getCode()).isEqualTo(requestDto.getWorkTypeCd());
+    Long fileId = installInfo.getFileInfos().get(0).getId();
+    Resource resource = storageService.loadAsResource(fileId);
+
+    assertThat(installInfo.getWorkTypeCd().getCode()).isEqualTo(MODEM_INSTALL_STATUS_INSTALLED.getCode());
     assertThat(installInfo.getModem().getModemNo()).isEqualTo(savedModem.getModemNo());
     assertThat(installInfo.getConsumer().getConsumerNo()).isEqualTo(savedConsumer.getConsumerNo());
+    assertThat(resource.exists()).isTrue();
   }
 
   @Test
@@ -196,25 +203,26 @@ class InstallServiceTest {
     em.clear();
 
     //when
-    Modem modem2 = modemRepository.save(createModem("modem2"));
+    Modem changedModem = modemRepository.save(createModem("modem2"));
     InstallDto.InstallRequest changeModemRequestDto = InstallRequest.builder()
         .workTypeCd(MODEM_INSTALL_STATUS_CHANGE.getCode())
         .comment("단말기 교체 성공")
         .build();
 
-    installService.changeModem(modem2.getId(), savedConsumer.getId(), changeModemRequestDto, createSampleFiles("change success", 2));
+    installService.changeModem(changedModem.getId(), savedConsumer.getId(), changeModemRequestDto, createSampleFiles("change success", 2));
 
     em.flush();
     em.clear();
 
     //then
-    InstallHistoryByConsumer historyByConsumer = installService.searchHistoryByConsumer(savedConsumer.getId(), PageRequest.of(0, 10));
+    InstallInfo installInfo = installRepository.currentInstallStateInfo(changedModem.getId()).orElseThrow();
+    Long fileId = installInfo.getFileInfos().get(0).getId();
+    Resource resource = storageService.loadAsResource(fileId);
 
-    String currentState = historyByConsumer.getCurrentState();
-    Page<historyInfo> historys = historyByConsumer.getHistorys();
-    for (historyInfo history : historys) {
-      System.out.println("history = " + history);
-    }
+    assertThat(installInfo.getWorkTypeCd().getCode()).isEqualTo(MODEM_INSTALL_STATUS_CHANGE.getCode());
+    assertThat(installInfo.getModem().getModemNo()).isEqualTo(changedModem.getModemNo());
+    assertThat(installInfo.getConsumer().getConsumerNo()).isEqualTo(savedConsumer.getConsumerNo());
+    assertThat(resource.exists()).isTrue();
   }
 
   @Test
@@ -246,11 +254,13 @@ class InstallServiceTest {
 
     //then
     InstallInfo installInfo = installRepository.currentInstallStateInfo(modem.getId()).orElseThrow();
+    Long fileId = installInfo.getFileInfos().get(0).getId();
+    Resource resource = storageService.loadAsResource(fileId);
 
+    assertThat(installInfo.getWorkTypeCd().getCode()).isEqualTo(MODEM_INSTALL_STATUS_MAINTANCE.getCode());
     assertThat(installInfo.getConsumer().getConsumerNo()).isEqualTo(consumer.getConsumerNo());
     assertThat(installInfo.getModem().getModemNo()).isEqualTo(modem.getModemNo());
     assertThat(installInfo.getComment()).isEqualTo(maintenceRequestDto.getComment());
-    assertThat(installInfo.getWorkTypeCd().getCode()).isEqualTo(maintenceRequestDto.getWorkTypeCd());
   }
 
   @Test
@@ -275,19 +285,20 @@ class InstallServiceTest {
         .build();
 
     //when
-
     installService.demolishModem(modem.getId(), demolishRequestDto, createSampleFiles("demolish success", 2));
 
     em.flush();
     em.clear();
 
     //then
-    InstallInfo currentInstallInfo = installRepository.currentInstallStateInfo(modem.getId()).orElseThrow();
+    InstallInfo installInfo = installRepository.currentInstallStateInfo(modem.getId()).orElseThrow();
+    Long fileId = installInfo.getFileInfos().get(0).getId();
+    Resource resource = storageService.loadAsResource(fileId);
 
-    assertThat(currentInstallInfo.getConsumer().getConsumerNo()).isEqualTo(consumer.getConsumerNo());
-    assertThat(currentInstallInfo.getModem().getModemNo()).isEqualTo(modem.getModemNo());
-    assertThat(currentInstallInfo.getComment()).isEqualTo(demolishRequestDto.getComment());
-    assertThat(currentInstallInfo.getWorkTypeCd().getCode()).isEqualTo(demolishRequestDto.getWorkTypeCd());
+    assertThat(installInfo.getWorkTypeCd().getCode()).isEqualTo(MODEM_INSTALL_STATUS_DEMOLISH.getCode());
+    assertThat(installInfo.getModem().getModemNo()).isEqualTo(modem.getModemNo());
+    assertThat(installInfo.getConsumer().getConsumerNo()).isEqualTo(consumer.getConsumerNo());
+    assertThat(resource.exists()).isTrue();
   }
 
   @Test
@@ -312,13 +323,13 @@ class InstallServiceTest {
 
     InstallHistoryByModem installHistoryByModem = installService.searchHistoryByModem(modem.getId(), PageRequest.of(0, 10));
 
-    //TODO : 검증로직 개선 필요
-    String currentState = installHistoryByModem.getCurrentState();
-    System.out.println("currentState = " + currentState);
-    Page<historyInfo> historys = installHistoryByModem.getHistorys();
-    for (historyInfo history : historys) {
-      System.out.println("history = " + history);
-    }
+    assertThat(installHistoryByModem.getCurrentState()).isEqualTo("미설치");
+    List<historyInfo> historys = installHistoryByModem.getHistorys().getContent();
+    assertThat(historys.get(0).getWorkType()).isEqualTo(MODEM_INSTALL_STATUS_DEMOLISH.getCode());
+    assertThat(historys.get(1).getWorkType()).isEqualTo(MODEM_INSTALL_STATUS_INSTALLED.getCode());
+    assertThat(historys.get(2).getWorkType()).isEqualTo(MODEM_INSTALL_STATUS_DEMOLISH.getCode());
+    assertThat(historys.get(3).getWorkType()).isEqualTo(MODEM_INSTALL_STATUS_MAINTANCE.getCode());
+    assertThat(historys.get(4).getWorkType()).isEqualTo(MODEM_INSTALL_STATUS_INSTALLED.getCode());
   }
 
   @Test
@@ -338,36 +349,13 @@ class InstallServiceTest {
 
     //when
     InstallHistoryByConsumer installHistoryByConsumer = installService.searchHistoryByConsumer(consumer.getId(), PageRequest.of(0, 10));
+    List<historyInfo> historyInfos = installHistoryByConsumer.getHistorys().getContent();
 
     //then
-    System.out.println("installHistoryByConsumer.getCurrentState() = " + installHistoryByConsumer.getCurrentState());
-    Page<historyInfo> historys = installHistoryByConsumer.getHistorys();
-    for (historyInfo history : historys) {
-      System.out.println("history = " + history);
-    }
-  }
-
-  @Test
-  void 가장_최근_작업된_단말기상태를_조회한다() {
-    //given
-    Modem modem1 = modemRepository.save(createModem("modem1"));
-    Modem modem2 = modemRepository.save(createModem("modem2"));
-    Consumer consumer = consumerRepository.save(createConsumer("consumer"));
-
-    em.flush();
-    em.clear();
-
-    //when
-    installRepository.save(createInstallInfo(modem1, consumer, MODEM_INSTALL_STATUS_INSTALLED, "신규설치 했음", LocalDateTime.now().minusDays(3L)));
-    installRepository.save(createInstallInfo(modem1, consumer, MODEM_INSTALL_STATUS_MAINTANCE, "유지보수 했음", LocalDateTime.now().minusDays(2L)));
-    installRepository.save(createInstallInfo(modem1, consumer, MODEM_INSTALL_STATUS_DEMOLISH, "철거 했음", LocalDateTime.now().minusDays(1L)));
-    installRepository.save(createInstallInfo(modem2, consumer, MODEM_INSTALL_STATUS_INSTALLED, "다른 단말기로 신규 설치", LocalDateTime.now()));
-
-    em.flush();
-    em.clear();
-
-    //then
-    assertThat(installRepository.isInstalledModem(modem1.getId())).isFalse();
-    assertThat(installRepository.isInstalledModem(modem2.getId())).isTrue();
+    assertThat(installHistoryByConsumer.getCurrentState()).isEqualTo("설치");
+    assertThat(historyInfos.get(0).getWorkType()).isEqualTo(MODEM_INSTALL_STATUS_INSTALLED.getCode());
+    assertThat(historyInfos.get(1).getWorkType()).isEqualTo(MODEM_INSTALL_STATUS_DEMOLISH.getCode());
+    assertThat(historyInfos.get(2).getWorkType()).isEqualTo(MODEM_INSTALL_STATUS_MAINTANCE.getCode());
+    assertThat(historyInfos.get(3).getWorkType()).isEqualTo(MODEM_INSTALL_STATUS_INSTALLED.getCode());
   }
 }
