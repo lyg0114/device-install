@@ -45,6 +45,7 @@ public class InstallInfo extends BaseTimeEntity {
   @Column(name = "install_info_id")
   private Long id;
 
+  // TODO : workTime 타임 포맷 셋팅하기
   @Column(name = "work_time")
   private LocalDateTime workTime;
 

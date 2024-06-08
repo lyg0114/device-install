@@ -38,11 +38,13 @@ import com.install.global.exception.CustomException;
 import com.install.global.security.service.JwtService;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Function;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -82,7 +84,7 @@ public class InstallService {
             .workTypeCd(Code.builder()
                 .code(codeSet.getCode())
                 .build())
-            .workTime(LocalDateTime.now())
+            .workTime(!isNull(requestDto.getWorkTime()) ? requestDto.getWorkTime() : LocalDateTime.now())
             .build());
 
     for (MultipartFile image : installImages) {
@@ -142,6 +144,13 @@ public class InstallService {
     modemInstallWork(modemId, consumerId, requestDto, MODEM_INSTALL_STATUS_INSTALLED, installImages);
   }
 
+  public void installModem(Modem modem, Consumer consumer, List<MultipartFile> installImages, LocalDateTime workTime ) {
+    InstallRequest installSuccess = InstallRequest.builder()
+        .workTime(workTime)
+        .comment("설치 성공").build();
+    installModem(modem.getId(), consumer.getId(), installSuccess, installImages);
+  }
+
   /**
    * @param modemId
    * @param requestDto 단말기 유지보수
@@ -156,6 +165,13 @@ public class InstallService {
         .getId();
 
     modemInstallWork(modemId, installedConsumerSid, requestDto, MODEM_INSTALL_STATUS_MAINTANCE, maintenanceImages);
+  }
+
+  public void maintenanceModem(Modem modem, List<MultipartFile> maintenanceImages, LocalDateTime workTime) {
+    InstallRequest maintenanceSuccess = InstallRequest.builder()
+        .workTime(workTime)
+        .comment("유지보수 성공").build();
+    maintenanceModem(modem.getId(), maintenanceSuccess, maintenanceImages);
   }
 
   /**
@@ -179,6 +195,13 @@ public class InstallService {
         .demolish();
 
     modemInstallWork(modemId, installedConsumerSid, requestDto, MODEM_INSTALL_STATUS_DEMOLISH, demolishImages);
+  }
+
+  public void demolishModem(Modem modem, List<MultipartFile> demolishImages, LocalDateTime workTime) {
+    InstallRequest demolishSuccess = InstallRequest.builder()
+        .workTime(workTime)
+        .comment("철거 성공").build();
+    demolishModem(modem.getId(), demolishSuccess, demolishImages);
   }
 
   @Transactional(readOnly = true)
