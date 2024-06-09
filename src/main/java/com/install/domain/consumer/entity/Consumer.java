@@ -1,17 +1,22 @@
 package com.install.domain.consumer.entity;
 
+import static jakarta.persistence.FetchType.LAZY;
 import static jakarta.persistence.GenerationType.IDENTITY;
 import static lombok.AccessLevel.PROTECTED;
 import static org.springframework.util.StringUtils.hasText;
 
 import com.install.domain.common.BaseTimeEntity;
 import com.install.domain.consumer.dto.ConsumerDto.ConsumerRequest;
+import com.install.domain.modem.entity.Modem;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import java.time.LocalDateTime;
@@ -54,6 +59,10 @@ public class Consumer extends BaseTimeEntity {
 
   @Column(name = "has_modem")
   private Boolean hasModem = false;
+
+  @OneToOne(fetch = LAZY)
+  @JoinColumn(name = "installed_modem_id")
+  private Modem installedModem;
 
   @Embedded
   private Address address;

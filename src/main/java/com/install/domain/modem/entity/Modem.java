@@ -7,6 +7,7 @@ import static org.springframework.util.StringUtils.hasText;
 
 import com.install.domain.code.entity.Code;
 import com.install.domain.common.BaseTimeEntity;
+import com.install.domain.consumer.entity.Consumer;
 import com.install.domain.modem.dto.ModemDto.ModemRequest;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -14,6 +15,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import lombok.AllArgsConstructor;
@@ -64,6 +66,9 @@ public class Modem extends BaseTimeEntity {
 
   @Column(name = "has_consumer")
   private Boolean hasConsumer = false;
+
+  @OneToOne(mappedBy = "installedModem")
+  private Consumer consumer;
 
   public void updateModem(ModemRequest requestDto) {
     if (hasText(requestDto.getModemNo())) {

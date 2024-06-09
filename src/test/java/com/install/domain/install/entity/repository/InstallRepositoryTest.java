@@ -55,7 +55,6 @@ import org.springframework.transaction.annotation.Transactional;
  * @package : com.install.domain.install.entity.repository
  * @since : 06.06.24
  */
-@Rollback(value = false)
 @Transactional
 @SpringBootTest
 class InstallRepositoryTest {
