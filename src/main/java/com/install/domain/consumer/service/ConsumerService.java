@@ -35,8 +35,13 @@ public class ConsumerService {
   private final InstallRepository installRepository;
 
   public Page<ConsumerResponse> searchConsumers(ConsumerSearchCondition condition, Pageable pageable) {
-    return installRepository.searchConsumers(condition, pageable)
+    // 1. consumerRepository 를 활용해 paing된 리스트를 가져온 후 consumerId 값들을 가져온다.
+    // 2. 가져온 consumerId 값을 설치현황에 in절로 활용해 값을 가져온다.
+    Page<Consumer> consumers = consumerRepository.searchConsumer(condition, pageable);
+    installRepository.searchInstallInfos(condition, pageable)
         .map(InstallInfo::toConsumerResponse);
+
+    return null;
   }
 
   public void addConsumer(ConsumerDto.ConsumerRequest requestDto) {

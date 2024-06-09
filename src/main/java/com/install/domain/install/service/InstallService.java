@@ -54,6 +54,13 @@ import org.springframework.web.multipart.MultipartFile;
  * @package : com.install.domain.install.service
  * @since : 05.06.24
  */
+// TODO : 설치로직 전개시 유효성 처리 개선
+  /*
+   - 모든 작업의 workTime은 기존 workTime보다 커야 한다.
+   - 철거하기전엔 수용가에 단말기가 설치되어 있어야 한다.
+   - 설치하기 전엔 수용가에 단말기가 존재해선 안된다.
+      - 설치정보가 없거나, 철거 상태여야함.
+   */
 @Slf4j
 @Transactional
 @RequiredArgsConstructor
