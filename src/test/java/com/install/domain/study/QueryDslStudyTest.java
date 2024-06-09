@@ -4,9 +4,7 @@ import static com.install.domain.code.entity.CodeSet.MODEM_STAUTS;
 import static com.install.domain.code.entity.CodeSet.MODEM_TYPE;
 import static com.install.domain.code.entity.CodeSet.getAllCodes;
 import static com.install.domain.consumer.entity.QConsumer.consumer;
-import static com.install.domain.install.entity.QInstallInfo.installInfo;
 import static com.install.domain.modem.entity.QModem.modem;
-import static com.querydsl.jpa.JPAExpressions.select;
 import static java.util.List.of;
 import static org.mockito.Mockito.when;
 
@@ -16,8 +14,6 @@ import com.install.domain.consumer.entity.Address;
 import com.install.domain.consumer.entity.Consumer;
 import com.install.domain.consumer.entity.Location;
 import com.install.domain.consumer.entity.repository.ConsumerRepository;
-import com.install.domain.install.entity.InstallInfo;
-import com.install.domain.install.entity.QInstallInfo;
 import com.install.domain.install.entity.repository.InstallRepository;
 import com.install.domain.install.service.InstallService;
 import com.install.domain.member.entity.Member;
@@ -30,6 +26,7 @@ import jakarta.persistence.EntityManager;
 import java.time.LocalDateTime;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -42,7 +39,6 @@ import org.springframework.transaction.annotation.Transactional;
  * @package : com.install.domain.install.entity.repository
  * @since : 06.06.24
  */
-//@Rollback(value = false)
 @Transactional
 @SpringBootTest
 class QueryDslStudyTest {
@@ -62,8 +58,8 @@ class QueryDslStudyTest {
     createCodes();
   }
 
-//  @Test
-  void sub_query_test() {
+  @Test
+  void query_test() {
     //given
     when(jwtService.getId()).thenReturn(memberRepository.save(createMember("worker")).getId());
 
@@ -75,6 +71,8 @@ class QueryDslStudyTest {
     Consumer consumer1 = consumerRepository.save(createConsumer("consumer1"));
     Consumer consumer2 = consumerRepository.save(createConsumer("consumer2"));
     Consumer consumer3 = consumerRepository.save(createConsumer("consumer3"));
+    Consumer consumer4 = consumerRepository.save(createConsumer("consumer4"));
+    Consumer consumer5 = consumerRepository.save(createConsumer("consumer5"));
 
     em.flush();
     em.clear();
@@ -85,35 +83,41 @@ class QueryDslStudyTest {
     installService.demolishModem(modem1, of(createMockFile("철거 성공")), now.minusDays(5L));
     installService.installModem(modem1_1, consumer1, of(createMockFile("설치 성공")), now.minusDays(4L));
     installService.demolishModem(modem1_1, of(createMockFile("철거 성공")), now.minusDays(3L));
+
     installService.installModem(modem2, consumer2, of(createMockFile("설치 성공")), now.minusDays(6L));
     installService.demolishModem(modem2, of(createMockFile("철거 성공")), now.minusDays(5L));
     installService.installModem(modem2_1, consumer2, of(createMockFile("설치 성공")), now.minusDays(6L));
     installService.demolishModem(modem2_1, of(createMockFile("철거 성공")), now.minusDays(5L));
-    installService.installModem(modem3, consumer3, of(createMockFile("설치 성공")), now.minusDays(6L));
 
+    installService.installModem(modem3, consumer3, of(createMockFile("설치 성공")), now.minusDays(6L));
 
     em.flush();
     em.clear();
 
-    QInstallInfo subInstallInfo = new QInstallInfo("subInstallInfo");
-    // 메인 쿼리: consumer별 최신 workTime을 가진 installInfo 찾기
-    List<InstallInfo> results = queryFactory
-        .select(installInfo)
-        .from(installInfo)
-        .join(installInfo.consumer, consumer).fetchJoin()
-        .join(installInfo.modem, modem).fetchJoin()
-        .where(
-            consumer.hasModem.isTrue(),
-            installInfo.workTime.eq(
-                // 서브쿼리: 각 consumer_id에 대한 최신 work_time 찾기
-                select(subInstallInfo.workTime.max())
-                    .from(subInstallInfo)
-                    .where(subInstallInfo.consumer.id.eq(installInfo.consumer.id))
-                    .groupBy(subInstallInfo.consumer.id)))
+    System.out.println("########################################################");
+
+    List<Consumer> fetch = queryFactory
+        .select(consumer)
+        .from(consumer)
+        .leftJoin(consumer.installedModem, modem)
+        .fetchJoin()
         .fetch();
 
-    for (InstallInfo result : results) {
-      System.out.println("result = " + result);
+    for (Consumer consumer : fetch) {
+      System.out.println(consumer);
+    }
+
+    System.out.println("########################################################");
+
+    List<Modem> fetch1 = queryFactory
+        .select(modem)
+        .from(modem)
+        .leftJoin(modem.installedConsumer, consumer)
+        .fetchJoin()
+        .fetch();
+
+    for (Modem modem4 : fetch1) {
+      System.out.println("modem4 = " + modem4);
     }
   }
 

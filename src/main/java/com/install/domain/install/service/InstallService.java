@@ -38,13 +38,11 @@ import com.install.global.exception.CustomException;
 import com.install.global.security.service.JwtService;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Objects;
 import java.util.function.Function;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -76,7 +74,7 @@ public class InstallService {
   private final StorageService storageService;
   private final FileInfoRepository fileInfoRepository;
 
-  private void modemInstallWork(
+  private void saveWorkHistory(
       Long modemId, Long consumerId, InstallRequest requestDto, CodeSet codeSet, List<MultipartFile> installImages
   ) {
     Member worker = memberRepository.findById(jwtService.getId())
@@ -141,14 +139,12 @@ public class InstallService {
     validateIsExistConsumer(consumerId);
     validateShouldNotInstalledModem(modemId);
 
-    modemRepository.findById(modemId)
-        .orElseThrow(()-> new CustomException(MODEM_NOT_EXIST))
-        .installed();
-    consumerRepository.findById(consumerId)
-        .orElseThrow(()-> new CustomException(CONSUMER_NOT_EXIST))
-        .installed();
-
-    modemInstallWork(modemId, consumerId, requestDto, MODEM_INSTALL_STATUS_INSTALLED, installImages);
+    Modem modem = modemRepository.findById(modemId)
+        .orElseThrow(() -> new CustomException(MODEM_NOT_EXIST));
+    Consumer consumer = consumerRepository.findById(consumerId)
+        .orElseThrow(() -> new CustomException(CONSUMER_NOT_EXIST));
+    consumer.installedModem(modem);
+    saveWorkHistory(modemId, consumerId, requestDto, MODEM_INSTALL_STATUS_INSTALLED, installImages);
   }
 
   public void installModem(Modem modem, Consumer consumer, List<MultipartFile> installImages, LocalDateTime workTime ) {
@@ -171,7 +167,7 @@ public class InstallService {
         .getConsumer()
         .getId();
 
-    modemInstallWork(modemId, installedConsumerSid, requestDto, MODEM_INSTALL_STATUS_MAINTANCE, maintenanceImages);
+    saveWorkHistory(modemId, installedConsumerSid, requestDto, MODEM_INSTALL_STATUS_MAINTANCE, maintenanceImages);
   }
 
   public void maintenanceModem(Modem modem, List<MultipartFile> maintenanceImages, LocalDateTime workTime) {
@@ -194,14 +190,11 @@ public class InstallService {
         .getConsumer()
         .getId();
 
-    modemRepository.findById(modemId)
-        .orElseThrow(()-> new CustomException(MODEM_NOT_EXIST))
-        .demolish();
-    consumerRepository.findById(installedConsumerSid)
-        .orElseThrow(()-> new CustomException(CONSUMER_NOT_EXIST))
-        .demolish();
+    Consumer installedConsumer = consumerRepository.findById(installedConsumerSid)
+        .orElseThrow(() -> new CustomException(CONSUMER_NOT_EXIST));
 
-    modemInstallWork(modemId, installedConsumerSid, requestDto, MODEM_INSTALL_STATUS_DEMOLISH, demolishImages);
+    installedConsumer.demolishModem();
+    saveWorkHistory(modemId, installedConsumerSid, requestDto, MODEM_INSTALL_STATUS_DEMOLISH, demolishImages);
   }
 
   public void demolishModem(Modem modem, List<MultipartFile> demolishImages, LocalDateTime workTime) {

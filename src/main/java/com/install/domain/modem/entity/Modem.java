@@ -2,6 +2,7 @@ package com.install.domain.modem.entity;
 
 import static jakarta.persistence.FetchType.LAZY;
 import static jakarta.persistence.GenerationType.IDENTITY;
+import static java.util.Objects.isNull;
 import static lombok.AccessLevel.PROTECTED;
 import static org.springframework.util.StringUtils.hasText;
 
@@ -18,6 +19,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
+import java.util.Objects;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -29,7 +31,6 @@ import lombok.ToString;
  * @package : com.install.domain.modem.entity
  * @since : 05.06.24
  */
-@ToString
 @Getter
 @Builder
 @AllArgsConstructor
@@ -64,11 +65,8 @@ public class Modem extends BaseTimeEntity {
   @JoinColumn(name = "modem_status_cd")
   private Code modemStatusCd;
 
-  @Column(name = "has_consumer")
-  private Boolean hasConsumer = false;
-
   @OneToOne(mappedBy = "installedModem")
-  private Consumer consumer;
+  private Consumer installedConsumer;
 
   public void updateModem(ModemRequest requestDto) {
     if (hasText(requestDto.getModemNo())) {
@@ -96,11 +94,20 @@ public class Modem extends BaseTimeEntity {
     return Code.builder().code(code).build();
   }
 
-  public void installed() {
-    hasConsumer = true;
+  public void installedConsumer(Consumer installedConsumer) {
+    this.installedConsumer = installedConsumer;
   }
 
-  public void demolish() {
-    hasConsumer = false;
+  @Override
+  public String toString() {
+    return "Modem{" +
+        "id=" + id +
+        ", modemNo='" + modemNo + '\'' +
+        ", imei='" + imei + '\'' +
+        ", buildCompany='" + buildCompany + '\'' +
+        ", modemTypeCd=" + modemTypeCd +
+        ", modemStatusCd=" + modemStatusCd +
+        ", installedConsumer=" + (!isNull(installedConsumer) ? installedConsumer.getConsumerNo() : "") +
+        '}';
   }
 }
