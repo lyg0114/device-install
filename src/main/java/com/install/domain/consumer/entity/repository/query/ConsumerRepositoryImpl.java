@@ -1,6 +1,5 @@
 package com.install.domain.consumer.entity.repository.query;
 
-import static com.install.domain.code.entity.QCode.code1;
 import static com.install.domain.consumer.entity.QConsumer.consumer;
 import static com.install.domain.install.entity.QInstallInfo.installInfo;
 import static com.install.domain.modem.entity.QModem.modem;
@@ -11,6 +10,7 @@ import com.install.domain.consumer.dto.ConsumerDto.ConsumerSearchCondition;
 import com.install.domain.consumer.entity.Consumer;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -41,7 +41,8 @@ public class ConsumerRepositoryImpl implements ConsumerRepositoryCustom {
                 .where(
                     modemNoEq(condition.getModemNo()),
                     consumerNoEq(condition.getConsumerNo()),
-                    meterNoEq(condition.getMeterNo())
+                    meterNoEq(condition.getMeterNo()),
+                    installDateBetween(condition.getFrom(), condition.getTo())
                 )
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
@@ -56,10 +57,18 @@ public class ConsumerRepositoryImpl implements ConsumerRepositoryCustom {
                 .where(
                     modemNoEq(condition.getModemNo()),
                     consumerNoEq(condition.getConsumerNo()),
-                    meterNoEq(condition.getMeterNo())
+                    meterNoEq(condition.getMeterNo()),
+                    installDateBetween(condition.getFrom(), condition.getTo())
                 )
                 .fetchOne()
         );
+  }
+
+  private BooleanExpression installDateBetween(LocalDateTime from, LocalDateTime to) {
+    if (isNull(from) || isNull(to) || from.isAfter(to)) {
+      return null;
+    }
+    return consumer.installDate.between(from, to);
   }
 
   private BooleanExpression modemNoEq(String modemNo) {

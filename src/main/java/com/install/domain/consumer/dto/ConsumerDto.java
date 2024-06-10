@@ -10,6 +10,7 @@ import com.install.domain.consumer.entity.Consumer.ConsumerBuilder;
 import com.install.domain.consumer.entity.Location;
 import jakarta.validation.constraints.NotBlank;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -30,6 +31,8 @@ public class ConsumerDto {
     private String modemNo;
     private String meterNo;
     private String consumerNo;
+    private LocalDateTime from;
+    private LocalDateTime to;
   }
 
   @ToString

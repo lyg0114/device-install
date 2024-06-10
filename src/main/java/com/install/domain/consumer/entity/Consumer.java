@@ -9,6 +9,7 @@ import static org.springframework.util.StringUtils.hasText;
 import com.install.domain.common.BaseTimeEntity;
 import com.install.domain.consumer.dto.ConsumerDto.ConsumerRequest;
 import com.install.domain.consumer.dto.ConsumerDto.ConsumerResponse;
+import com.install.domain.install.dto.InstallDto.InstallRequest;
 import com.install.domain.modem.entity.Modem;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
@@ -19,6 +20,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
+import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -58,6 +60,9 @@ public class Consumer extends BaseTimeEntity {
   @JoinColumn(name = "installed_modem_id")
   private Modem installedModem;
 
+  @Column(name = "install_date")
+  private LocalDateTime installDate;
+
   @Embedded
   private Address address;
 
@@ -77,13 +82,15 @@ public class Consumer extends BaseTimeEntity {
     }
   }
 
-  public void installedModem(Modem installedModem) {
+  public void installedModem(Modem installedModem, InstallRequest requestDto) {
     this.installedModem = installedModem;
+    this.installDate = requestDto.getWorkTime();
     installedModem.installedConsumer(this);
   }
 
   public void demolishModem() {
     this.installedModem = null;
+    this.installDate = null;
   }
 
   public ConsumerResponse toResponse() {

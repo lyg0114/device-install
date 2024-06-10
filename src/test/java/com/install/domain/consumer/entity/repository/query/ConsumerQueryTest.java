@@ -108,6 +108,48 @@ class ConsumerQueryTest {
     assertThat(consumerResponse.getInstalledModemNo()).isEqualTo("modemNo-modem2_1");
   }
 
+  @Test
+  void 설치일로_조건검색하여_고객정보_조회에_성공한다() {
+    //given
+    when(jwtService.getId()).thenReturn(memberRepository.save(createMember("worker")).getId());
+    Modem modem1 = modemRepository.save(createModem("modem1"));
+    Modem modem1_1 = modemRepository.save(createModem("modem1_1"));
+    Modem modem2 = modemRepository.save(createModem("modem2"));
+    Modem modem2_1 = modemRepository.save(createModem("modem2_1"));
+    Modem modem3 = modemRepository.save(createModem("modem3"));
+    Consumer consumer1 = consumerRepository.save(createConsumer("consumer1"));
+    Consumer consumer2 = consumerRepository.save(createConsumer("consumer2"));
+    Consumer consumer3 = consumerRepository.save(createConsumer("consumer3"));
+    Consumer consumer4 = consumerRepository.save(createConsumer("consumer4"));
+    Consumer consumer5 = consumerRepository.save(createConsumer("consumer5"));
+
+    LocalDateTime now = LocalDateTime.now();
+    installService.installModem(modem1, consumer1, of(createMockFile("설치 성공")), now.minusDays(6L));
+    installService.demolishModem(modem1, of(createMockFile("철거 성공")), now.minusDays(5L));
+    installService.installModem(modem1_1, consumer1, of(createMockFile("설치 성공")), now.minusDays(4L)); //
+
+    installService.installModem(modem2, consumer2, of(createMockFile("설치 성공")), now.minusDays(6L));
+    installService.demolishModem(modem2, of(createMockFile("철거 성공")), now.minusDays(5L));
+    installService.installModem(modem2_1, consumer2, of(createMockFile("설치 성공")), now.minusDays(6L)); //
+
+    installService.installModem(modem3, consumer3, of(createMockFile("설치 성공")), now.minusDays(6L)); //
+
+    em.flush();
+    em.clear();
+
+    ConsumerSearchCondition condition = ConsumerSearchCondition.builder()
+        .from(LocalDateTime.now().minusDays(7L))
+        .to(LocalDateTime.now().minusDays(5L))
+        .build();
+    PageRequest pageRequest = PageRequest.of(0, 10);
+
+    //when
+    Page<ConsumerResponse> consumerResponses = consumerService.searchConsumers(condition, pageRequest);
+
+    //then
+    assertThat(consumerResponses.getTotalElements()).isEqualTo(2L);
+  }
+
   private void createCodes() {
     codeRepository.saveAll(getAllCodes());
   }

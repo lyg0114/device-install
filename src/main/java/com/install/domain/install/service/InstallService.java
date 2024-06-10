@@ -92,9 +92,9 @@ public class InstallService {
             .workTime(!isNull(requestDto.getWorkTime()) ? requestDto.getWorkTime() : LocalDateTime.now())
             .build());
 
-    for (MultipartFile image : installImages) {
+    installImages.forEach(image -> {
       workSpaceImagesUpload(savedInstallInfo, image);
-    }
+    });
   }
 
   private void workSpaceImagesUpload(InstallInfo installInfo, MultipartFile multipartFile) {
@@ -141,9 +141,11 @@ public class InstallService {
 
     Modem modem = modemRepository.findById(modemId)
         .orElseThrow(() -> new CustomException(MODEM_NOT_EXIST));
+
     Consumer consumer = consumerRepository.findById(consumerId)
         .orElseThrow(() -> new CustomException(CONSUMER_NOT_EXIST));
-    consumer.installedModem(modem);
+
+    consumer.installedModem(modem, requestDto);
     saveWorkHistory(modemId, consumerId, requestDto, MODEM_INSTALL_STATUS_INSTALLED, installImages);
   }
 
