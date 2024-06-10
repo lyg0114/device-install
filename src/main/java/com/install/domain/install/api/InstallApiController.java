@@ -84,17 +84,6 @@ public class InstallApiController {
   }
 
   /**
-   * - 단말기 상태 검증 ( 정상 , 비정상)
-   */
-  @GetMapping("/status/{modemNo}")
-  public ResponseEntity<InstallDto.InstallResponse> searchByConsumer(@PathVariable Integer modemNo) {
-    // business logic
-
-    return ResponseEntity
-        .status(HttpStatus.OK).body(null);
-  }
-
-  /**
    * - 단말기 설치
    */
   @PostMapping("/{modemId}/{consumerId}")
