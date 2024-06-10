@@ -52,6 +52,13 @@ import org.springframework.web.multipart.MultipartFile;
  * @package : com.install.domain.install.service
  * @since : 05.06.24
  */
+// TODO : 설치로직 전개시 유효성 처리 개선
+  /*
+   - 모든 작업의 workTime은 기존 workTime보다 커야 한다.
+   - 철거하기전엔 수용가에 단말기가 설치되어 있어야 한다.
+   - 설치하기 전엔 수용가에 단말기가 존재해선 안된다.
+      - 설치정보가 없거나, 철거 상태여야함.
+   */
 @Slf4j
 @Transactional
 @RequiredArgsConstructor
@@ -67,7 +74,7 @@ public class InstallService {
   private final StorageService storageService;
   private final FileInfoRepository fileInfoRepository;
 
-  private void modemInstallWork(
+  private void saveWorkHistory(
       Long modemId, Long consumerId, InstallRequest requestDto, CodeSet codeSet, List<MultipartFile> installImages
   ) {
     Member worker = memberRepository.findById(jwtService.getId())
@@ -82,7 +89,7 @@ public class InstallService {
             .workTypeCd(Code.builder()
                 .code(codeSet.getCode())
                 .build())
-            .workTime(LocalDateTime.now())
+            .workTime(!isNull(requestDto.getWorkTime()) ? requestDto.getWorkTime() : LocalDateTime.now())
             .build());
 
     for (MultipartFile image : installImages) {
@@ -132,7 +139,19 @@ public class InstallService {
     validateIsExistConsumer(consumerId);
     validateShouldNotInstalledModem(modemId);
 
-    modemInstallWork(modemId, consumerId, requestDto, MODEM_INSTALL_STATUS_INSTALLED, installImages);
+    Modem modem = modemRepository.findById(modemId)
+        .orElseThrow(() -> new CustomException(MODEM_NOT_EXIST));
+    Consumer consumer = consumerRepository.findById(consumerId)
+        .orElseThrow(() -> new CustomException(CONSUMER_NOT_EXIST));
+    consumer.installedModem(modem);
+    saveWorkHistory(modemId, consumerId, requestDto, MODEM_INSTALL_STATUS_INSTALLED, installImages);
+  }
+
+  public void installModem(Modem modem, Consumer consumer, List<MultipartFile> installImages, LocalDateTime workTime ) {
+    InstallRequest installSuccess = InstallRequest.builder()
+        .workTime(workTime)
+        .comment("설치 성공").build();
+    installModem(modem.getId(), consumer.getId(), installSuccess, installImages);
   }
 
   /**
@@ -148,7 +167,14 @@ public class InstallService {
         .getConsumer()
         .getId();
 
-    modemInstallWork(modemId, installedConsumerSid, requestDto, MODEM_INSTALL_STATUS_MAINTANCE, maintenanceImages);
+    saveWorkHistory(modemId, installedConsumerSid, requestDto, MODEM_INSTALL_STATUS_MAINTANCE, maintenanceImages);
+  }
+
+  public void maintenanceModem(Modem modem, List<MultipartFile> maintenanceImages, LocalDateTime workTime) {
+    InstallRequest maintenanceSuccess = InstallRequest.builder()
+        .workTime(workTime)
+        .comment("유지보수 성공").build();
+    maintenanceModem(modem.getId(), maintenanceSuccess, maintenanceImages);
   }
 
   /**
@@ -164,7 +190,18 @@ public class InstallService {
         .getConsumer()
         .getId();
 
-    modemInstallWork(modemId, installedConsumerSid, requestDto, MODEM_INSTALL_STATUS_DEMOLISH, demolishImages);
+    Consumer installedConsumer = consumerRepository.findById(installedConsumerSid)
+        .orElseThrow(() -> new CustomException(CONSUMER_NOT_EXIST));
+
+    installedConsumer.demolishModem();
+    saveWorkHistory(modemId, installedConsumerSid, requestDto, MODEM_INSTALL_STATUS_DEMOLISH, demolishImages);
+  }
+
+  public void demolishModem(Modem modem, List<MultipartFile> demolishImages, LocalDateTime workTime) {
+    InstallRequest demolishSuccess = InstallRequest.builder()
+        .workTime(workTime)
+        .comment("철거 성공").build();
+    demolishModem(modem.getId(), demolishSuccess, demolishImages);
   }
 
   @Transactional(readOnly = true)

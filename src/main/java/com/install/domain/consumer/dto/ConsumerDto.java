@@ -27,7 +27,9 @@ public class ConsumerDto {
   @Builder
   @AllArgsConstructor(access = PRIVATE)
   public static class ConsumerSearchCondition {
-
+    private String modemNo;
+    private String meterNo;
+    private String consumerNo;
   }
 
   @ToString
@@ -89,13 +91,14 @@ public class ConsumerDto {
     private String consumerNo;
     private String consumerName;
     private String meterNo;
-    private String installedModemNo;
-    private BigDecimal usage;
     private String city;
     private String street;
     private String zipcode;
     private String geoX;
     private String geoY;
+
+    private String installedModemNo;
+    private BigDecimal usage;
   }
 
 }

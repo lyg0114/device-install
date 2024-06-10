@@ -2,21 +2,24 @@ package com.install.domain.modem.entity;
 
 import static jakarta.persistence.FetchType.LAZY;
 import static jakarta.persistence.GenerationType.IDENTITY;
+import static java.util.Objects.isNull;
 import static lombok.AccessLevel.PROTECTED;
 import static org.springframework.util.StringUtils.hasText;
 
 import com.install.domain.code.entity.Code;
 import com.install.domain.common.BaseTimeEntity;
+import com.install.domain.consumer.entity.Consumer;
 import com.install.domain.modem.dto.ModemDto.ModemRequest;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
+import java.util.Objects;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -28,7 +31,6 @@ import lombok.ToString;
  * @package : com.install.domain.modem.entity
  * @since : 05.06.24
  */
-@ToString
 @Getter
 @Builder
 @AllArgsConstructor
@@ -63,6 +65,9 @@ public class Modem extends BaseTimeEntity {
   @JoinColumn(name = "modem_status_cd")
   private Code modemStatusCd;
 
+  @OneToOne(mappedBy = "installedModem")
+  private Consumer installedConsumer;
+
   public void updateModem(ModemRequest requestDto) {
     if (hasText(requestDto.getModemNo())) {
       this.modemNo = requestDto.getModemNo();
@@ -87,5 +92,9 @@ public class Modem extends BaseTimeEntity {
 
   private Code createCode(String code) {
     return Code.builder().code(code).build();
+  }
+
+  public void installedConsumer(Consumer installedConsumer) {
+    this.installedConsumer = installedConsumer;
   }
 }

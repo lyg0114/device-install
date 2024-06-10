@@ -33,6 +33,7 @@ public class InstallDto {
   public static class InstallRequest {
 
     private String comment;
+    private LocalDateTime workTime;
   }
 
   @ToString

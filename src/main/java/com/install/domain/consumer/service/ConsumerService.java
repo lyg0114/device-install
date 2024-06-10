@@ -32,11 +32,10 @@ import org.springframework.transaction.annotation.Transactional;
 public class ConsumerService {
 
   private final ConsumerRepository consumerRepository;
-  private final InstallRepository installRepository;
 
   public Page<ConsumerResponse> searchConsumers(ConsumerSearchCondition condition, Pageable pageable) {
-    return installRepository.searchConsumers(condition, pageable)
-        .map(InstallInfo::toConsumerResponse);
+    return consumerRepository.searchConsumer(condition, pageable)
+        .map(Consumer::toResponse);
   }
 
   public void addConsumer(ConsumerDto.ConsumerRequest requestDto) {

@@ -79,13 +79,12 @@ class InstallServiceTest {
   }
 
   private Member createMember(String name) {
-    Member worker = Member.builder()
+    return Member.builder()
         .name(name)
         .nickname("에이스")
         .email("worker@example.com")
         .password("1234")
         .build();
-    return worker;
   }
 
   private Code createCode(CodeSet codeSet) {

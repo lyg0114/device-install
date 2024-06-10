@@ -1,6 +1,11 @@
 package com.install.domain.install.entity.repository;
 
-import static com.install.domain.code.entity.CodeSet.*;
+import static com.install.domain.code.entity.CodeSet.MODEM_INSTALL_STATUS_DEMOLISH;
+import static com.install.domain.code.entity.CodeSet.MODEM_INSTALL_STATUS_INSTALLED;
+import static com.install.domain.code.entity.CodeSet.MODEM_INSTALL_STATUS_MAINTANCE;
+import static com.install.domain.code.entity.CodeSet.MODEM_STAUTS;
+import static com.install.domain.code.entity.CodeSet.MODEM_TYPE;
+import static com.install.domain.code.entity.CodeSet.getAllCodes;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.install.domain.code.entity.Code;
@@ -11,8 +16,13 @@ import com.install.domain.consumer.entity.Consumer;
 import com.install.domain.consumer.entity.Location;
 import com.install.domain.consumer.entity.repository.ConsumerRepository;
 import com.install.domain.install.entity.InstallInfo;
+import com.install.domain.install.service.InstallService;
+import com.install.domain.member.entity.Member;
+import com.install.domain.member.entity.repository.MemberRepository;
 import com.install.domain.modem.entity.Modem;
 import com.install.domain.modem.entity.repository.ModemRepository;
+import com.install.global.security.service.JwtService;
+import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -20,8 +30,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -38,6 +51,7 @@ class InstallRepositoryTest {
   @Autowired ConsumerRepository consumerRepository;
   @Autowired CodeRepository codeRepository;
   @Autowired EntityManager em;
+  @MockBean JwtService jwtService;
 
   @BeforeEach
   void before() {
@@ -46,14 +60,6 @@ class InstallRepositoryTest {
 
   private void createCodes() {
     codeRepository.saveAll(getAllCodes());
-  }
-
-  private Code createCode(CodeSet codeSet) {
-    return Code.builder()
-        .code(codeSet.getCode())
-        .name(codeSet.getName())
-        .level(codeSet.getLevel())
-        .build();
   }
 
   private Consumer createConsumer(String str) {
@@ -83,8 +89,7 @@ class InstallRepositoryTest {
         .build();
   }
 
-  private InstallInfo createInstallInfo(Modem modem, Consumer consumer, CodeSet workTypeCode,
-      String comment, LocalDateTime workTime) {
+  private InstallInfo createWorkInfo(Modem modem, Consumer consumer, CodeSet workTypeCode, String comment, LocalDateTime workTime) {
     return InstallInfo.builder()
         .modem(Modem.builder().id(modem.getId()).build())
         .consumer(Consumer.builder().id(consumer.getId()).build())
@@ -92,6 +97,22 @@ class InstallRepositoryTest {
         .comment(comment)
         .workTime(workTime)
         .build();
+  }
+
+  private MockMultipartFile createMockFile(String content) {
+    MockMultipartFile sameplFile = new MockMultipartFile("foo", "foo.txt",
+        MediaType.TEXT_PLAIN_VALUE, content.getBytes());
+    return sameplFile;
+  }
+
+  private Member createMember(String name) {
+    Member worker = Member.builder()
+        .name(name)
+        .nickname("에이스")
+        .email("worker@example.com")
+        .password("1234")
+        .build();
+    return worker;
   }
 
   /*
@@ -114,11 +135,11 @@ class InstallRepositoryTest {
 
     //when
     LocalDateTime now = LocalDateTime.now();
-    installRepository.save(createInstallInfo(modem, consumer1, MODEM_INSTALL_STATUS_INSTALLED, "신규설치 했음", now.minusDays(5L)));
-    installRepository.save(createInstallInfo(modem, consumer1, MODEM_INSTALL_STATUS_MAINTANCE, "유지보수 했음", now.minusDays(4L)));
-    installRepository.save(createInstallInfo(modem, consumer1, MODEM_INSTALL_STATUS_DEMOLISH, "철거 했음", now.minusDays(3L)));
-    installRepository.save(createInstallInfo(modem, consumer2, MODEM_INSTALL_STATUS_INSTALLED, "다른 수용가에 신규설치", now.minusDays(2L)));
-    installRepository.save(createInstallInfo(modem, consumer2, MODEM_INSTALL_STATUS_DEMOLISH, "철거", now.minusDays(1L)));
+    installRepository.save(createWorkInfo(modem, consumer1, MODEM_INSTALL_STATUS_INSTALLED, "신규설치 했음", now.minusDays(5L)));
+    installRepository.save(createWorkInfo(modem, consumer1, MODEM_INSTALL_STATUS_MAINTANCE, "유지보수 했음", now.minusDays(4L)));
+    installRepository.save(createWorkInfo(modem, consumer1, MODEM_INSTALL_STATUS_DEMOLISH, "철거 했음", now.minusDays(3L)));
+    installRepository.save(createWorkInfo(modem, consumer2, MODEM_INSTALL_STATUS_INSTALLED, "다른 수용가에 신규설치", now.minusDays(2L)));
+    installRepository.save(createWorkInfo(modem, consumer2, MODEM_INSTALL_STATUS_DEMOLISH, "철거", now.minusDays(1L)));
 
     em.flush();
     em.clear();
@@ -150,10 +171,10 @@ class InstallRepositoryTest {
     em.clear();
 
     //when
-    installRepository.save(createInstallInfo(modem1, consumer, MODEM_INSTALL_STATUS_INSTALLED, "신규설치 했음", LocalDateTime.now().minusDays(3L)));
-    installRepository.save(createInstallInfo(modem1, consumer, MODEM_INSTALL_STATUS_MAINTANCE, "유지보수 했음", LocalDateTime.now().minusDays(2L)));
-    installRepository.save(createInstallInfo(modem1, consumer, MODEM_INSTALL_STATUS_DEMOLISH, "철거 했음", LocalDateTime.now().minusDays(1L)));
-    installRepository.save(createInstallInfo(modem2, consumer, MODEM_INSTALL_STATUS_INSTALLED, "다른 단말기로 신규 설치", LocalDateTime.now()));
+    installRepository.save(createWorkInfo(modem1, consumer, MODEM_INSTALL_STATUS_INSTALLED, "신규설치 했음", LocalDateTime.now().minusDays(3L)));
+    installRepository.save(createWorkInfo(modem1, consumer, MODEM_INSTALL_STATUS_MAINTANCE, "유지보수 했음", LocalDateTime.now().minusDays(2L)));
+    installRepository.save(createWorkInfo(modem1, consumer, MODEM_INSTALL_STATUS_DEMOLISH, "철거 했음", LocalDateTime.now().minusDays(1L)));
+    installRepository.save(createWorkInfo(modem2, consumer, MODEM_INSTALL_STATUS_INSTALLED, "다른 단말기로 신규 설치", LocalDateTime.now()));
 
     em.flush();
     em.clear();

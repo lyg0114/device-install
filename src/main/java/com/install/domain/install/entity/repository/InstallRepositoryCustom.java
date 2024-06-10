@@ -18,5 +18,5 @@ public interface InstallRepositoryCustom {
 
   boolean isInstalledModem(Long modemId);
 
-  Page<InstallInfo> searchConsumers(ConsumerSearchCondition condition, Pageable pageable);
+  Page<InstallInfo> searchInstallInfos(ConsumerSearchCondition condition, Pageable pageable);
 }

@@ -33,7 +33,7 @@ public class InstallRepositoryImpl implements InstallRepositoryCustom {
   private final JPAQueryFactory queryFactory;
 
   @Override
-  public Page<InstallInfo> searchConsumers(ConsumerSearchCondition condition, Pageable pageable) {
+  public Page<InstallInfo> searchInstallInfos(ConsumerSearchCondition condition, Pageable pageable) {
     return null;
   }
 
