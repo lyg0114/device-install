@@ -46,19 +46,6 @@ public class InstallApiController {
   private final InstallService installService;
 
   /**
-   *  - 기간별 단말기 설치 내역 조회
-   */
-  @GetMapping
-  public ResponseEntity<Page<InstallDto.InstallResponse>> searchInstalls(
-      InstallDto.InstallSearchCondition condition, Pageable pageable) {
-
-    // business logic
-
-    return ResponseEntity
-        .status(HttpStatus.OK).body(null);
-  }
-
-  /**
    * - 단말기 기준으로 설치내역 조회
    */
   @GetMapping("/modem/{modemId}")

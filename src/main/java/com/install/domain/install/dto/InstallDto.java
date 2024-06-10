@@ -4,7 +4,6 @@ import static lombok.AccessLevel.PRIVATE;
 
 import jakarta.validation.constraints.NotBlank;
 import java.time.LocalDateTime;
-import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -33,6 +32,8 @@ public class InstallDto {
   public static class InstallRequest {
 
     private String comment;
+
+    @NotBlank(message = "설치일을 선택해 주세요.")
     private LocalDateTime workTime;
   }
 

@@ -22,7 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
  * @package : com.install.domain.consumer.service
  * @since : 04.06.24
  */
-@DisplayName("고객정보 테스트")
+@DisplayName("고객정보 CRUD 테스트")
 @Transactional
 @SpringBootTest
 class ConsumerServiceTest {
@@ -30,33 +30,6 @@ class ConsumerServiceTest {
   @Autowired ConsumerService consumerService;
   @Autowired ConsumerRepository consumerRepository;
   @Autowired EntityManager em;
-
-  private ConsumerRequest createConsumerRequest(Long id) {
-    return ConsumerRequest.builder()
-        .consumerNo("consumerNo-" + id)
-        .consumerName("consumerName" + id)
-        .meterNo("meterNo-" + id)
-        .city("city-" + id)
-        .build();
-  }
-
-  private Consumer createConsumer(Long id) {
-    return Consumer.builder()
-        .id(id)
-        .consumerNo("consumerNo-" + id)
-        .consumerName("consumerName" + id)
-        .meterNo("meterNo-" + id)
-        .address(Address.builder()
-            .street("street-" + id)
-            .city("city-" + id)
-            .zipcode("zipcode-" + id)
-            .build())
-        .location(Location.builder()
-            .geoX("getX-" + id)
-            .geoY("getY-" + id)
-            .build())
-        .build();
-  }
 
   @Test
   void 고객정보_단건_등록에_성공한다() {
@@ -113,4 +86,32 @@ class ConsumerServiceTest {
           .orElseThrow();
     });
   }
+
+  private ConsumerRequest createConsumerRequest(Long id) {
+    return ConsumerRequest.builder()
+        .consumerNo("consumerNo-" + id)
+        .consumerName("consumerName" + id)
+        .meterNo("meterNo-" + id)
+        .city("city-" + id)
+        .build();
+  }
+
+  private Consumer createConsumer(Long id) {
+    return Consumer.builder()
+        .id(id)
+        .consumerNo("consumerNo-" + id)
+        .consumerName("consumerName" + id)
+        .meterNo("meterNo-" + id)
+        .address(Address.builder()
+            .street("street-" + id)
+            .city("city-" + id)
+            .zipcode("zipcode-" + id)
+            .build())
+        .location(Location.builder()
+            .geoX("getX-" + id)
+            .geoY("getY-" + id)
+            .build())
+        .build();
+  }
+
 }
