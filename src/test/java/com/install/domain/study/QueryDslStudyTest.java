@@ -6,10 +6,13 @@ import static com.install.domain.code.entity.CodeSet.getAllCodes;
 import static com.install.domain.consumer.entity.QConsumer.consumer;
 import static com.install.domain.modem.entity.QModem.modem;
 import static java.util.List.of;
+import static java.util.Objects.isNull;
 import static org.mockito.Mockito.when;
 
 import com.install.domain.code.entity.Code;
+import com.install.domain.code.entity.QCode;
 import com.install.domain.code.entity.repository.CodeRepository;
+import com.install.domain.consumer.dto.ConsumerDto.ConsumerSearchCondition;
 import com.install.domain.consumer.entity.Address;
 import com.install.domain.consumer.entity.Consumer;
 import com.install.domain.consumer.entity.Location;
@@ -21,6 +24,7 @@ import com.install.domain.member.entity.repository.MemberRepository;
 import com.install.domain.modem.entity.Modem;
 import com.install.domain.modem.entity.repository.ModemRepository;
 import com.install.global.security.service.JwtService;
+import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
 import java.time.LocalDateTime;
@@ -30,6 +34,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.transaction.annotation.Transactional;
@@ -59,10 +64,10 @@ class QueryDslStudyTest {
   }
 
   @Test
-  void query_test() {
+  void left_join_test() {
     //given
     when(jwtService.getId()).thenReturn(memberRepository.save(createMember("worker")).getId());
-
+    // modem, 고객 정보 저장
     Modem modem1 = modemRepository.save(createModem("modem1"));
     Modem modem1_1 = modemRepository.save(createModem("modem1_1"));
     Modem modem2 = modemRepository.save(createModem("modem2"));
@@ -74,51 +79,56 @@ class QueryDslStudyTest {
     Consumer consumer4 = consumerRepository.save(createConsumer("consumer4"));
     Consumer consumer5 = consumerRepository.save(createConsumer("consumer5"));
 
-    em.flush();
-    em.clear();
-
-    //when
+    // 설치정보 저장
     LocalDateTime now = LocalDateTime.now();
     installService.installModem(modem1, consumer1, of(createMockFile("설치 성공")), now.minusDays(6L));
     installService.demolishModem(modem1, of(createMockFile("철거 성공")), now.minusDays(5L));
     installService.installModem(modem1_1, consumer1, of(createMockFile("설치 성공")), now.minusDays(4L));
     installService.demolishModem(modem1_1, of(createMockFile("철거 성공")), now.minusDays(3L));
-
     installService.installModem(modem2, consumer2, of(createMockFile("설치 성공")), now.minusDays(6L));
     installService.demolishModem(modem2, of(createMockFile("철거 성공")), now.minusDays(5L));
     installService.installModem(modem2_1, consumer2, of(createMockFile("설치 성공")), now.minusDays(6L));
-    installService.demolishModem(modem2_1, of(createMockFile("철거 성공")), now.minusDays(5L));
-
     installService.installModem(modem3, consumer3, of(createMockFile("설치 성공")), now.minusDays(6L));
 
-    em.flush();
-    em.clear();
+    ConsumerSearchCondition condition = ConsumerSearchCondition.builder() .build();
+    PageRequest pageRequest = PageRequest.of(0, 10);
 
-    System.out.println("########################################################");
-
-    List<Consumer> fetch = queryFactory
+    //when
+    // code의 alias가 중복되어선 안된다.
+    QCode code1 = new QCode("code1");
+    QCode code2 = new QCode("code2");
+    List<Consumer> consumers = queryFactory
         .select(consumer)
         .from(consumer)
-        .leftJoin(consumer.installedModem, modem)
-        .fetchJoin()
+        .leftJoin(consumer.installedModem, modem).fetchJoin() // fetchJoin으로 Lazy 로딩 방지
+        .leftJoin(modem.modemTypeCd, code1).fetchJoin() // fetchJoin으로 Lazy 로딩 방지
+        .leftJoin(modem.modemStatusCd, code2).fetchJoin() // fetchJoin으로 Lazy 로딩 방지
+        .where(
+            modemNoEq(condition.getModemNo()),
+            consumerNoEq(condition.getConsumerNo()),
+            meterNoEq(condition.getMeterNo())
+        )
+        .offset(pageRequest.getOffset())
+        .limit(pageRequest.getPageSize())
         .fetch();
 
-    for (Consumer consumer : fetch) {
-      System.out.println(consumer);
+    //then
+    for (Consumer consumer : consumers) {
+      System.out.println("===========================================================================");
+      System.out.println("fetch1 = " + consumer);
     }
+  }
 
-    System.out.println("########################################################");
+  private BooleanExpression modemNoEq(String modemNo) {
+    return !isNull(modemNo) ? consumer.installedModem.modemNo.eq(modemNo) : null;
+  }
 
-    List<Modem> fetch1 = queryFactory
-        .select(modem)
-        .from(modem)
-        .leftJoin(modem.installedConsumer, consumer)
-        .fetchJoin()
-        .fetch();
+  private BooleanExpression consumerNoEq(String consumerNo) {
+    return !isNull(consumerNo) ? consumer.consumerNo.eq(consumerNo) : null;
+  }
 
-    for (Modem modem4 : fetch1) {
-      System.out.println("modem4 = " + modem4);
-    }
+  private BooleanExpression meterNoEq(String meterNo) {
+    return !isNull(meterNo) ? consumer.meterNo.eq(meterNo) : null;
   }
 
   private void createCodes() {
@@ -153,18 +163,16 @@ class QueryDslStudyTest {
   }
 
   private MockMultipartFile createMockFile(String content) {
-    MockMultipartFile sameplFile = new MockMultipartFile("foo", "foo.txt",
+    return new MockMultipartFile("foo", "foo.txt",
         MediaType.TEXT_PLAIN_VALUE, content.getBytes());
-    return sameplFile;
   }
 
   private Member createMember(String name) {
-    Member worker = Member.builder()
+    return Member.builder()
         .name(name)
         .nickname("에이스")
         .email("worker@example.com")
         .password("1234")
         .build();
-    return worker;
   }
 }
