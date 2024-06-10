@@ -8,6 +8,7 @@ import static org.springframework.util.StringUtils.hasText;
 
 import com.install.domain.common.BaseTimeEntity;
 import com.install.domain.consumer.dto.ConsumerDto.ConsumerRequest;
+import com.install.domain.consumer.dto.ConsumerDto.ConsumerResponse;
 import com.install.domain.modem.entity.Modem;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
@@ -18,7 +19,6 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
-import java.util.Objects;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -58,19 +58,6 @@ public class Consumer extends BaseTimeEntity {
   @JoinColumn(name = "installed_modem_id")
   private Modem installedModem;
 
-  @Override
-  public String toString() {
-    return "Consumer{" +
-        "id=" + id +
-        ", consumerNo='" + consumerNo + '\'' +
-        ", consumerName='" + consumerName + '\'' +
-        ", meterNo='" + meterNo + '\'' +
-        ", installedModem=" + (!isNull(installedModem) ? installedModem.getModemNo() : "NULL") +
-        ", address=" + address +
-        ", location=" + location +
-        '}';
-  }
-
   @Embedded
   private Address address;
 
@@ -97,5 +84,19 @@ public class Consumer extends BaseTimeEntity {
 
   public void demolishModem() {
     this.installedModem = null;
+  }
+
+  public ConsumerResponse toResponse() {
+    return ConsumerResponse.builder()
+        .installedModemNo(!isNull(installedModem) ? installedModem.getModemNo() : null)
+        .consumerNo(consumerNo)
+        .consumerName(consumerName)
+        .meterNo(meterNo)
+        .city(!isNull(getAddress()) ? getAddress().getCity() : null)
+        .street(!isNull(getAddress()) ? getAddress().getStreet() : null)
+        .zipcode(!isNull(getAddress()) ? getAddress().getZipcode() : null)
+        .geoX(!isNull(location) ? location.getGeoX() : null)
+        .geoY(!isNull(location) ? location.getGeoY() : null)
+        .build();
   }
 }

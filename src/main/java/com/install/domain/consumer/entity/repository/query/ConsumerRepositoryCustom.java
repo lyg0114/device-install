@@ -1,4 +1,4 @@
-package com.install.domain.consumer.entity.repository;
+package com.install.domain.consumer.entity.repository.query;
 
 import com.install.domain.consumer.dto.ConsumerDto.ConsumerSearchCondition;
 import com.install.domain.consumer.entity.Consumer;
@@ -10,10 +10,7 @@ import org.springframework.data.domain.Pageable;
  * @package : com.install.domain.consumer.entity.repository
  * @since : 09.06.24
  */
-public class ConsumerRepositoryImpl implements ConsumerRepositoryCustom{
+public interface ConsumerRepositoryCustom {
 
-  @Override
-  public Page<Consumer> searchConsumer(ConsumerSearchCondition condition, Pageable pageable) {
-    return null;
-  }
+  Page<Consumer> searchConsumer(ConsumerSearchCondition condition, Pageable pageable);
 }

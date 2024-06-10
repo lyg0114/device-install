@@ -97,17 +97,4 @@ public class Modem extends BaseTimeEntity {
   public void installedConsumer(Consumer installedConsumer) {
     this.installedConsumer = installedConsumer;
   }
-
-  @Override
-  public String toString() {
-    return "Modem{" +
-        "id=" + id +
-        ", modemNo='" + modemNo + '\'' +
-        ", imei='" + imei + '\'' +
-        ", buildCompany='" + buildCompany + '\'' +
-        ", modemTypeCd=" + modemTypeCd +
-        ", modemStatusCd=" + modemStatusCd +
-        ", installedConsumer=" + (!isNull(installedConsumer) ? installedConsumer.getConsumerNo() : "") +
-        '}';
-  }
 }

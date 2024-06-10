@@ -1,6 +1,8 @@
 package com.install.domain.modem.service;
 
-import static com.install.domain.code.entity.CodeSet.*;
+import static com.install.domain.code.entity.CodeSet.MODEM_STAUTS;
+import static com.install.domain.code.entity.CodeSet.MODEM_TYPE;
+import static com.install.domain.code.entity.CodeSet.getAllCodes;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -130,5 +132,4 @@ class ModemServiceTest {
           .orElseThrow();
     });
   }
-
 }

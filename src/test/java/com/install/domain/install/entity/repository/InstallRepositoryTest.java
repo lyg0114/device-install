@@ -1,13 +1,12 @@
 package com.install.domain.install.entity.repository;
 
-import static com.install.domain.code.entity.CodeSet.*;
-import static com.install.domain.consumer.entity.QConsumer.consumer;
-import static com.install.domain.install.entity.QInstallInfo.installInfo;
-import static com.install.domain.modem.entity.QModem.modem;
-import static com.querydsl.jpa.JPAExpressions.select;
-import static java.util.List.of;
+import static com.install.domain.code.entity.CodeSet.MODEM_INSTALL_STATUS_DEMOLISH;
+import static com.install.domain.code.entity.CodeSet.MODEM_INSTALL_STATUS_INSTALLED;
+import static com.install.domain.code.entity.CodeSet.MODEM_INSTALL_STATUS_MAINTANCE;
+import static com.install.domain.code.entity.CodeSet.MODEM_STAUTS;
+import static com.install.domain.code.entity.CodeSet.MODEM_TYPE;
+import static com.install.domain.code.entity.CodeSet.getAllCodes;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
 
 import com.install.domain.code.entity.Code;
 import com.install.domain.code.entity.CodeSet;
@@ -15,29 +14,18 @@ import com.install.domain.code.entity.repository.CodeRepository;
 import com.install.domain.consumer.entity.Address;
 import com.install.domain.consumer.entity.Consumer;
 import com.install.domain.consumer.entity.Location;
-import com.install.domain.consumer.entity.QConsumer;
 import com.install.domain.consumer.entity.repository.ConsumerRepository;
 import com.install.domain.install.entity.InstallInfo;
-import com.install.domain.install.entity.QInstallInfo;
 import com.install.domain.install.service.InstallService;
 import com.install.domain.member.entity.Member;
 import com.install.domain.member.entity.repository.MemberRepository;
 import com.install.domain.modem.entity.Modem;
-import com.install.domain.modem.entity.QModem;
 import com.install.domain.modem.entity.repository.ModemRepository;
 import com.install.global.security.service.JwtService;
-import com.querydsl.core.Tuple;
-import com.querydsl.core.types.Projections;
-import com.querydsl.jpa.JPAExpressions;
-import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
 import java.time.LocalDateTime;
 import java.util.List;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.ToString;
-import org.hibernate.internal.build.AllowNonPortable;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,7 +35,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -60,14 +47,11 @@ import org.springframework.transaction.annotation.Transactional;
 class InstallRepositoryTest {
 
   @Autowired InstallRepository installRepository;
-  @Autowired InstallService installService;
   @Autowired ModemRepository modemRepository;
   @Autowired ConsumerRepository consumerRepository;
   @Autowired CodeRepository codeRepository;
   @Autowired EntityManager em;
-  @Autowired JPAQueryFactory queryFactory;
   @MockBean JwtService jwtService;
-  @Autowired MemberRepository memberRepository;
 
   @BeforeEach
   void before() {
@@ -76,14 +60,6 @@ class InstallRepositoryTest {
 
   private void createCodes() {
     codeRepository.saveAll(getAllCodes());
-  }
-
-  private Code createCode(CodeSet codeSet) {
-    return Code.builder()
-        .code(codeSet.getCode())
-        .name(codeSet.getName())
-        .level(codeSet.getLevel())
-        .build();
   }
 
   private Consumer createConsumer(String str) {

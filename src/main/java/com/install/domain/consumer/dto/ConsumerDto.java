@@ -27,7 +27,9 @@ public class ConsumerDto {
   @Builder
   @AllArgsConstructor(access = PRIVATE)
   public static class ConsumerSearchCondition {
-
+    private String modemNo;
+    private String meterNo;
+    private String consumerNo;
   }
 
   @ToString
