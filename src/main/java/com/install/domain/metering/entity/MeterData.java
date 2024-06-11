@@ -13,6 +13,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -39,6 +40,9 @@ public class MeterData extends BaseTimeEntity {
   @ManyToOne
   @JoinColumn(name = "modem_id")
   private Modem modem;
+
+  @Column(name = "metering_date")
+  private LocalDateTime meteringDate;
 
   @Column(name = "metering_value", nullable = false, precision = 10, scale = 3)
   private BigDecimal meteringValue;

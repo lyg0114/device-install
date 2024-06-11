@@ -1,7 +1,5 @@
 package com.install.domain.metering.api;
 
-import com.install.domain.consumer.dto.ConsumerDto;
-import com.install.domain.consumer.dto.ConsumerDto.ConsumerResponse;
 import com.install.domain.metering.dto.MeteringDto;
 import com.install.domain.metering.service.MeteringService;
 import lombok.RequiredArgsConstructor;

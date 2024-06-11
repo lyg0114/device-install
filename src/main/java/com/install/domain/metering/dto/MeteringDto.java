@@ -2,6 +2,7 @@ package com.install.domain.metering.dto;
 
 import static lombok.AccessLevel.PRIVATE;
 
+import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -27,5 +28,9 @@ public class MeteringDto {
   @Builder
   @AllArgsConstructor(access = PRIVATE)
   public static class MeteringSearchCondition {
+
+    private LocalDateTime standardDate;
+    private String modemNo;
+    private String consumerNo;
   }
 }

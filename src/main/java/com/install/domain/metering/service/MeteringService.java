@@ -2,9 +2,8 @@ package com.install.domain.metering.service;
 
 import com.install.domain.metering.dto.MeteringDto.MeteringResponse;
 import com.install.domain.metering.dto.MeteringDto.MeteringSearchCondition;
-import com.install.domain.metering.entity.repository.MeterDataRepository;
-import com.install.domain.metering.entity.repository.MeterInfoRepository;
-import com.install.domain.metering.entity.repository.MeteringRepository;
+import com.install.domain.metering.entity.MeterInfo;
+import com.install.domain.metering.entity.repository.query.MeteringQueryRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -21,13 +20,12 @@ import org.springframework.stereotype.Service;
 @Service
 public class MeteringService {
 
-  private final MeteringRepository meteringRepository;
-  private final MeterDataRepository meterDataRepository;
-  private final MeterInfoRepository meterInfoRepository;
+  private final MeteringQueryRepository meteringQueryRepository;
 
   public Page<MeteringResponse> searchMeterInfo(
       MeteringSearchCondition condition, Pageable pageable
   ) {
-    return null;
+    return meteringQueryRepository.searchMeterInfo(condition, pageable)
+        .map(MeterInfo::toMeteringResponse);
   }
 }
