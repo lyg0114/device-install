@@ -10,6 +10,7 @@ import com.install.domain.code.entity.Code;
 import com.install.domain.common.BaseTimeEntity;
 import com.install.domain.consumer.entity.Consumer;
 import com.install.domain.modem.dto.ModemDto.ModemRequest;
+import com.install.domain.modem.dto.ModemDto.ModemResponse;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -96,5 +97,9 @@ public class Modem extends BaseTimeEntity {
 
   public void installedConsumer(Consumer installedConsumer) {
     this.installedConsumer = installedConsumer;
+  }
+
+  public ModemResponse toResponse() {
+    return null;
   }
 }

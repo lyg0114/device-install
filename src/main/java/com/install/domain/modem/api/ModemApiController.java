@@ -40,11 +40,9 @@ public class ModemApiController {
   public ResponseEntity<Page<ModemDto.ModemResponse>> searchModems(
       ModemDto.ModemSearchCondition condition, Pageable pageable) {
 
-    // business logic
-
     return ResponseEntity
         .status(HttpStatus.OK)
-        .body(null);
+        .body(modemService.searchModems(condition,pageable));
   }
 
   /**
