@@ -34,6 +34,17 @@ public class ModemApiController {
   private final ModemService modemService;
 
   /**
+   *  - 단말기 현황 카운트
+   */
+  @GetMapping("/count")
+  public ResponseEntity<ModemDto.ModemInstallCount> modeminstallCount() {
+
+    return ResponseEntity
+        .status(HttpStatus.OK)
+        .body(modemService.modeminstallCount());
+  }
+
+  /**
    * - 단말기 조회
    */
   @GetMapping

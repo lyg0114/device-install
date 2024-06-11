@@ -4,6 +4,7 @@ import static com.install.global.exception.CustomErrorCode.IMEI_ALREADY_EXIST;
 import static com.install.global.exception.CustomErrorCode.MODEM_NOT_EXIST;
 import static com.install.global.exception.CustomErrorCode.MODEM_NO_ALREADY_EXIST;
 
+import com.install.domain.modem.dto.ModemDto.ModemInstallCount;
 import com.install.domain.modem.dto.ModemDto.ModemRequest;
 import com.install.domain.modem.dto.ModemDto.ModemResponse;
 import com.install.domain.modem.dto.ModemDto.ModemSearchCondition;
@@ -63,5 +64,9 @@ public class ModemService {
     Modem modem = modemRepository.findById(modemId)
         .orElseThrow(() -> new CustomException(MODEM_NOT_EXIST));
     modemRepository.delete(modem);
+  }
+
+  public ModemInstallCount modeminstallCount() {
+    return modemRepository.modeminstallCount();
   }
 }

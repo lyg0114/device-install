@@ -70,4 +70,15 @@ public class ModemDto {
     private String modemTypeCd;
     private String modemStatusCd;
   }
+
+
+  @ToString
+  @Getter
+  @Builder
+  @AllArgsConstructor
+  public static class ModemInstallCount {
+    private Long totalCount;
+    private Long installedCount;
+    private Long uninstalledCount;
+  }
 }
