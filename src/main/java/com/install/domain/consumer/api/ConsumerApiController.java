@@ -25,11 +25,6 @@ import org.springframework.web.multipart.MultipartFile;
  * @author : iyeong-gyo
  * @package : com.install.domain.consumer.api
  * @since : 03.06.24
- *
- *  - 고객정보 조회
- *  - 고객정보 등록
- *  - 고객정보 수정
- *  - 고객정보 삭제
  */
 @Slf4j
 @RequiredArgsConstructor
@@ -40,7 +35,7 @@ public class ConsumerApiController {
   private final ConsumerService consumerService;
 
   /**
-   * - 고객정보 조회
+   * - 고객정보 리스트 조회
    */
   @GetMapping
   public ResponseEntity<Page<ConsumerDto.ConsumerResponse>> searchConsumers(

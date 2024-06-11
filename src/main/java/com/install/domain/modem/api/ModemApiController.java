@@ -23,7 +23,7 @@ import org.springframework.web.multipart.MultipartFile;
 /**
  * @author : iyeong-gyo
  * @package : com.install.domain.modem.api
- * @since : 03.06.24 - 단말기 조회 - 단말기 등록 - 단말기 수정 - 단말기 삭제
+ * @since : 03.06.24
  */
 @Slf4j
 @RequiredArgsConstructor
@@ -34,7 +34,7 @@ public class ModemApiController {
   private final ModemService modemService;
 
   /**
-   *  - 단말기 현황 카운트
+   *  - 단말기 설치 현황 카운트
    */
   @GetMapping("/count")
   public ResponseEntity<ModemDto.ModemInstallCount> modeminstallCount() {
@@ -45,7 +45,7 @@ public class ModemApiController {
   }
 
   /**
-   * - 단말기 조회
+   * - 단말기 리스트 조회
    */
   @GetMapping
   public ResponseEntity<Page<ModemDto.ModemResponse>> searchModems(

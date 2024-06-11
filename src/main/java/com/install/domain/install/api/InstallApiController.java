@@ -8,7 +8,6 @@ import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,16 +25,6 @@ import org.springframework.web.multipart.MultipartFile;
  * @author : iyeong-gyo
  * @package : com.install.domain.install.api
  * @since : 03.06.24
- *
- *  - 기간별 단말기 설치 내역 조회
- *  - 단말기 상태 판별 (외부 api 연동)
- *  - 설치내역 조회
- *    - 단말기 기준으로 설치내역 조회
- *    - 고객정보 기준으로 설치내역 조회
- *  - 단말기 설치
- *  - 단말기 유지보수
- *  - 단말기 철거
- *  - 설치 현황 카운트
  */
 @Slf4j
 @RequiredArgsConstructor
@@ -46,7 +35,7 @@ public class InstallApiController {
   private final InstallService installService;
 
   /**
-   * - 단말기 기준으로 설치내역 조회
+   * - 단말기 기준으로 작업내역 조회
    */
   @GetMapping("/modem/{modemId}")
   public ResponseEntity<InstallHistoryByModem> searchHistoryByModem(
@@ -59,7 +48,7 @@ public class InstallApiController {
   }
 
   /**
-   * - 고객정보 기준으로 설치내역 조회
+   * - 고객정보 기준으로 작업내역 조회
    */
   @GetMapping("/consumer/{consumerId}")
   public ResponseEntity<InstallHistoryByConsumer> searchHistoryByConsumer(
