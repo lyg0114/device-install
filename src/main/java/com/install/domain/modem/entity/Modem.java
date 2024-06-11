@@ -99,7 +99,15 @@ public class Modem extends BaseTimeEntity {
     this.installedConsumer = installedConsumer;
   }
 
+  // TODO : code값은 codeDTO를만들어서 반환할 수 있도록 개선
   public ModemResponse toResponse() {
-    return null;
+    return ModemResponse.builder()
+        .modemNo(this.modemNo)
+        .consumerNo(!isNull(this.installedConsumer) ? this.installedConsumer.getConsumerNo() : null)
+        .imei(this.imei)
+        .buildCompany(this.buildCompany)
+        .modemTypeCd(this.modemTypeCd.getCode())
+        .modemStatusCd(this.modemStatusCd.getCode())
+        .build();
   }
 }

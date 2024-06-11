@@ -22,7 +22,8 @@ public class ModemDto {
   @Builder
   @AllArgsConstructor(access = PRIVATE)
   public static class ModemSearchCondition {
-
+    private String modemNo;
+    private String consumerNo;
   }
 
   @ToString
@@ -62,6 +63,11 @@ public class ModemDto {
   @Builder
   @AllArgsConstructor
   public static class ModemResponse {
-
+    private String modemNo;
+    private String consumerNo;
+    private String imei;
+    private String buildCompany;
+    private String modemTypeCd;
+    private String modemStatusCd;
   }
 }

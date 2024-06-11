@@ -1,4 +1,4 @@
-package com.install.domain.consumer.entity.repository.query;
+package com.install.domain.consumer.service;
 
 import static com.install.domain.code.entity.CodeSet.MODEM_STAUTS;
 import static com.install.domain.code.entity.CodeSet.MODEM_TYPE;
@@ -16,7 +16,6 @@ import com.install.domain.consumer.entity.Address;
 import com.install.domain.consumer.entity.Consumer;
 import com.install.domain.consumer.entity.Location;
 import com.install.domain.consumer.entity.repository.ConsumerRepository;
-import com.install.domain.consumer.service.ConsumerService;
 import com.install.domain.install.entity.repository.InstallRepository;
 import com.install.domain.install.service.InstallService;
 import com.install.domain.member.entity.Member;
@@ -49,7 +48,6 @@ import org.springframework.transaction.annotation.Transactional;
 class ConsumerQueryTest {
 
   @Autowired ConsumerService consumerService;
-  @Autowired InstallRepository installRepository;
   @Autowired InstallService installService;
   @Autowired ModemRepository modemRepository;
   @Autowired ConsumerRepository consumerRepository;
