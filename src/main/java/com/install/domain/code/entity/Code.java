@@ -4,6 +4,7 @@ import static jakarta.persistence.FetchType.LAZY;
 import static lombok.AccessLevel.PROTECTED;
 
 import com.install.domain.common.BaseTimeEntity;
+import com.install.domain.common.dto.CodeDto;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -57,5 +58,12 @@ public class Code extends BaseTimeEntity {
   public void addChildCategory(Code child) {
     this.child.add(child);
     child.setParent(this);
+  }
+
+  public CodeDto toDto() {
+    return CodeDto.builder()
+        .code(this.code)
+        .name(this.name)
+        .build();
   }
 }
