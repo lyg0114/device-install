@@ -17,6 +17,7 @@ import com.install.domain.consumer.entity.repository.ConsumerRepository;
 import com.install.domain.install.service.InstallService;
 import com.install.domain.member.entity.Member;
 import com.install.domain.member.entity.repository.MemberRepository;
+import com.install.domain.modem.dto.ModemDto.ModemInstallCount;
 import com.install.domain.modem.dto.ModemDto.ModemResponse;
 import com.install.domain.modem.dto.ModemDto.ModemSearchCondition;
 import com.install.domain.modem.entity.Modem;
@@ -24,6 +25,7 @@ import com.install.domain.modem.entity.repository.ModemRepository;
 import com.install.global.security.service.JwtService;
 import jakarta.persistence.EntityManager;
 import java.time.LocalDateTime;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -106,6 +108,20 @@ public class ModemQueryTest {
     assertThat(modemResponse.getConsumerNo()).isEqualTo("consumerNo-consumer2");
     assertThat(modemResponse.getModemNo()).isEqualTo("modemNo-modem2_1");
     assertThat(modemResponse.getImei()).isEqualTo("imei-modem2_1");
+  }
+
+  @Test
+  void 단말기설치정보_카운트_조회에_성공한다() {
+    //given, when
+    em.flush();
+    em.clear();
+
+    ModemInstallCount modemInstallCount = modemService.modeminstallCount();
+
+    //then
+    assertThat(modemInstallCount.getTotalCount()).isEqualTo(5L);
+    assertThat(modemInstallCount.getInstalledCount()).isEqualTo(2L);
+    assertThat(modemInstallCount.getUninstalledCount()).isEqualTo(3L);
   }
 
   private void savedBasicInfo() {

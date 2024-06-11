@@ -20,12 +20,10 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
-import java.util.Objects;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
 
 /**
  * @author : iyeong-gyo
@@ -99,15 +97,14 @@ public class Modem extends BaseTimeEntity {
     this.installedConsumer = installedConsumer;
   }
 
-  // TODO : code값은 codeDTO를만들어서 반환할 수 있도록 개선
   public ModemResponse toResponse() {
     return ModemResponse.builder()
         .modemNo(this.modemNo)
         .consumerNo(!isNull(this.installedConsumer) ? this.installedConsumer.getConsumerNo() : null)
         .imei(this.imei)
         .buildCompany(this.buildCompany)
-        .modemTypeCd(this.modemTypeCd.getCode())
-        .modemStatusCd(this.modemStatusCd.getCode())
+        .modemTypeCd(this.modemTypeCd.toDto())
+        .modemStatusCd(this.modemStatusCd.toDto())
         .build();
   }
 }

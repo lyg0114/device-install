@@ -3,6 +3,7 @@ package com.install.domain.modem.dto;
 import static lombok.AccessLevel.PRIVATE;
 
 import com.install.domain.code.entity.Code;
+import com.install.domain.common.dto.CodeDto;
 import com.install.domain.modem.entity.Modem;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
@@ -67,7 +68,18 @@ public class ModemDto {
     private String consumerNo;
     private String imei;
     private String buildCompany;
-    private String modemTypeCd;
-    private String modemStatusCd;
+    private CodeDto modemTypeCd;
+    private CodeDto modemStatusCd;
+  }
+
+
+  @ToString
+  @Getter
+  @Builder
+  @AllArgsConstructor
+  public static class ModemInstallCount {
+    private Long totalCount;
+    private Long installedCount;
+    private Long uninstalledCount;
   }
 }

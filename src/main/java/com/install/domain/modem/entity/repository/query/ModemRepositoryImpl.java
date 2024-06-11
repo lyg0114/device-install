@@ -5,6 +5,7 @@ import static com.install.domain.modem.entity.QModem.modem;
 import static java.util.Objects.isNull;
 
 import com.install.domain.code.entity.QCode;
+import com.install.domain.modem.dto.ModemDto.ModemInstallCount;
 import com.install.domain.modem.dto.ModemDto.ModemSearchCondition;
 import com.install.domain.modem.entity.Modem;
 import com.querydsl.core.types.dsl.BooleanExpression;
@@ -56,6 +57,31 @@ public class ModemRepositoryImpl implements ModemRepositoryCustom {
                 )
                 .fetchOne()
         );
+  }
+
+  @Override
+  public ModemInstallCount modeminstallCount() {
+    return ModemInstallCount.builder()
+        .totalCount(getTotalCount())
+        .installedCount(installedCount(true))
+        .uninstalledCount(installedCount(false))
+        .build();
+  }
+
+  private Long installedCount(Boolean isInstalled) {
+    return queryFactory
+        .select(modem.count())
+        .from(modem)
+        .leftJoin(modem.installedConsumer, consumer)
+        .where(isInstalled ? modem.installedConsumer.isNotNull() : modem.installedConsumer.isNull())
+        .fetchOne();
+  }
+
+  private Long getTotalCount() {
+    return queryFactory
+        .select(modem.count())
+        .from(modem)
+        .fetchOne();
   }
 
   private BooleanExpression modemNoEq(String modemNo) {

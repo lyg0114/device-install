@@ -80,12 +80,4 @@ public class InstallDto {
     private String meterNo;
     private String city;
   }
-
-  @ToString
-  @Getter
-  @Builder
-  @AllArgsConstructor
-  public static class InstallCount {
-
-  }
 }

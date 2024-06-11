@@ -72,18 +72,6 @@ public class InstallApiController {
   }
 
   /**
-   *  - 설치 현황 카운트
-   */
-  @GetMapping("/count")
-  public ResponseEntity<Page<InstallDto.InstallCount>> searchInstallCount() {
-
-    // business logic
-
-    return ResponseEntity
-        .status(HttpStatus.OK).body(null);
-  }
-
-  /**
    * - 단말기 설치
    */
   @PostMapping("/{modemId}/{consumerId}")
