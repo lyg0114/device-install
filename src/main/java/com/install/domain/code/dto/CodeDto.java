@@ -1,4 +1,4 @@
-package com.install.domain.common.dto;
+package com.install.domain.code.dto;
 
 import static lombok.AccessLevel.PRIVATE;
 

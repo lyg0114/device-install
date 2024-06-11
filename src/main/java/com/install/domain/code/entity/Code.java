@@ -4,7 +4,7 @@ import static jakarta.persistence.FetchType.LAZY;
 import static lombok.AccessLevel.PROTECTED;
 
 import com.install.domain.common.BaseTimeEntity;
-import com.install.domain.common.dto.CodeDto;
+import com.install.domain.code.dto.CodeDto;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
