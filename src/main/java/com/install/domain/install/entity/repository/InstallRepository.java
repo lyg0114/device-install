@@ -19,5 +19,5 @@ public interface InstallRepository extends JpaRepository<InstallInfo, Long>, Ins
           + "from InstallInfo i2 "
           + "where i2.modem.id = :modemId)"
   )
-  Optional<InstallInfo> currentInstallStateInfo(Long modemId);
+  Optional<InstallInfo> latestStateInfo(Long modemId);
 }

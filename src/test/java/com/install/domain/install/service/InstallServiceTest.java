@@ -2,7 +2,6 @@ package com.install.domain.install.service;
 
 import static com.install.domain.code.entity.CodeSet.HAS_MODEM;
 import static com.install.domain.code.entity.CodeSet.HAS_NOT_MODEM;
-import static com.install.domain.code.entity.CodeSet.MODEM_INSTALL_STATUS;
 import static com.install.domain.code.entity.CodeSet.MODEM_INSTALL_STATUS_DEMOLISH;
 import static com.install.domain.code.entity.CodeSet.MODEM_INSTALL_STATUS_INSTALLED;
 import static com.install.domain.code.entity.CodeSet.MODEM_INSTALL_STATUS_MAINTANCE;
@@ -15,13 +14,11 @@ import static org.mockito.Mockito.when;
 import com.install.domain.code.entity.Code;
 import com.install.domain.code.entity.CodeSet;
 import com.install.domain.code.entity.repository.CodeRepository;
-import com.install.domain.common.file.entity.FileInfo;
 import com.install.domain.common.file.service.StorageService;
 import com.install.domain.consumer.entity.Address;
 import com.install.domain.consumer.entity.Consumer;
 import com.install.domain.consumer.entity.Location;
 import com.install.domain.consumer.entity.repository.ConsumerRepository;
-import com.install.domain.install.dto.InstallDto;
 import com.install.domain.install.dto.InstallDto.InstallHistoryByConsumer;
 import com.install.domain.install.dto.InstallDto.InstallHistoryByModem;
 import com.install.domain.install.dto.InstallDto.InstallRequest;
@@ -44,7 +41,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.core.io.Resource;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
@@ -191,7 +187,9 @@ class InstallServiceTest {
     em.flush();
     em.clear();
 
-    InstallRequest maintenceRequestDto = InstallRequest.builder().comment("유지보수 성공").build();
+    InstallRequest maintenceRequestDto = InstallRequest.builder()
+        .workTime(LocalDateTime.now().plusDays(1L))
+        .comment("유지보수 성공").build();
 
     //when
     installService.maintenanceModem(modem.getId(), maintenceRequestDto, createSampleFiles("maintence success", 2));
@@ -200,7 +198,7 @@ class InstallServiceTest {
     em.clear();
 
     //then
-    InstallInfo installInfo = installRepository.currentInstallStateInfo(modem.getId()).orElseThrow();
+    InstallInfo installInfo = installRepository.latestStateInfo(modem.getId()).orElseThrow();
     Long fileId = installInfo.getFileInfos().get(0).getId();
     Resource resource = storageService.loadAsResource(fileId);
 
@@ -215,15 +213,19 @@ class InstallServiceTest {
     //given
     when(jwtService.getId()).thenReturn(memberRepository.save(createMember("worker")).getId());
     Modem modem = modemRepository.save(createModem("modem"));
-    Consumer consumer = consumerRepository.save(createConsumer("test"));
-    InstallRequest requestDto = InstallRequest.builder().comment("신규설치 완료").build();
+    Consumer consumer = consumerRepository.save(createConsumer("consumer"));
+    InstallRequest requestDto = InstallRequest.builder()
+        .workTime(LocalDateTime.now())
+        .comment("신규설치 완료").build();
 
     installService.installModem(modem.getId(), consumer.getId(), requestDto, createSampleFiles("install success", 2));
 
     em.flush();
     em.clear();
 
-    InstallRequest demolishRequestDto = InstallRequest.builder().comment("단말기 철거 성공").build();
+    InstallRequest demolishRequestDto = InstallRequest.builder()
+        .workTime(LocalDateTime.now().plusDays(1L))
+        .comment("단말기 철거 성공").build();
 
     //when
     installService.demolishModem(modem.getId(), demolishRequestDto, createSampleFiles("demolish success", 2));
@@ -232,7 +234,7 @@ class InstallServiceTest {
     em.clear();
 
     //then
-    InstallInfo installInfo = installRepository.currentInstallStateInfo(modem.getId()).orElseThrow();
+    InstallInfo installInfo = installRepository.latestStateInfo(modem.getId()).orElseThrow();
     Long fileId = installInfo.getFileInfos().get(0).getId();
     Resource resource = storageService.loadAsResource(fileId);
 
