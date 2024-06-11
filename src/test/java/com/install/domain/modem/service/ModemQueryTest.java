@@ -34,7 +34,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -42,7 +41,6 @@ import org.springframework.transaction.annotation.Transactional;
  * @package : com.install.domain.modem.service
  * @since : 11.06.24
  */
-@Rollback(false)
 @DisplayName("단말기정보 조회 테스트")
 @Transactional
 @SpringBootTest

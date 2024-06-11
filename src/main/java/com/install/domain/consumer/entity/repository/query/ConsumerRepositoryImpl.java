@@ -25,16 +25,15 @@ import org.springframework.data.support.PageableExecutionUtils;
 public class ConsumerRepositoryImpl implements ConsumerRepositoryCustom {
 
   private final JPAQueryFactory queryFactory;
-  private static QCode code1 = new QCode("code1");
-  private static QCode code2 = new QCode("code2");
+  private QCode code1 = new QCode("code1");
+  private QCode code2 = new QCode("code2");
 
   @Override
   public Page<Consumer> searchConsumer(ConsumerSearchCondition condition, Pageable pageable) {
     return PageableExecutionUtils
         .getPage(
             queryFactory
-                .select(consumer)
-                .from(consumer)
+                .selectFrom(consumer)
                 .leftJoin(consumer.installedModem, modem).fetchJoin()
                 .leftJoin(modem.modemTypeCd, code1).fetchJoin()
                 .leftJoin(modem.modemStatusCd, code2).fetchJoin()
@@ -50,7 +49,7 @@ public class ConsumerRepositoryImpl implements ConsumerRepositoryCustom {
             pageable,
             () -> queryFactory
                 .select(consumer.count())
-                .from(installInfo)
+                .from(consumer)
                 .leftJoin(consumer.installedModem, modem).fetchJoin()
                 .leftJoin(modem.modemTypeCd, code1).fetchJoin()
                 .leftJoin(modem.modemStatusCd, code2).fetchJoin()
