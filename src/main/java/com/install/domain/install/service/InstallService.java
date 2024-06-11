@@ -8,7 +8,6 @@ import static com.install.domain.code.entity.CodeSet.MODEM_INSTALL_STATUS_MAINTA
 import static com.install.global.exception.CustomErrorCode.ALREADY_INSTALLED_MODEM;
 import static com.install.global.exception.CustomErrorCode.CONSUMER_NOT_EXIST;
 import static com.install.global.exception.CustomErrorCode.IMAGE_SIZE_NOT_ALLOW;
-import static com.install.global.exception.CustomErrorCode.INVALID_VALUE;
 import static com.install.global.exception.CustomErrorCode.IN_CORRECT_WORKTIME;
 import static com.install.global.exception.CustomErrorCode.MODEM_NOT_EXIST;
 import static com.install.global.exception.CustomErrorCode.NOT_FOUND_FILE_INFO;
@@ -40,7 +39,6 @@ import com.install.global.exception.CustomException;
 import com.install.global.security.service.JwtService;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Objects;
 import java.util.function.Function;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -62,7 +60,6 @@ import org.springframework.web.multipart.MultipartFile;
 public class InstallService {
 
   private final MemberRepository memberRepository;
-
   private final InstallRepository installRepository;
   private final ModemRepository modemRepository;
   private final ConsumerRepository consumerRepository;
@@ -73,9 +70,11 @@ public class InstallService {
   private void saveWorkHistory(
       Long modemId, Long consumerId, InstallRequest requestDto, CodeSet codeSet, List<MultipartFile> installImages
   ) {
+    // 작업자 조회
     Member worker = memberRepository.findById(jwtService.getId())
         .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
 
+    // 작업 정보 저장
     InstallInfo savedInstallInfo = installRepository.save(
         InstallInfo.builder()
             .modem(Modem.builder().id(modemId).build())
@@ -88,13 +87,14 @@ public class InstallService {
             .workTime(!isNull(requestDto.getWorkTime()) ? requestDto.getWorkTime() : LocalDateTime.now())
             .build());
 
+    // 작업 사진 정보 저장
     installImages.forEach(image -> {
       workSpaceImagesUpload(savedInstallInfo, image);
     });
   }
 
   private void workSpaceImagesUpload(InstallInfo installInfo, MultipartFile multipartFile) {
-    // 파일경로 DB 저장
+    // 파일경로 생성
     StringBuilder builder = new StringBuilder();
     String fileType = "." + multipartFile.getContentType().split("/")[1];
     String randomNum = randomUUID().toString().substring(0, 6);
@@ -119,13 +119,6 @@ public class InstallService {
     storageService.store(multipartFile, dirPath, fileName);
   }
 
-  /**
-   * @param modemId
-   * @param consumerId
-   * @param requestDto
-   *
-   * 단말기 설치
-   */
   public void installModem(
       Long modemId, Long consumerId, InstallDto.InstallRequest requestDto, List<MultipartFile> installImages
   ) {
@@ -136,59 +129,34 @@ public class InstallService {
     validateShouldNotInstalledModem(modemId);
     validateWorkTime(modemId, requestDto);
 
+    // 현재 설치정보 저장
     Modem modem = modemRepository.findById(modemId)
         .orElseThrow(() -> new CustomException(MODEM_NOT_EXIST));
-
     consumerRepository.findById(consumerId)
         .orElseThrow(() -> new CustomException(CONSUMER_NOT_EXIST))
         .installedModem(modem, requestDto);
 
+    // 설치정보 내역 저장
     saveWorkHistory(modemId, consumerId, requestDto, MODEM_INSTALL_STATUS_INSTALLED, installImages);
   }
 
-  public void installModem(Modem modem, Consumer consumer, List<MultipartFile> installImages, LocalDateTime workTime ) {
-    InstallRequest installSuccess = InstallRequest.builder()
-        .workTime(workTime)
-        .comment("설치 성공").build();
-    installModem(modem.getId(), consumer.getId(), installSuccess, installImages);
-  }
-
-  /**
-   * @param modemId
-   * @param requestDto
-   *
-   * 단말기 유지보수 : 철거하지않고 수리만 하는 경우
-   */
-  // TODO : testcase - 최초설치인데, 유지보수 api를 call한 경우
   public void maintenanceModem(Long modemId, InstallRequest requestDto, List<MultipartFile> maintenanceImages) {
     validateIsExistModem(modemId);
     validateShouldInstalledModem(modemId);
     validateWorkTime(modemId, requestDto);
 
-    Long installedConsumerSid = getLatestStateInfo(modemId).getConsumer().getId();
+    Long installedConsumerSid = getLatestWorkStateInfo(modemId).getConsumer().getId();
     saveWorkHistory(modemId, installedConsumerSid, requestDto, MODEM_INSTALL_STATUS_MAINTANCE, maintenanceImages);
   }
 
-  public void maintenanceModem(Modem modem, List<MultipartFile> maintenanceImages, LocalDateTime workTime) {
-    InstallRequest maintenanceSuccess = InstallRequest.builder()
-        .workTime(workTime)
-        .comment("유지보수 성공").build();
-    maintenanceModem(modem.getId(), maintenanceSuccess, maintenanceImages);
-  }
-
-  /**
-   * @param modemId
-   * @param requestDto
-   *
-   * 단말기 철거
-   */
-  // TODO : testcase - 최초설치인데, 철거 api를 call한 경우
-  public void demolishModem(Long modemId, InstallRequest requestDto, List<MultipartFile> demolishImages) {
+  public void demolishModem(
+      Long modemId, InstallRequest requestDto, List<MultipartFile> demolishImages
+  ) {
     validateIsExistModem(modemId);
     validateShouldInstalledModem(modemId);
     validateWorkTime(modemId, requestDto);
 
-    Long installedConsumerSid = getLatestStateInfo(modemId).getConsumer().getId();
+    Long installedConsumerSid = getLatestWorkStateInfo(modemId).getConsumer().getId();
 
     consumerRepository.findById(installedConsumerSid)
         .orElseThrow(() -> new CustomException(CONSUMER_NOT_EXIST))
@@ -197,17 +165,9 @@ public class InstallService {
     saveWorkHistory(modemId, installedConsumerSid, requestDto, MODEM_INSTALL_STATUS_DEMOLISH, demolishImages);
   }
 
-  public void demolishModem(Modem modem, List<MultipartFile> demolishImages, LocalDateTime workTime) {
-    InstallRequest demolishSuccess = InstallRequest.builder()
-        .workTime(workTime)
-        .comment("철거 성공").build();
-    demolishModem(modem.getId(), demolishSuccess, demolishImages);
-  }
-
   @Transactional(readOnly = true)
   public InstallHistoryByModem searchHistoryByModem(Long modemId, Pageable pageable) {
-    Page<historyInfo> historyInfos = installRepository.searchInstallInfoPageByModem(modemId,
-            pageable)
+    Page<historyInfo> historyInfos = installRepository.searchInstallInfoPageByModem(modemId, pageable)
         .map(getInstallInfohistoryInfoFunction());
 
     return InstallHistoryByModem.builder()
@@ -253,7 +213,7 @@ public class InstallService {
   }
 
   /**
-   * 설치 사진이 포함 되어 있는지 체크
+   * 작업 사진이 포함 되어 있는지 검증
    */
   private void validateIsExistFiles(List<MultipartFile> images) {
     if (isNull(images) || images.size() == 0) {
@@ -262,7 +222,7 @@ public class InstallService {
   }
 
   /**
-   * 이미지 저장 갯수 체크
+   * 최대 저장 가능 이미지 갯수 검증 : 최대 3개
    */
   private void validateMaxImages(List<MultipartFile> images) {
     if (images.size() > 3) {
@@ -270,7 +230,10 @@ public class InstallService {
     }
   }
 
-  private InstallInfo getLatestStateInfo(Long modemId) {
+  /**
+   * 단말기의 가장 최근의 작업정보 조회
+   */
+  private InstallInfo getLatestWorkStateInfo(Long modemId) {
     InstallInfo stateInfo = installRepository.latestStateInfo(modemId)
         .orElseThrow(() -> new CustomException(NOT_FOUND_INSTALL_INFO));
     return stateInfo;
@@ -282,12 +245,14 @@ public class InstallService {
   private void validateWorkTime(Long modemId, InstallRequest requestDto) {
     InstallInfo latestInfo;
     try {
-      latestInfo = getLatestStateInfo(modemId);
+      // 작업 내역이 없는경우 메서드 종료
+      latestInfo = getLatestWorkStateInfo(modemId);
     } catch (CustomException ex) {
       log.info("[CustomException] errorCode: {} | errorMessage: {} ", ex.getErrorCode(), ex.getMessage());
       return;
     }
 
+    // 작업시간 검증
     if (isNull(latestInfo) || isNull(requestDto.getWorkTime())
         || latestInfo.getWorkTime().isAfter(requestDto.getWorkTime())
     ) {
@@ -296,7 +261,7 @@ public class InstallService {
   }
 
   /**
-   * 시스템에 등록된 모뎀인지 체크
+   * 시스템에 등록된 모뎀인지 검증
    */
   private void validateIsExistModem(Long modemId) {
     if (!modemRepository.existsById(modemId)) {
@@ -305,7 +270,7 @@ public class InstallService {
   }
 
   /**
-   * 시스템에 등록된 고객정보인지 체크
+   * 시스템에 등록된 고객정보인지 검증
    */
   private void validateIsExistConsumer(Long consumerId) {
     if (!consumerRepository.existsById(consumerId)) {
@@ -314,7 +279,7 @@ public class InstallService {
   }
 
   /**
-   * 모뎀은 설치되어 있어있지 않아야 한다.
+   * 모뎀 설치정보 검증 : 단말기는 설치되어 있어있지 않아야 한다.
    */
   private void validateShouldNotInstalledModem(Long modemId) {
     if (installRepository.isInstalledModem(modemId)) {
@@ -323,7 +288,7 @@ public class InstallService {
   }
 
   /**
-   * 현재 설치되어있는 모뎀인지 체크
+   * 모뎀 설치정보 검증 : 단말기는 설치되어 있어야 한다.
    */
   private void validateShouldInstalledModem(Long modemId) {
     Modem modem = modemRepository.findById(modemId)

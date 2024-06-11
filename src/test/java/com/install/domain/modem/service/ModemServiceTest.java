@@ -7,7 +7,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.install.domain.code.entity.Code;
-import com.install.domain.code.entity.CodeSet;
 import com.install.domain.code.entity.repository.CodeRepository;
 import com.install.domain.modem.dto.ModemDto;
 import com.install.domain.modem.dto.ModemDto.ModemRequest;
@@ -40,39 +39,6 @@ class ModemServiceTest {
   @BeforeEach
   public void before() {
     createCodes();
-  }
-
-  private void createCodes() {
-    codeRepository.saveAll(getAllCodes());
-  }
-
-  private Code createCode(CodeSet codeSet) {
-    return Code.builder()
-        .code(codeSet.getCode())
-        .name(codeSet.getName())
-        .level(codeSet.getLevel())
-        .build();
-  }
-
-  private ModemRequest createModemRequest(Long id) {
-    return ModemRequest.builder()
-        .modemNo("modemNo-" + id)
-        .imei("imei-" + id)
-        .buildCompany("comapnty-" + id)
-        .modemTypeCd(MODEM_TYPE.getCode())
-        .modemStatusCd(MODEM_STAUTS.getCode())
-        .build();
-  }
-
-  private Modem createModem(Long id) {
-    return Modem.builder()
-        .id(id)
-        .modemNo("modemNo-" + id)
-        .imei("imei-" + id)
-        .buildCompany("comapnty-" + id)
-        .modemTypeCd(Code.builder().code(MODEM_TYPE.getCode()).build())
-        .modemStatusCd(Code.builder().code(MODEM_STAUTS.getCode()).build())
-        .build();
   }
 
   @Test
@@ -131,5 +97,30 @@ class ModemServiceTest {
       modemRepository.findById(targetConsumerId)
           .orElseThrow();
     });
+  }
+
+  private void createCodes() {
+    codeRepository.saveAll(getAllCodes());
+  }
+
+  private ModemRequest createModemRequest(Long id) {
+    return ModemRequest.builder()
+        .modemNo("modemNo-" + id)
+        .imei("imei-" + id)
+        .buildCompany("comapnty-" + id)
+        .modemTypeCd(MODEM_TYPE.getCode())
+        .modemStatusCd(MODEM_STAUTS.getCode())
+        .build();
+  }
+
+  private Modem createModem(Long id) {
+    return Modem.builder()
+        .id(id)
+        .modemNo("modemNo-" + id)
+        .imei("imei-" + id)
+        .buildCompany("comapnty-" + id)
+        .modemTypeCd(Code.builder().code(MODEM_TYPE.getCode()).build())
+        .modemStatusCd(Code.builder().code(MODEM_STAUTS.getCode()).build())
+        .build();
   }
 }

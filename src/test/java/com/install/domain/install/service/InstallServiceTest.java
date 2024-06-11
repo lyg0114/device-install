@@ -70,82 +70,6 @@ class InstallServiceTest {
 
   @BeforeEach void before() { createCodes(); }
 
-  private void createCodes() {
-    codeRepository.saveAll(getAllCodes());
-  }
-
-  private Member createMember(String name) {
-    return Member.builder()
-        .name(name)
-        .nickname("에이스")
-        .email("worker@example.com")
-        .password("1234")
-        .build();
-  }
-
-  private Code createCode(CodeSet codeSet) {
-    return Code.builder()
-        .code(codeSet.getCode())
-        .name(codeSet.getName())
-        .level(codeSet.getLevel())
-        .build();
-  }
-
-  private Consumer createConsumer(String str) {
-    return Consumer.builder()
-        .consumerNo("consumerNo-" + str)
-        .consumerName("consumerName-" + str)
-        .meterNo("meterNo-" + str)
-        .address(Address.builder()
-            .street("street-" + str)
-            .city("city-" + str)
-            .zipcode("zipcode-" + str)
-            .build())
-        .location(Location.builder()
-            .geoX("getX-" + str)
-            .geoY("getY-" + str)
-            .build())
-        .build();
-  }
-
-  private MockMultipartFile createMockFile(String content) {
-    MockMultipartFile sameplFile = new MockMultipartFile("foo", "foo.txt",
-        MediaType.TEXT_PLAIN_VALUE, content.getBytes());
-    return sameplFile;
-  }
-
-  private List<MultipartFile> createSampleFiles(String content, int count) {
-    List<MultipartFile> sampleFiles = new ArrayList<>();
-    for (int i = 0; i < count; i++) {
-      sampleFiles.add(createMockFile(new StringBuilder(content)
-          .append("-")
-          .append(i).toString()));
-    }
-    return sampleFiles;
-  }
-
-  private Modem createModem(String str) {
-    return Modem.builder()
-        .modemNo("modemNo-" + str)
-        .imei("imei-" + str)
-        .buildCompany("comapnty-" + str)
-        .modemTypeCd(Code.builder().code(MODEM_TYPE.getCode()).build())
-        .modemStatusCd(Code.builder().code(MODEM_STAUTS.getCode()).build())
-        .build();
-  }
-
-  private InstallInfo createInstallInfo(
-      Modem modem, Consumer consumer, CodeSet workTypeCode, String comment, LocalDateTime workTime
-  ) {
-    return InstallInfo.builder()
-        .modem(Modem.builder().id(modem.getId()).build())
-        .consumer(Consumer.builder().id(consumer.getId()).build())
-        .workTypeCd(Code.builder().code(workTypeCode.getCode()).build())
-        .comment(comment)
-        .workTime(workTime)
-        .build();
-  }
-
   @Test
   void 단말기_설치를_성공한다() {
     //given
@@ -301,4 +225,81 @@ class InstallServiceTest {
     assertThat(historyInfos.get(2).getWorkType()).isEqualTo(MODEM_INSTALL_STATUS_MAINTANCE.getCode());
     assertThat(historyInfos.get(3).getWorkType()).isEqualTo(MODEM_INSTALL_STATUS_INSTALLED.getCode());
   }
+
+  private void createCodes() {
+    codeRepository.saveAll(getAllCodes());
+  }
+
+  private Member createMember(String name) {
+    return Member.builder()
+        .name(name)
+        .nickname("에이스")
+        .email("worker@example.com")
+        .password("1234")
+        .build();
+  }
+
+  private Code createCode(CodeSet codeSet) {
+    return Code.builder()
+        .code(codeSet.getCode())
+        .name(codeSet.getName())
+        .level(codeSet.getLevel())
+        .build();
+  }
+
+  private Consumer createConsumer(String str) {
+    return Consumer.builder()
+        .consumerNo("consumerNo-" + str)
+        .consumerName("consumerName-" + str)
+        .meterNo("meterNo-" + str)
+        .address(Address.builder()
+            .street("street-" + str)
+            .city("city-" + str)
+            .zipcode("zipcode-" + str)
+            .build())
+        .location(Location.builder()
+            .geoX("getX-" + str)
+            .geoY("getY-" + str)
+            .build())
+        .build();
+  }
+
+  private MockMultipartFile createMockFile(String content) {
+    MockMultipartFile sameplFile = new MockMultipartFile("foo", "foo.txt",
+        MediaType.TEXT_PLAIN_VALUE, content.getBytes());
+    return sameplFile;
+  }
+
+  private List<MultipartFile> createSampleFiles(String content, int count) {
+    List<MultipartFile> sampleFiles = new ArrayList<>();
+    for (int i = 0; i < count; i++) {
+      sampleFiles.add(createMockFile(new StringBuilder(content)
+          .append("-")
+          .append(i).toString()));
+    }
+    return sampleFiles;
+  }
+
+  private Modem createModem(String str) {
+    return Modem.builder()
+        .modemNo("modemNo-" + str)
+        .imei("imei-" + str)
+        .buildCompany("comapnty-" + str)
+        .modemTypeCd(Code.builder().code(MODEM_TYPE.getCode()).build())
+        .modemStatusCd(Code.builder().code(MODEM_STAUTS.getCode()).build())
+        .build();
+  }
+
+  private InstallInfo createInstallInfo(
+      Modem modem, Consumer consumer, CodeSet workTypeCode, String comment, LocalDateTime workTime
+  ) {
+    return InstallInfo.builder()
+        .modem(Modem.builder().id(modem.getId()).build())
+        .consumer(Consumer.builder().id(consumer.getId()).build())
+        .workTypeCd(Code.builder().code(workTypeCode.getCode()).build())
+        .comment(comment)
+        .workTime(workTime)
+        .build();
+  }
+
 }

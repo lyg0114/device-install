@@ -14,6 +14,7 @@ import com.install.domain.consumer.entity.Address;
 import com.install.domain.consumer.entity.Consumer;
 import com.install.domain.consumer.entity.Location;
 import com.install.domain.consumer.entity.repository.ConsumerRepository;
+import com.install.domain.install.dto.InstallDto.InstallRequest;
 import com.install.domain.install.service.InstallService;
 import com.install.domain.member.entity.Member;
 import com.install.domain.member.entity.repository.MemberRepository;
@@ -25,6 +26,7 @@ import com.install.domain.modem.entity.repository.ModemRepository;
 import com.install.global.security.service.JwtService;
 import jakarta.persistence.EntityManager;
 import java.time.LocalDateTime;
+import java.util.List;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -37,6 +39,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  * @author : iyeong-gyo
@@ -138,16 +141,38 @@ public class ModemQueryTest {
     Consumer consumer5 = consumerRepository.save(createConsumer("consumer5"));
 
     LocalDateTime now = LocalDateTime.now();
-    installService.installModem(modem1, consumer1, of(createMockFile("설치 성공")), now.minusDays(6L));
-    installService.demolishModem(modem1, of(createMockFile("철거 성공")), now.minusDays(5L));
-    installService.installModem(modem1_1, consumer1, of(createMockFile("설치 성공")), now.minusDays(4L));
-    installService.demolishModem(modem1_1, of(createMockFile("철거 성공")), now.minusDays(3L));
-    installService.installModem(modem2, consumer2, of(createMockFile("설치 성공")), now.minusDays(6L));
-    installService.demolishModem(modem2, of(createMockFile("철거 성공")), now.minusDays(5L));
-    installService.installModem(modem2_1, consumer2, of(createMockFile("설치 성공")), now.minusDays(6L));
-    installService.installModem(modem3, consumer3, of(createMockFile("설치 성공")), now.minusDays(6L));
+    installModem(modem1, consumer1, of(createMockFile("설치 성공")), now.minusDays(6L));
+    demolishModem(modem1, of(createMockFile("철거 성공")), now.minusDays(5L));
+    installModem(modem1_1, consumer1, of(createMockFile("설치 성공")), now.minusDays(4L));
+    demolishModem(modem1_1, of(createMockFile("철거 성공")), now.minusDays(3L));
+    installModem(modem2, consumer2, of(createMockFile("설치 성공")), now.minusDays(6L));
+    demolishModem(modem2, of(createMockFile("철거 성공")), now.minusDays(5L));
+    installModem(modem2_1, consumer2, of(createMockFile("설치 성공")), now.minusDays(6L));
+    installModem(modem3, consumer3, of(createMockFile("설치 성공")), now.minusDays(6L));
   }
 
+  public void installModem(
+      Modem modem, Consumer consumer, List<MultipartFile> installImages, LocalDateTime workTime
+  ) {
+    InstallRequest installSuccess = InstallRequest.builder()
+        .workTime(workTime)
+        .comment("설치 성공").build();
+    installService.installModem(modem.getId(), consumer.getId(), installSuccess, installImages);
+  }
+
+  public void demolishModem(Modem modem, List<MultipartFile> demolishImages, LocalDateTime workTime) {
+    InstallRequest demolishSuccess = InstallRequest.builder()
+        .workTime(workTime)
+        .comment("철거 성공").build();
+    installService.demolishModem(modem.getId(), demolishSuccess, demolishImages);
+  }
+
+  public void maintenanceModem(Modem modem, List<MultipartFile> maintenanceImages, LocalDateTime workTime) {
+    InstallRequest maintenanceSuccess = InstallRequest.builder()
+        .workTime(workTime)
+        .comment("유지보수 성공").build();
+    installService.maintenanceModem(modem.getId(), maintenanceSuccess, maintenanceImages);
+  }
   private void createCodes() {
     codeRepository.saveAll(getAllCodes());
   }

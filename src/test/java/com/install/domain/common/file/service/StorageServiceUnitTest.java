@@ -43,25 +43,6 @@ class StorageServiceUnitTest {
     storageService.init();
   }
 
-  // MockMultipartFile 생성
-  private MockMultipartFile createMockImageFile() {
-    String fileName = "sample.jpg";
-    InputStream inputStream = getClass().getResourceAsStream("/images/" + fileName);
-    byte[] bytes;
-    try {
-      bytes = inputStream.readAllBytes();
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
-
-    return new MockMultipartFile(
-        "file",
-        fileName,
-        MediaType.IMAGE_JPEG_VALUE,
-        bytes
-    );
-  }
-
   @Test
   void 파일_저장후_조회에_성공한다() {
     //given
@@ -101,4 +82,24 @@ class StorageServiceUnitTest {
     //then
     assertThat(resource.exists()).isTrue();
   }
+
+  // MockMultipartFile 생성
+  private MockMultipartFile createMockImageFile() {
+    String fileName = "sample.jpg";
+    InputStream inputStream = getClass().getResourceAsStream("/images/" + fileName);
+    byte[] bytes;
+    try {
+      bytes = inputStream.readAllBytes();
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+
+    return new MockMultipartFile(
+        "file",
+        fileName,
+        MediaType.IMAGE_JPEG_VALUE,
+        bytes
+    );
+  }
+
 }

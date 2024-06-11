@@ -113,5 +113,4 @@ class ConsumerServiceTest {
             .build())
         .build();
   }
-
 }

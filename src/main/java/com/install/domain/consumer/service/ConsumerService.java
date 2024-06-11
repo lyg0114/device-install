@@ -67,5 +67,4 @@ public class ConsumerService {
       throw new CustomException(METER_NO_ALREADY_EXIST);
     }
   }
-
 }

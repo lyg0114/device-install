@@ -58,71 +58,6 @@ class InstallRepositoryTest {
     createCodes();
   }
 
-  private void createCodes() {
-    codeRepository.saveAll(getAllCodes());
-  }
-
-  private Consumer createConsumer(String str) {
-    return Consumer.builder()
-        .consumerNo("consumerNo-" + str)
-        .consumerName("consumerName-" + str)
-        .meterNo("meterNo-" + str)
-        .address(Address.builder()
-            .street("street-" + str)
-            .city("city-" + str)
-            .zipcode("zipcode-" + str)
-            .build())
-        .location(Location.builder()
-            .geoX("getX-" + str)
-            .geoY("getY-" + str)
-            .build())
-        .build();
-  }
-
-  private Modem createModem(String str) {
-    return Modem.builder()
-        .modemNo("modemNo-" + str)
-        .imei("imei-" + str)
-        .buildCompany("comapnty-" + str)
-        .modemTypeCd(Code.builder().code(MODEM_TYPE.getCode()).build())
-        .modemStatusCd(Code.builder().code(MODEM_STAUTS.getCode()).build())
-        .build();
-  }
-
-  private InstallInfo createWorkInfo(Modem modem, Consumer consumer, CodeSet workTypeCode, String comment, LocalDateTime workTime) {
-    return InstallInfo.builder()
-        .modem(Modem.builder().id(modem.getId()).build())
-        .consumer(Consumer.builder().id(consumer.getId()).build())
-        .workTypeCd(Code.builder().code(workTypeCode.getCode()).build())
-        .comment(comment)
-        .workTime(workTime)
-        .build();
-  }
-
-  private MockMultipartFile createMockFile(String content) {
-    MockMultipartFile sameplFile = new MockMultipartFile("foo", "foo.txt",
-        MediaType.TEXT_PLAIN_VALUE, content.getBytes());
-    return sameplFile;
-  }
-
-  private Member createMember(String name) {
-    Member worker = Member.builder()
-        .name(name)
-        .nickname("에이스")
-        .email("worker@example.com")
-        .password("1234")
-        .build();
-    return worker;
-  }
-
-  /*
-   [테스트 시나리오]
-    - consumer1에 modem 신규설치
-    - modem 유지보수
-    - consumer1에서 modem 철거
-    - modem을 다른 수용가 consumer2에 신규 설치
-    - modem을 철거
-   */
   @Test
   void searchInstallInfoPageByModem_메서드_테스트() {
     //given
@@ -183,4 +118,63 @@ class InstallRepositoryTest {
     assertThat(installRepository.isInstalledModem(modem1.getId())).isFalse();
     assertThat(installRepository.isInstalledModem(modem2.getId())).isTrue();
   }
+
+
+  private void createCodes() {
+    codeRepository.saveAll(getAllCodes());
+  }
+
+  private Consumer createConsumer(String str) {
+    return Consumer.builder()
+        .consumerNo("consumerNo-" + str)
+        .consumerName("consumerName-" + str)
+        .meterNo("meterNo-" + str)
+        .address(Address.builder()
+            .street("street-" + str)
+            .city("city-" + str)
+            .zipcode("zipcode-" + str)
+            .build())
+        .location(Location.builder()
+            .geoX("getX-" + str)
+            .geoY("getY-" + str)
+            .build())
+        .build();
+  }
+
+  private Modem createModem(String str) {
+    return Modem.builder()
+        .modemNo("modemNo-" + str)
+        .imei("imei-" + str)
+        .buildCompany("comapnty-" + str)
+        .modemTypeCd(Code.builder().code(MODEM_TYPE.getCode()).build())
+        .modemStatusCd(Code.builder().code(MODEM_STAUTS.getCode()).build())
+        .build();
+  }
+
+  private InstallInfo createWorkInfo(Modem modem, Consumer consumer, CodeSet workTypeCode, String comment, LocalDateTime workTime) {
+    return InstallInfo.builder()
+        .modem(Modem.builder().id(modem.getId()).build())
+        .consumer(Consumer.builder().id(consumer.getId()).build())
+        .workTypeCd(Code.builder().code(workTypeCode.getCode()).build())
+        .comment(comment)
+        .workTime(workTime)
+        .build();
+  }
+
+  private MockMultipartFile createMockFile(String content) {
+    MockMultipartFile sameplFile = new MockMultipartFile("foo", "foo.txt",
+        MediaType.TEXT_PLAIN_VALUE, content.getBytes());
+    return sameplFile;
+  }
+
+  private Member createMember(String name) {
+    Member worker = Member.builder()
+        .name(name)
+        .nickname("에이스")
+        .email("worker@example.com")
+        .password("1234")
+        .build();
+    return worker;
+  }
+
 }
