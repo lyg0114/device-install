@@ -63,6 +63,7 @@ public class MeterInfo extends BaseTimeEntity {
     return MeteringResponse.builder()
         .modemNo(this.modem.getModemNo())
         .meteringDate(this.meteringDate)
+        .meteringData(this.meteringData)
         .meteringUsage(this.meteringUsage)
         .meteringTemp(this.meteringTemp)
         .meteringStateCd(this.meteringStateCd.toDto())

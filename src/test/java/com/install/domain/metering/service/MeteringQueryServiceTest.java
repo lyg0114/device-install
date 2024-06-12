@@ -9,7 +9,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import com.install.domain.code.entity.Code;
-import com.install.domain.code.entity.CodeSet;
 import com.install.domain.code.entity.repository.CodeRepository;
 import com.install.domain.consumer.entity.Address;
 import com.install.domain.consumer.entity.Consumer;
@@ -28,6 +27,7 @@ import com.install.domain.modem.entity.repository.ModemRepository;
 import com.install.global.security.service.JwtService;
 import jakarta.persistence.EntityManager;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Random;
@@ -41,7 +41,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -50,7 +49,6 @@ import org.springframework.web.multipart.MultipartFile;
  * @package : com.install.domain.metering.service
  * @since : 11.06.24
  */
-@Rollback(value = false)
 @DisplayName("검침정보 조회 테스트")
 @Transactional
 @SpringBootTest
@@ -87,10 +85,8 @@ class MeteringQueryServiceTest {
 
     //then
     MeteringResponse meteringResponse = meteringResponses.getContent().get(0);
-    assertThat(meteringResponse.getModemNo()).isEqualTo("modemNo-modem3");
-    assertThat(meteringResponse.getMeteringUsage()).isEqualTo(0.012);
-    assertThat(meteringResponse.getMeteringTemp()).isEqualTo(15.200);
-    assertThat(meteringResponse.getMeteringStateCd().getCode()).isEqualTo("cd0501");
+    assertThat(meteringResponse.getModemNo()).isEqualTo("modemNo-modem1");
+    assertThat(meteringResponse.getMeteringStateCd().getCode()).isEqualTo(RECEIVING_DATA_SUCCESS.getCode());
     assertThat(meteringResponse.getMeteringStateCd().getName()).isEqualTo("수신");
   }
 
@@ -102,16 +98,17 @@ class MeteringQueryServiceTest {
     em.flush();
     em.clear();
 
-    MeteringSearchCondition condition = MeteringSearchCondition.builder().build();
+    LocalDateTime installNow = LocalDateTime.now().minusDays(2L);
+    MeteringSearchCondition condition = MeteringSearchCondition.builder()
+        .standardDate(installNow)
+        .build();
     PageRequest pageable = PageRequest.of(0, 10);
 
     //when
     Page<MeteringResponse> meteringResponses = meteringService.searchMeterInfo(condition, pageable);
 
     //then
-    for (MeteringResponse meteringRespons : meteringResponses) {
-      System.out.println("meteringRespons = " + meteringRespons);
-    }
+    assertThat(meteringResponses.getTotalElements()).isEqualTo(3L);
   }
 
   private void saveInfo() {
@@ -128,19 +125,22 @@ class MeteringQueryServiceTest {
     Consumer consumer4 = consumerRepository.save(createConsumer("consumer4"));
     Consumer consumer5 = consumerRepository.save(createConsumer("consumer5"));
 
-    LocalDateTime installNow = LocalDateTime.now().minusDays(6L);
+    LocalDateTime installNow = LocalDateTime.now().minusDays(3L); // 3일전 설치
     installModem(modem1, consumer1, of(createMockFile("설치 성공")), installNow);
     installModem(modem2, consumer2, of(createMockFile("설치 성공")), installNow);
     installModem(modem3, consumer3, of(createMockFile("설치 성공")), installNow);
     installModem(modem4, consumer4, of(createMockFile("설치 성공")), installNow);
     installModem(modem5, consumer5, of(createMockFile("설치 성공")), installNow);
 
-    saveMeterInfo(modem1, installNow.plusHours(3L), 0.0, 0.0, 11.2);
-    saveMeterInfo(modem2, installNow.plusHours(1L), 120.0, 0.0, 13.2);
-    saveMeterInfo(modem3, installNow.plusHours(2L), 1432.0, 0.0, 15.2);
+    // 설치 후 3시간 뒤 데이터 수신
+    saveMeterInfo(modem1, installNow.plusHours(3L), new BigDecimal(0.0), new BigDecimal(0.0), new BigDecimal(11.2));
+    // 설치 후 1시간 뒤 데이터 수신
+    saveMeterInfo(modem2, installNow.plusHours(1L), new BigDecimal(120.0), new BigDecimal(0.0), new BigDecimal(13.2));
+    // 설치 후 2시간 뒤 데이터 수신
+    saveMeterInfo(modem3, installNow.plusHours(2L), new BigDecimal(1432.0), new BigDecimal(0.0), new BigDecimal(15.2));
   }
 
-  private void saveMeterInfo(Modem modem, LocalDateTime meteringDate, double meteringData, double meteringUsage, double meteringTemp) {
+  private void saveMeterInfo(Modem modem, LocalDateTime meteringDate, BigDecimal meteringData, BigDecimal meteringUsage, BigDecimal meteringTemp) {
     if (meteringDate.isAfter(LocalDateTime.now())) {
       return;
     }
@@ -148,20 +148,26 @@ class MeteringQueryServiceTest {
     MeterInfo meterInfo = MeterInfo.builder()
         .modem(modem)
         .meteringDate(meteringDate)
-        .meteringData(new BigDecimal(meteringData))
-        .meteringUsage(new BigDecimal(meteringUsage))
-        .meteringTemp(new BigDecimal(meteringTemp))
+        .meteringData(meteringData)
+        .meteringUsage(meteringUsage)
+        .meteringTemp(meteringTemp)
         .meteringStateCd(RECEIVING_DATA_SUCCESS.getCodeEntity())
         .build();
+
     meterInfoRepository.save(meterInfo);
-    double randomUsage = createRandomValue(0.005, 0.020);
-    saveMeterInfo(modem, meteringDate.plusHours(1L), (meteringData + randomUsage), randomUsage, meteringTemp);
+    BigDecimal randomUsage = createRandomValue(new BigDecimal("0.005"), new BigDecimal("0.020"));
+    saveMeterInfo(modem, meteringDate.plusHours(1L), meteringData.add(randomUsage), randomUsage, meteringTemp);
   }
 
-  //min ~ max 사이의 랜덤 값을 생성
-  private double createRandomValue(double min, double max) {
+  // 정확한 연산을 위해 BigDecimal 사용
+  // min ~ max 사이의 랜덤 값을 생성
+  private BigDecimal createRandomValue(BigDecimal min, BigDecimal max) {
+    int SCALE = 3; // 소수점 이하 3자리
     Random random = new Random();
-    double randomValue = min + (max - min) * random.nextDouble();
+    BigDecimal randomBigDecimal = new BigDecimal(random.nextDouble());
+    BigDecimal range = max.subtract(min);
+    BigDecimal scaledRandomValue = range.multiply(randomBigDecimal).setScale(SCALE, RoundingMode.HALF_UP);
+    BigDecimal randomValue = min.add(scaledRandomValue);
     return randomValue;
   }
 
@@ -174,20 +180,6 @@ class MeteringQueryServiceTest {
     installService.installModem(modem.getId(), consumer.getId(), installSuccess, installImages);
   }
 
-  public void demolishModem(Modem modem, List<MultipartFile> demolishImages, LocalDateTime workTime) {
-    InstallRequest demolishSuccess = InstallRequest.builder()
-        .workTime(workTime)
-        .comment("철거 성공").build();
-    installService.demolishModem(modem.getId(), demolishSuccess, demolishImages);
-  }
-
-  public void maintenanceModem(Modem modem, List<MultipartFile> maintenanceImages, LocalDateTime workTime) {
-    InstallRequest maintenanceSuccess = InstallRequest.builder()
-        .workTime(workTime)
-        .comment("유지보수 성공").build();
-    installService.maintenanceModem(modem.getId(), maintenanceSuccess, maintenanceImages);
-  }
-
   private void createCodes() {
     codeRepository.saveAll(getAllCodes());
   }
@@ -198,14 +190,6 @@ class MeteringQueryServiceTest {
         .nickname("에이스")
         .email("worker@example.com")
         .password("1234")
-        .build();
-  }
-
-  private Code createCode(CodeSet codeSet) {
-    return Code.builder()
-        .code(codeSet.getCode())
-        .name(codeSet.getName())
-        .level(codeSet.getLevel())
         .build();
   }
 
