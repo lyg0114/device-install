@@ -1,4 +1,4 @@
-package com.install.global;
+package com.install.global.security;
 
 import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
 
