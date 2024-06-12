@@ -2,6 +2,9 @@ package com.install.domain.metering.dto;
 
 import static lombok.AccessLevel.PRIVATE;
 
+import com.install.domain.code.dto.CodeDto;
+import com.install.domain.code.entity.Code;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -20,7 +23,11 @@ public class MeteringDto {
   @Builder
   @AllArgsConstructor(access = PRIVATE)
   public static class MeteringResponse {
-
+    private String modemNo;
+    private LocalDateTime meteringDate;
+    private BigDecimal meteringUsage;
+    private BigDecimal meteringTemp;
+    private CodeDto meteringStateCd;
   }
 
   @ToString

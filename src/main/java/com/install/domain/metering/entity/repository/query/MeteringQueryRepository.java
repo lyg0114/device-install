@@ -1,10 +1,12 @@
 package com.install.domain.metering.entity.repository.query;
 
+import static com.install.domain.code.entity.QCode.code1;
 import static com.install.domain.consumer.entity.QConsumer.consumer;
 import static com.install.domain.metering.entity.QMeterInfo.meterInfo;
 import static com.install.domain.modem.entity.QModem.modem;
 import static java.util.Objects.isNull;
 
+import com.install.domain.code.entity.QCode;
 import com.install.domain.metering.dto.MeteringDto.MeteringSearchCondition;
 import com.install.domain.metering.entity.MeterInfo;
 import com.querydsl.core.types.dsl.BooleanExpression;
@@ -34,6 +36,7 @@ public class MeteringQueryRepository {
                 .selectFrom(meterInfo)
                 .leftJoin(meterInfo.modem, modem).fetchJoin()
                 .leftJoin(modem.installedConsumer, consumer).fetchJoin()
+                .leftJoin(meterInfo.meteringStateCd, code1).fetchJoin()
                 .where(
                     meteringDateBetween(condition.getStandardDate()),
                     modemNoEq(condition.getModemNo()),
@@ -48,6 +51,7 @@ public class MeteringQueryRepository {
                 .from(meterInfo)
                 .leftJoin(meterInfo.modem, modem).fetchJoin()
                 .leftJoin(modem.installedConsumer, consumer).fetchJoin()
+                .leftJoin(meterInfo.meteringStateCd, code1).fetchJoin()
                 .where(
                     meteringDateBetween(condition.getStandardDate()),
                     modemNoEq(condition.getModemNo()),

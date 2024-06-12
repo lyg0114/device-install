@@ -3,6 +3,7 @@ package com.install.domain.metering.entity;
 import static jakarta.persistence.GenerationType.IDENTITY;
 import static lombok.AccessLevel.PROTECTED;
 
+import com.install.domain.code.entity.Code;
 import com.install.domain.common.BaseTimeEntity;
 import com.install.domain.metering.dto.MeteringDto.MeteringResponse;
 import com.install.domain.modem.entity.Modem;
@@ -51,11 +52,17 @@ public class MeterInfo extends BaseTimeEntity {
   @Column(name = "metering_temp", nullable = false, precision = 10, scale = 3)
   private BigDecimal meteringTemp;
 
-  @Column(name = "metering_state", nullable = false)
-  private String meteringState;
-
+  @ManyToOne
+  @JoinColumn(name = "metering_state", nullable = false)
+  private Code meteringStateCd;
 
   public MeteringResponse toMeteringResponse() {
-    return null;
+    return MeteringResponse.builder()
+        .modemNo(this.modem.getModemNo())
+        .meteringDate(this.meteringDate)
+        .meteringUsage(this.meteringUsage)
+        .meteringTemp(this.meteringTemp)
+        .meteringStateCd(this.meteringStateCd.toDto())
+        .build();
   }
 }
