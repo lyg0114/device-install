@@ -4,13 +4,14 @@ import com.install.domain.modem.dto.ModemDto;
 import com.install.domain.modem.service.ModemService;
 import com.install.global.websocket.handler.ProgressWebSocketHandler;
 import jakarta.validation.Valid;
+import java.io.IOException;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -27,7 +28,6 @@ import org.springframework.web.multipart.MultipartFile;
  * @package : com.install.domain.modem.api
  * @since : 03.06.24
  */
-@CrossOrigin("*")
 @Slf4j
 @RequiredArgsConstructor
 @RequestMapping("/api/modems/v1")
@@ -97,38 +97,30 @@ public class ModemApiController {
    * - 단말기 일괄 엑셀 등록
    */
   @PostMapping("/excel")
-  public ResponseEntity<Void> addModemsByExcel(@RequestParam("file") MultipartFile file) {
+  public ResponseEntity<String> addModemsByExcel(@RequestParam("file") MultipartFile file) {
+    String sessionId = UUID.randomUUID().toString();
     new Thread(() -> {
       try {
-        processFile(file);
-      } catch (Exception e) {
-        e.printStackTrace();
+        processFile(file, sessionId);
+      } catch (IOException | InterruptedException e) {
+        throw new RuntimeException(e);
       }
     }).start();
 
-    return ResponseEntity.ok().build();
+    return ResponseEntity.ok(sessionId);
   }
 
-  // 엑셀 업로드 작업을 위한 샘플 코드
-  private void processFile(MultipartFile file) throws Exception {
-    // 엑셀 파일을 처리하는 로직
-    // 예를 들어, 각 행을 읽어서 처리하는 동안 진행 상황을 업데이트합니다.
-    int totalRows = getTotalRows(file); // 전체 행 수를 가져오는 가상의 메서드
+  private void processFile(MultipartFile file, String sessionId) throws IOException, InterruptedException {
+    int totalRows = getTotalRows(file);
     for (int i = 0; i < totalRows; i++) {
-      // 각 행을 처리하는 로직
-
-      // 진행 상황 업데이트 (예: 10% 완료)
       int progress = (i + 1) * 100 / totalRows;
-      progressWebSocketHandler.sendProgressUpdate(Integer.toString(progress));
-
-      // 처리 속도 조절을 위한 예제 (실제 코드에서는 제거)
+      progressWebSocketHandler.sendProgressUpdate(sessionId, Integer.toString(progress));
       Thread.sleep(50);
     }
+    progressWebSocketHandler.closeSession(sessionId);
   }
 
   private int getTotalRows(MultipartFile file) {
-    // 엑셀 파일의 전체 행 수를 계산하는 로직
-    // 예제에서는 간단히 100으로 설정
     return 100;
   }
 }

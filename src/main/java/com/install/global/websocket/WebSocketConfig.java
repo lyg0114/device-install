@@ -18,13 +18,11 @@ public class WebSocketConfig implements WebSocketConfigurer {
 
   @Override
   public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
-    registry.addHandler(getWebSocketHandler(), "/progress")
-        .setAllowedOrigins("*");
+    registry.addHandler(progressWebSocketHandler(), "/progress/**");
   }
 
   @Bean
-  public ProgressWebSocketHandler getWebSocketHandler() {
+  public ProgressWebSocketHandler progressWebSocketHandler() {
     return new ProgressWebSocketHandler();
   }
-
 }

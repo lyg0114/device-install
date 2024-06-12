@@ -3,7 +3,6 @@
 <head>
   <title>Excel Upload Progress</title>
   <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@stomp/stompjs@7.0.0/bundles/stomp.umd.min.js"></script>
 </head>
 <body>
 <h1>Upload Progress</h1>
@@ -20,27 +19,6 @@
 
 <script>
   $(document).ready(function () {
-    var socket = new WebSocket("ws://localhost:8080/progress");
-    socket.onmessage = function (event) {
-      var current = parseInt(event.data, 10);  // 문자열을 정수로 변환
-      $('#progress').text("progress : " + current + "%");
-      if (current >= 100) {
-        $('#complete').text('Upload successful!');
-      }
-    };
-
-    socket.onopen = function () {
-      console.log("WebSocket connection opened.");
-    };
-
-    socket.onclose = function () {
-      console.log("WebSocket connection closed.");
-    };
-
-    socket.onerror = function (error) {
-      console.log("WebSocket error: " + error);
-    };
-
     $('#send').on('click', function (event) {
       event.preventDefault();
       var fileInput = $('#file-input')[0];
@@ -58,26 +36,35 @@
         data: formData,
         contentType: false,
         processData: false,
-        xhr: function () {
-          var xhr = new window.XMLHttpRequest();
-          xhr.upload.addEventListener('progress', function (event) {
-            if (event.lengthComputable) {
-              var percentComplete = Math.round((event.loaded / event.total) * 100);
-              $('#progress').text(percentComplete + '%');
-              $('#progress-bar-fill').css('width', percentComplete + '%').text(
-                  percentComplete + '%');
+        success: function (sessionId) {
+          var socket = new WebSocket("ws://localhost:8080/progress/" + sessionId);
+
+          socket.onmessage = function (event) {
+            var current = parseInt(event.data, 10);
+            $('#progress').text("progress : " + current + "%");
+            if (current >= 100) {
+              $('#complete').text('Upload successful!');
             }
-          }, false);
-          return xhr;
-        },
-        success: function () {
-          console.log("call - /excel success");
+          };
+
+          socket.onopen = function () {
+            console.log("WebSocket connection opened.");
+          };
+
+          socket.onclose = function () {
+            console.log("WebSocket connection closed.");
+          };
+
+          socket.onerror = function (error) {
+            console.log("WebSocket error: " + error);
+          };
         },
         error: function () {
           $('#progress').text('Upload failed!');
         }
       });
     });
-  });</script>
+  });
+</script>
 </body>
 </html>
