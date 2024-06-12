@@ -27,7 +27,6 @@ import com.install.global.security.service.JwtService;
 import jakarta.persistence.EntityManager;
 import java.time.LocalDateTime;
 import java.util.List;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -49,7 +48,7 @@ import org.springframework.web.multipart.MultipartFile;
 @DisplayName("단말기정보 조회 테스트")
 @Transactional
 @SpringBootTest
-public class ModemQueryTest {
+public class ModemServiceQueryTest {
 
   @Autowired ModemService modemService;
   @Autowired InstallService installService;

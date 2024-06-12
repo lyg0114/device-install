@@ -17,7 +17,6 @@ import com.install.domain.consumer.entity.Consumer;
 import com.install.domain.consumer.entity.Location;
 import com.install.domain.consumer.entity.repository.ConsumerRepository;
 import com.install.domain.install.dto.InstallDto.InstallRequest;
-import com.install.domain.install.entity.repository.InstallRepository;
 import com.install.domain.install.service.InstallService;
 import com.install.domain.member.entity.Member;
 import com.install.domain.member.entity.repository.MemberRepository;
@@ -48,7 +47,7 @@ import org.springframework.web.multipart.MultipartFile;
 @DisplayName("고객정보 조회 테스트")
 @Transactional
 @SpringBootTest
-class ConsumerQueryTest {
+class ConsumerServiceQueryTest {
 
   @Autowired ConsumerService consumerService;
   @Autowired InstallService installService;
