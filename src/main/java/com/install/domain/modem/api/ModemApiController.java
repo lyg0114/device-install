@@ -1,10 +1,10 @@
 package com.install.domain.modem.api;
 
 import com.install.domain.modem.dto.ModemDto;
+import com.install.domain.modem.service.ModemExcelService;
 import com.install.domain.modem.service.ModemService;
 import com.install.global.websocket.handler.ProgressWebSocketHandler;
 import jakarta.validation.Valid;
-import java.io.IOException;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -36,9 +36,10 @@ public class ModemApiController {
 
   private final ModemService modemService;
   private final ProgressWebSocketHandler progressWebSocketHandler;
+  private final ModemExcelService modemExcelService;
 
   /**
-   *  - 단말기 설치 현황 카운트
+   * - 단말기 설치 현황 카운트
    */
   @GetMapping("/count")
   public ResponseEntity<ModemDto.ModemInstallCount> modeminstallCount() {
@@ -57,7 +58,7 @@ public class ModemApiController {
 
     return ResponseEntity
         .status(HttpStatus.OK)
-        .body(modemService.searchModems(condition,pageable));
+        .body(modemService.searchModems(condition, pageable));
   }
 
   /**
@@ -100,27 +101,11 @@ public class ModemApiController {
   public ResponseEntity<String> addModemsByExcel(@RequestParam("file") MultipartFile file) {
     String sessionId = UUID.randomUUID().toString();
     new Thread(() -> {
-      try {
-        processFile(file, sessionId);
-      } catch (IOException | InterruptedException e) {
-        throw new RuntimeException(e);
-      }
+      modemExcelService.uploadModemExcel(file, sessionId);
     }).start();
 
-    return ResponseEntity.ok(sessionId);
+    return ResponseEntity
+        .ok(sessionId);
   }
 
-  private void processFile(MultipartFile file, String sessionId) throws IOException, InterruptedException {
-    int totalRows = getTotalRows(file);
-    for (int i = 0; i < totalRows; i++) {
-      int progress = (i + 1) * 100 / totalRows;
-      progressWebSocketHandler.sendProgressUpdate(sessionId, Integer.toString(progress));
-      Thread.sleep(50);
-    }
-    progressWebSocketHandler.closeSession(sessionId);
-  }
-
-  private int getTotalRows(MultipartFile file) {
-    return 100;
-  }
 }
