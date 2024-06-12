@@ -49,9 +49,9 @@ public class MeteringQueryRepository {
             () -> queryFactory
                 .select(meterInfo.count())
                 .from(meterInfo)
-                .leftJoin(meterInfo.modem, modem).fetchJoin()
-                .leftJoin(modem.installedConsumer, consumer).fetchJoin()
-                .leftJoin(meterInfo.meteringStateCd, code1).fetchJoin()
+                .leftJoin(meterInfo.modem, modem)
+                .leftJoin(modem.installedConsumer, consumer)
+                .leftJoin(meterInfo.meteringStateCd, code1)
                 .where(
                     meteringDateBetween(condition.getStandardDate()),
                     modemNoEq(condition.getModemNo()),

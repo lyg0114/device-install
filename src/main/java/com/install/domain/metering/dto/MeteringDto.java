@@ -26,6 +26,7 @@ public class MeteringDto {
     private String modemNo;
     private LocalDateTime meteringDate;
     private BigDecimal meteringUsage;
+    private BigDecimal meteringData;
     private BigDecimal meteringTemp;
     private CodeDto meteringStateCd;
   }

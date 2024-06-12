@@ -30,6 +30,7 @@ import jakarta.persistence.EntityManager;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Random;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -40,6 +41,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -48,6 +50,7 @@ import org.springframework.web.multipart.MultipartFile;
  * @package : com.install.domain.metering.service
  * @since : 11.06.24
  */
+@Rollback(value = false)
 @DisplayName("검침정보 조회 테스트")
 @Transactional
 @SpringBootTest
@@ -71,31 +74,7 @@ class MeteringQueryServiceTest {
   @Test
   void 검침정보_조회에_성공한다() {
     //given
-    when(jwtService.getId()).thenReturn(memberRepository.save(createMember("worker")).getId());
-
-    Modem modem1 = modemRepository.save(createModem("modem1"));
-    Modem modem1_1 = modemRepository.save(createModem("modem1_1"));
-    Modem modem2 = modemRepository.save(createModem("modem2"));
-    Modem modem2_1 = modemRepository.save(createModem("modem2_1"));
-    Modem modem3 = modemRepository.save(createModem("modem3"));
-    Consumer consumer1 = consumerRepository.save(createConsumer("consumer1"));
-    Consumer consumer2 = consumerRepository.save(createConsumer("consumer2"));
-    Consumer consumer3 = consumerRepository.save(createConsumer("consumer3"));
-    Consumer consumer4 = consumerRepository.save(createConsumer("consumer4"));
-    Consumer consumer5 = consumerRepository.save(createConsumer("consumer5"));
-
-    LocalDateTime now = LocalDateTime.now();
-
-    installModem(modem1, consumer1, of(createMockFile("설치 성공")), now.minusDays(6L));
-    demolishModem(modem1, of(createMockFile("철거 성공")), now.minusDays(5L));
-    installModem(modem1_1, consumer1, of(createMockFile("설치 성공")), now.minusDays(4L));
-    demolishModem(modem1_1, of(createMockFile("철거 성공")), now.minusDays(3L));
-    installModem(modem2, consumer2, of(createMockFile("설치 성공")), now.minusDays(6L));
-    demolishModem(modem2, of(createMockFile("철거 성공")), now.minusDays(5L));
-    installModem(modem2_1, consumer2, of(createMockFile("설치 성공")), now.minusDays(6L));
-    installModem(modem3, consumer3, of(createMockFile("설치 성공")), now.minusDays(6L));
-
-    saveMeterInfo(modem3, now);
+    saveInfo();
 
     em.flush();
     em.clear();
@@ -115,16 +94,75 @@ class MeteringQueryServiceTest {
     assertThat(meteringResponse.getMeteringStateCd().getName()).isEqualTo("수신");
   }
 
-  private void saveMeterInfo(Modem modem, LocalDateTime now) {
+  @Test
+  void 기준일_검색조건으로_검침정보_조회에_성공한다() {
+    //given
+    saveInfo();
+
+    em.flush();
+    em.clear();
+
+    MeteringSearchCondition condition = MeteringSearchCondition.builder().build();
+    PageRequest pageable = PageRequest.of(0, 10);
+
+    //when
+    Page<MeteringResponse> meteringResponses = meteringService.searchMeterInfo(condition, pageable);
+
+    //then
+    for (MeteringResponse meteringRespons : meteringResponses) {
+      System.out.println("meteringRespons = " + meteringRespons);
+    }
+  }
+
+  private void saveInfo() {
+    when(jwtService.getId()).thenReturn(memberRepository.save(createMember("worker")).getId());
+
+    Modem modem1 = modemRepository.save(createModem("modem1"));
+    Modem modem2 = modemRepository.save(createModem("modem2"));
+    Modem modem3 = modemRepository.save(createModem("modem3"));
+    Modem modem4 = modemRepository.save(createModem("modem4"));
+    Modem modem5 = modemRepository.save(createModem("modem5"));
+    Consumer consumer1 = consumerRepository.save(createConsumer("consumer1"));
+    Consumer consumer2 = consumerRepository.save(createConsumer("consumer2"));
+    Consumer consumer3 = consumerRepository.save(createConsumer("consumer3"));
+    Consumer consumer4 = consumerRepository.save(createConsumer("consumer4"));
+    Consumer consumer5 = consumerRepository.save(createConsumer("consumer5"));
+
+    LocalDateTime installNow = LocalDateTime.now().minusDays(6L);
+    installModem(modem1, consumer1, of(createMockFile("설치 성공")), installNow);
+    installModem(modem2, consumer2, of(createMockFile("설치 성공")), installNow);
+    installModem(modem3, consumer3, of(createMockFile("설치 성공")), installNow);
+    installModem(modem4, consumer4, of(createMockFile("설치 성공")), installNow);
+    installModem(modem5, consumer5, of(createMockFile("설치 성공")), installNow);
+
+    saveMeterInfo(modem1, installNow.plusHours(3L), 0.0, 0.0, 11.2);
+    saveMeterInfo(modem2, installNow.plusHours(1L), 120.0, 0.0, 13.2);
+    saveMeterInfo(modem3, installNow.plusHours(2L), 1432.0, 0.0, 15.2);
+  }
+
+  private void saveMeterInfo(Modem modem, LocalDateTime meteringDate, double meteringData, double meteringUsage, double meteringTemp) {
+    if (meteringDate.isAfter(LocalDateTime.now())) {
+      return;
+    }
+
     MeterInfo meterInfo = MeterInfo.builder()
         .modem(modem)
-        .meteringDate(now.minusDays(5L))
-        .meteringUsage(new BigDecimal(0.012))
-        .meteringTemp(new BigDecimal(15.2))
+        .meteringDate(meteringDate)
+        .meteringData(new BigDecimal(meteringData))
+        .meteringUsage(new BigDecimal(meteringUsage))
+        .meteringTemp(new BigDecimal(meteringTemp))
         .meteringStateCd(RECEIVING_DATA_SUCCESS.getCodeEntity())
         .build();
-
     meterInfoRepository.save(meterInfo);
+    double randomUsage = createRandomValue(0.005, 0.020);
+    saveMeterInfo(modem, meteringDate.plusHours(1L), (meteringData + randomUsage), randomUsage, meteringTemp);
+  }
+
+  //min ~ max 사이의 랜덤 값을 생성
+  private double createRandomValue(double min, double max) {
+    Random random = new Random();
+    double randomValue = min + (max - min) * random.nextDouble();
+    return randomValue;
   }
 
   public void installModem(

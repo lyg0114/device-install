@@ -49,6 +49,9 @@ public class MeterInfo extends BaseTimeEntity {
   @Column(name = "metering_usage", nullable = false, precision = 10, scale = 3)
   private BigDecimal meteringUsage;
 
+  @Column(name = "metering_data", nullable = false, precision = 10, scale = 3)
+  private BigDecimal meteringData;
+
   @Column(name = "metering_temp", nullable = false, precision = 10, scale = 3)
   private BigDecimal meteringTemp;
 
