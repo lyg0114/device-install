@@ -1,11 +1,12 @@
 package com.install.global.websocket;
 
-import com.install.global.websocket.handler.ProgressWebSocketHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.socket.config.annotation.EnableWebSocket;
 import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
 import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry;
+
+import com.install.global.websocket.handler.ProgressWebSocketHandler;
 
 /**
  * @author : iyeong-gyo
@@ -16,13 +17,13 @@ import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry
 @EnableWebSocket
 public class WebSocketConfig implements WebSocketConfigurer {
 
-  @Override
-  public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
-    registry.addHandler(progressWebSocketHandler(), "/progress/**");
-  }
+	@Override
+	public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
+		registry.addHandler(progressWebSocketHandler(), "/progress/**");
+	}
 
-  @Bean
-  public ProgressWebSocketHandler progressWebSocketHandler() {
-    return new ProgressWebSocketHandler();
-  }
+	@Bean
+	public ProgressWebSocketHandler progressWebSocketHandler() {
+		return new ProgressWebSocketHandler();
+	}
 }

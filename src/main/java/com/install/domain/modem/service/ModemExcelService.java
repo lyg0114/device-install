@@ -1,13 +1,10 @@
 package com.install.domain.modem.service;
 
-import com.install.domain.modem.entity.repository.ModemRepository;
-import com.install.global.websocket.handler.ProgressWebSocketHandler;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.DateUtil;
@@ -17,6 +14,12 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+
+import com.install.domain.modem.entity.repository.ModemRepository;
+import com.install.global.websocket.handler.ProgressWebSocketHandler;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author : iyeong-gyo
@@ -29,66 +32,66 @@ import org.springframework.web.multipart.MultipartFile;
 @Service
 public class ModemExcelService {
 
-  private final ModemRepository modemRepository;
-  private final ProgressWebSocketHandler progressWebSocketHandler;
+	private final ModemRepository modemRepository;
+	private final ProgressWebSocketHandler progressWebSocketHandler;
 
-  public List<List<String>> readExcelFile(MultipartFile file) throws IOException {
-    List<List<String>> data = new ArrayList<>();
-    try (InputStream is = file.getInputStream(); Workbook workbook = new HSSFWorkbook(is)) {
-      Sheet sheet = workbook.getSheetAt(0);
+	private static void sleep() {
+		try {
+			Thread.sleep(50);
+		} catch (InterruptedException e) {
+			throw new RuntimeException(e);
+		}
+	}
 
-      for (Row row : sheet) {
-        List<String> rowData = new ArrayList<>();
+	public List<List<String>> readExcelFile(MultipartFile file) throws IOException {
+		List<List<String>> data = new ArrayList<>();
+		try (InputStream is = file.getInputStream(); Workbook workbook = new HSSFWorkbook(is)) {
+			Sheet sheet = workbook.getSheetAt(0);
 
-        for (Cell cell : row) {
-          switch (cell.getCellType()) {
-            case STRING -> rowData.add(cell.getStringCellValue());
-            case NUMERIC -> {
-              if (DateUtil.isCellDateFormatted(cell)) {
-                rowData.add(cell.getDateCellValue().toString());
-              } else {
-                rowData.add(String.valueOf(cell.getNumericCellValue()));
-              }
-            }
-            case BOOLEAN -> rowData.add(String.valueOf(cell.getBooleanCellValue()));
-            case FORMULA -> rowData.add(cell.getCellFormula());
-            default -> rowData.add("");
-          }
-        }
+			for (Row row : sheet) {
+				List<String> rowData = new ArrayList<>();
 
-        data.add(rowData);
-      }
-    }
+				for (Cell cell : row) {
+					switch (cell.getCellType()) {
+						case STRING -> rowData.add(cell.getStringCellValue());
+						case NUMERIC -> {
+							if (DateUtil.isCellDateFormatted(cell)) {
+								rowData.add(cell.getDateCellValue().toString());
+							} else {
+								rowData.add(String.valueOf(cell.getNumericCellValue()));
+							}
+						}
+						case BOOLEAN -> rowData.add(String.valueOf(cell.getBooleanCellValue()));
+						case FORMULA -> rowData.add(cell.getCellFormula());
+						default -> rowData.add("");
+					}
+				}
 
-    return data;
-  }
+				data.add(rowData);
+			}
+		}
 
-  public void uploadModemExcel(MultipartFile file, String sessionId) {
+		return data;
+	}
 
-    int totalRows = getTotalRows(file);
-    try {
-      for (int i = 0; i < totalRows; i++) {
-        int progress = (i + 1) * 100 / totalRows;
-        progressWebSocketHandler.sendProgressUpdate(sessionId, Integer.toString(progress));
-        sleep();
-      }
+	public void uploadModemExcel(MultipartFile file, String sessionId) {
 
-      progressWebSocketHandler.closeSession(sessionId);
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
+		int totalRows = getTotalRows(file);
+		try {
+			for (int i = 0; i < totalRows; i++) {
+				int progress = (i + 1) * 100 / totalRows;
+				progressWebSocketHandler.sendProgressUpdate(sessionId, Integer.toString(progress));
+				sleep();
+			}
 
-  }
+			progressWebSocketHandler.closeSession(sessionId);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
 
-  private static void sleep() {
-    try {
-      Thread.sleep(50);
-    } catch (InterruptedException e) {
-      throw new RuntimeException(e);
-    }
-  }
+	}
 
-  private int getTotalRows(MultipartFile file) {
-    return 100;
-  }
+	private int getTotalRows(MultipartFile file) {
+		return 100;
+	}
 }

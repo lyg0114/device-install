@@ -1,10 +1,11 @@
 package com.install.domain.modem.entity.repository.query;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
 import com.install.domain.modem.dto.ModemDto.ModemInstallCount;
 import com.install.domain.modem.dto.ModemDto.ModemSearchCondition;
 import com.install.domain.modem.entity.Modem;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 
 /**
  * @author : iyeong-gyo
@@ -13,7 +14,7 @@ import org.springframework.data.domain.Pageable;
  */
 public interface ModemRepositoryCustom {
 
-  Page<Modem> searchModems(ModemSearchCondition condition, Pageable pageable);
+	Page<Modem> searchModems(ModemSearchCondition condition, Pageable pageable);
 
-  ModemInstallCount modeminstallCount();
+	ModemInstallCount modeminstallCount();
 }

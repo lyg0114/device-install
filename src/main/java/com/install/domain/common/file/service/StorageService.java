@@ -1,6 +1,7 @@
 package com.install.domain.common.file.service;
 
 import java.nio.file.Path;
+
 import org.springframework.core.io.Resource;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -11,12 +12,12 @@ import org.springframework.web.multipart.MultipartFile;
  */
 public interface StorageService {
 
-  void init();
+	void init();
 
-  void store(MultipartFile file, String dirPath, String fileName);
+	void store(MultipartFile file, String dirPath, String fileName);
 
-  Path load(Long fileId);
+	Path load(Long fileId);
 
-  Resource loadAsResource(Long fileId);
+	Resource loadAsResource(Long fileId);
 
 }

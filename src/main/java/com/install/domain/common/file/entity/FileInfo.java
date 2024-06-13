@@ -1,11 +1,12 @@
 package com.install.domain.common.file.entity;
 
-import static jakarta.persistence.FetchType.LAZY;
-import static jakarta.persistence.GenerationType.IDENTITY;
-import static lombok.AccessLevel.PROTECTED;
+import static jakarta.persistence.FetchType.*;
+import static jakarta.persistence.GenerationType.*;
+import static lombok.AccessLevel.*;
 
 import com.install.domain.common.BaseTimeEntity;
 import com.install.domain.install.entity.InstallInfo;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -29,18 +30,18 @@ import lombok.NoArgsConstructor;
 @Entity
 public class FileInfo extends BaseTimeEntity {
 
-  @Id
-  @GeneratedValue(strategy = IDENTITY)
-  @Column(name = "file_info_id")
-  private Long id;
+	@Id
+	@GeneratedValue(strategy = IDENTITY)
+	@Column(name = "file_info_id")
+	private Long id;
 
-  @Column(name = "file_uri")
-  private String fileUri;
+	@Column(name = "file_uri")
+	private String fileUri;
 
-  @Column(name = "file_size")
-  private Long fileSize;
+	@Column(name = "file_size")
+	private Long fileSize;
 
-  @ManyToOne(fetch = LAZY)
-  @JoinColumn(name = "install_info_id")
-  private InstallInfo installInfo;
+	@ManyToOne(fetch = LAZY)
+	@JoinColumn(name = "install_info_id")
+	private InstallInfo installInfo;
 }
