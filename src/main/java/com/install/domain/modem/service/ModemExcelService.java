@@ -9,10 +9,10 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -51,9 +51,9 @@ public class ModemExcelService {
 
 	public List<ModemRequest> readExcelFile(MultipartFile file, String sessionId) {
 		List<ModemRequest> requests = new ArrayList<>();
-		try (InputStream is = file.getInputStream(); Workbook workbook = new HSSFWorkbook(is)) {
+		try (InputStream is = file.getInputStream(); Workbook workbook = new XSSFWorkbook(is)) {
 			Sheet sheet = workbook.getSheetAt(0);
-			int totalRows = sheet.getLastRowNum();
+			int totalRows = sheet.getLastRowNum() + 1;
 
 			boolean firstRow = true;
 
@@ -87,7 +87,7 @@ public class ModemExcelService {
 		String value;
 		switch (cell.getCellType()) {
 			case STRING -> value = cell.getStringCellValue();
-			case NUMERIC -> value = isCellDateFormatted(cell) ? cell.getDateCellValue().toString() : valueOf(cell.getNumericCellValue());
+			case NUMERIC -> value = isCellDateFormatted(cell) ? cell.getDateCellValue().toString() : valueOf((int)cell.getNumericCellValue());
 			case BOOLEAN -> value = valueOf(cell.getBooleanCellValue());
 			case FORMULA -> value = cell.getCellFormula();
 			default -> value = "";

@@ -7,11 +7,11 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -23,7 +23,7 @@ import org.junit.jupiter.api.Test;
  */
 public class PoiLiberaryStudyTest {
 
-	private static final String FILE_PATH = "src/test/resources/test.xlsx";
+	private static final String FILE_PATH = "src/test/resources/excel/modem-upload.xlsx";
 	private File file;
 
 	@BeforeEach
@@ -41,7 +41,7 @@ public class PoiLiberaryStudyTest {
 	@Test
 	public void testCreateAndReadExcel() throws IOException {
 		// Excel 파일 생성 및 데이터 추가
-		try (Workbook workbook = new HSSFWorkbook()) {
+		try (Workbook workbook = new XSSFWorkbook()) {
 			Sheet sheet = workbook.createSheet("Sheet1");
 
 			Row row = sheet.createRow(0);
@@ -54,7 +54,7 @@ public class PoiLiberaryStudyTest {
 		}
 
 		// Excel 파일 읽기 및 데이터 검증
-		try (FileInputStream fis = new FileInputStream(file); Workbook workbook = new HSSFWorkbook(fis)) {
+		try (FileInputStream fis = new FileInputStream(file); Workbook workbook = new XSSFWorkbook(fis)) {
 			Sheet sheet = workbook.getSheetAt(0);
 			Row row = sheet.getRow(0);
 			Cell cell = row.getCell(0);
