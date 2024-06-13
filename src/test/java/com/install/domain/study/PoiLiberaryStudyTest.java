@@ -23,7 +23,7 @@ import org.junit.jupiter.api.Test;
  */
 public class PoiLiberaryStudyTest {
 
-	private static final String FILE_PATH = "src/test/resources/excel/modem-upload.xlsx";
+	private static final String FILE_PATH = "src/test/resources/excel/sample.xlsx";
 	private File file;
 
 	@BeforeEach
