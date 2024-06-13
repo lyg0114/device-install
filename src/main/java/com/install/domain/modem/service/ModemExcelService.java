@@ -3,8 +3,17 @@ package com.install.domain.modem.service;
 import com.install.domain.modem.entity.repository.ModemRepository;
 import com.install.global.websocket.handler.ProgressWebSocketHandler;
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.DateUtil;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -23,7 +32,39 @@ public class ModemExcelService {
   private final ModemRepository modemRepository;
   private final ProgressWebSocketHandler progressWebSocketHandler;
 
+  public List<List<String>> readExcelFile(MultipartFile file) throws IOException {
+    List<List<String>> data = new ArrayList<>();
+    try (InputStream is = file.getInputStream(); Workbook workbook = new HSSFWorkbook(is)) {
+      Sheet sheet = workbook.getSheetAt(0);
+
+      for (Row row : sheet) {
+        List<String> rowData = new ArrayList<>();
+
+        for (Cell cell : row) {
+          switch (cell.getCellType()) {
+            case STRING -> rowData.add(cell.getStringCellValue());
+            case NUMERIC -> {
+              if (DateUtil.isCellDateFormatted(cell)) {
+                rowData.add(cell.getDateCellValue().toString());
+              } else {
+                rowData.add(String.valueOf(cell.getNumericCellValue()));
+              }
+            }
+            case BOOLEAN -> rowData.add(String.valueOf(cell.getBooleanCellValue()));
+            case FORMULA -> rowData.add(cell.getCellFormula());
+            default -> rowData.add("");
+          }
+        }
+
+        data.add(rowData);
+      }
+    }
+
+    return data;
+  }
+
   public void uploadModemExcel(MultipartFile file, String sessionId) {
+
     int totalRows = getTotalRows(file);
     try {
       for (int i = 0; i < totalRows; i++) {
@@ -36,6 +77,7 @@ public class ModemExcelService {
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
+
   }
 
   private static void sleep() {
