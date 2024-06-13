@@ -39,29 +39,39 @@ public class PoiLiberaryStudyTest {
 	}
 
 	@Test
-	public void testCreateAndReadExcel() throws IOException {
+	public void 샘플_엑셀_파일생성을_성공한다() throws IOException {
 		// Excel 파일 생성 및 데이터 추가
 		try (Workbook workbook = new XSSFWorkbook()) {
 			Sheet sheet = workbook.createSheet("Sheet1");
 
 			Row row = sheet.createRow(0);
-			Cell cell = row.createCell(0);
-			cell.setCellValue("Hello, POI!");
+			row.createCell(0).setCellValue("modemNo");
+			row.createCell(1).setCellValue("imei");
+			row.createCell(2).setCellValue("build-company");
+
+			for (int i = 0; i < 10000; i++) {
+				Row newRow = sheet.createRow(i + 1);
+				newRow.createCell(0).setCellValue("modemNo-" + (i + 1));
+				newRow.createCell(1).setCellValue("imei-" + (i + 1));
+				newRow.createCell(2).setCellValue("build-company-" + (i + 1));
+			}
 
 			try (FileOutputStream fos = new FileOutputStream(file)) {
 				workbook.write(fos);
 			}
 		}
+	}
 
-		// Excel 파일 읽기 및 데이터 검증
+	public void 샘플_엑셀_파일조회를_성공한다() throws IOException {
 		try (FileInputStream fis = new FileInputStream(file); Workbook workbook = new XSSFWorkbook(fis)) {
 			Sheet sheet = workbook.getSheetAt(0);
 			Row row = sheet.getRow(0);
 			Cell cell = row.getCell(0);
 
 			String cellValue = cell.getStringCellValue();
-			assertThat(cellValue).isEqualTo("Hello, POI!");
+			assertThat(cellValue).isEqualTo("modemNo");
 		}
+
 		assertThat(file.exists()).isTrue();
 	}
 }
