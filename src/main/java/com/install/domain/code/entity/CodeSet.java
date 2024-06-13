@@ -17,9 +17,13 @@ public enum CodeSet {
 
 	// 단말기 타입 코드
 	MODEM_TYPE("cd01", "단말기종류", 1),
+	MODEM_TYPE_LORA("cd0101", "LORA 단말기", 2),
+	MODEM_TYPE_NBIOT("cd0102", "NBIOT 단말기", 2),
 
 	// 단말기 상태 코드
 	MODEM_STAUTS("cd02", "단말기상태", 1),
+	MODEM_STAUTS_NORMAL("cd0201", "정상", 2),
+	MODEM_STAUTS_ABNORMAL("cd0202", "비정상", 2),
 
 	// 단말기 유지보수 코드
 	MODEM_INSTALL_STATUS("cd03", "작업종류", 1),
