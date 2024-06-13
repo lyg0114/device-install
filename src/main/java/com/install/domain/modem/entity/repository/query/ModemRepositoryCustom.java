@@ -1,9 +1,13 @@
 package com.install.domain.modem.entity.repository.query;
 
+import java.util.List;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import com.install.domain.modem.dto.ModemDto;
 import com.install.domain.modem.dto.ModemDto.ModemInstallCount;
+import com.install.domain.modem.dto.ModemDto.ModemRequest;
 import com.install.domain.modem.dto.ModemDto.ModemSearchCondition;
 import com.install.domain.modem.entity.Modem;
 
@@ -17,4 +21,6 @@ public interface ModemRepositoryCustom {
 	Page<Modem> searchModems(ModemSearchCondition condition, Pageable pageable);
 
 	ModemInstallCount modeminstallCount();
+
+	void bulkInsertModem(List<ModemRequest> requests);
 }

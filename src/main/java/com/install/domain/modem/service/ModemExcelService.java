@@ -11,7 +11,6 @@ import java.util.List;
 
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.springframework.stereotype.Service;
@@ -40,44 +39,41 @@ public class ModemExcelService {
 	private final ProgressWebSocketHandler progressWebSocketHandler;
 
 	public void uploadModemExcel(MultipartFile file, String sessionId) {
-		List<ModemRequest> requests = readExcelFile(file);
-		int totalRows = requests.size();
-
 		try {
-			for (int i = 0; i < totalRows; i++) {
-				// upload logic
-				int progress = (i + 1) * 100 / totalRows;
-				progressWebSocketHandler.sendProgressUpdate(sessionId, Integer.toString(progress));
-			}
-
+			modemRepository.bulkInsertModem(readExcelFile(file, sessionId));
+			progressWebSocketHandler.sendProgressUpdate(sessionId, Integer.toString(100));
 			progressWebSocketHandler.closeSession(sessionId);
-
 		} catch (IOException e) {
+			// TODO : 적절한 예외처리 로직 필요
 			throw new RuntimeException(e);
 		}
 	}
 
-	public List<ModemRequest> readExcelFile(MultipartFile file) {
+	public List<ModemRequest> readExcelFile(MultipartFile file, String sessionId) {
 		List<ModemRequest> requests = new ArrayList<>();
 		try (InputStream is = file.getInputStream(); Workbook workbook = new HSSFWorkbook(is)) {
 			Sheet sheet = workbook.getSheetAt(0);
+			int totalRows = sheet.getLastRowNum();
 
 			boolean firstRow = true;
 
-			for (Row row : sheet) {
-				// 첫 번째 행 skip
+			for (int i = 0; i < totalRows; i++) {
 				if (firstRow) {
 					firstRow = false;
 					continue;
 				}
 
 				requests.add(ModemRequest.builder()
-					.modemNo(extractedData(row.getCell(0)))
-					.imei(extractedData(row.getCell(1)))
-					.buildCompany(extractedData(row.getCell(2)))
+					.modemNo(extractedData(sheet.getRow(i).getCell(0)))
+					.imei(extractedData(sheet.getRow(i).getCell(1)))
+					.buildCompany(extractedData(sheet.getRow(i).getCell(2)))
 					.modemTypeCd(MODEM_TYPE_NBIOT.getCode())
 					.modemStatusCd(MODEM_STAUTS_NORMAL.getCode())
 					.build());
+
+				int progress = (i + 1) * 99 / totalRows;
+				progressWebSocketHandler.sendProgressUpdate(sessionId, Integer.toString(progress));
+
 			}
 		} catch (IOException e) {
 			// TODO : 적절한 예외처리 로직 필요
@@ -98,5 +94,4 @@ public class ModemExcelService {
 		}
 		return value;
 	}
-
 }

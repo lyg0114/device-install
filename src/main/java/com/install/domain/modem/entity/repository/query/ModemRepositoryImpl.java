@@ -4,11 +4,17 @@ import static com.install.domain.consumer.entity.QConsumer.*;
 import static com.install.domain.modem.entity.QModem.*;
 import static java.util.Objects.*;
 
+import java.time.LocalDateTime;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
+import org.springframework.jdbc.core.JdbcTemplate;
 
 import com.install.domain.code.entity.QCode;
+import com.install.domain.modem.dto.ModemDto;
 import com.install.domain.modem.dto.ModemDto.ModemInstallCount;
 import com.install.domain.modem.dto.ModemDto.ModemSearchCondition;
 import com.install.domain.modem.entity.Modem;
@@ -25,6 +31,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ModemRepositoryImpl implements ModemRepositoryCustom {
 
+	private final JdbcTemplate jdbcTemplate;
 	private final JPAQueryFactory queryFactory;
 	private final QCode code1 = new QCode("code1");
 	private final QCode code2 = new QCode("code2");
@@ -68,6 +75,22 @@ public class ModemRepositoryImpl implements ModemRepositoryCustom {
 			.installedCount(installedCount(true))
 			.uninstalledCount(installedCount(false))
 			.build();
+	}
+
+	@Override
+	public void bulkInsertModem(List<ModemDto.ModemRequest> requests) {
+		String sql = "INSERT INTO modem (created_at, modem_no, imei, build_company, modem_status_cd, modem_type_cd) "
+			+ "VALUES (?,?,?,?,?,?)";
+
+		LocalDateTime now = LocalDateTime.now();
+		jdbcTemplate.batchUpdate(sql, requests, requests.size(), (ps, modemRequest) -> {
+			ps.setString(1, now.toString());
+			ps.setString(2, modemRequest.getModemNo());
+			ps.setString(3, modemRequest.getImei());
+			ps.setString(4, modemRequest.getBuildCompany());
+			ps.setString(5, modemRequest.getModemStatusCd());
+			ps.setString(6, modemRequest.getModemTypeCd());
+		});
 	}
 
 	private Long installedCount(Boolean isInstalled) {
