@@ -20,7 +20,6 @@ import org.springframework.web.multipart.MultipartFile;
 import com.install.domain.modem.dto.ModemDto;
 import com.install.domain.modem.service.ModemExcelService;
 import com.install.domain.modem.service.ModemService;
-import com.install.global.websocket.handler.ProgressWebSocketHandler;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -102,6 +101,7 @@ public class ModemApiController {
 	@PostMapping("/excel")
 	public ResponseEntity<String> addModemsByExcel(@RequestParam("file") MultipartFile file) {
 		String sessionId = UUID.randomUUID().toString();
+		// TODO : 호출할때마다 쓰레드 생성하지 말고 쓰레드 풀에서 쓰레드 가져와서 작동하도록 개선 필요
 		new Thread(() -> {
 			modemExcelService.uploadModemExcel(file, sessionId);
 		}).start();
