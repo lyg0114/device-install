@@ -1,5 +1,7 @@
 package com.install;
 
+import static com.install.domain.code.entity.CodeSet.*;
+
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -9,6 +11,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import com.install.domain.code.entity.repository.CodeRepository;
 import com.install.domain.common.file.config.StorageProperties;
 import com.install.domain.common.file.service.StorageService;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -35,9 +38,13 @@ public class InstallApplication {
 	}
 
 	@Bean
-	public CommandLineRunner fileInit(StorageService storageService) {
+	public CommandLineRunner fileInit(
+		StorageService storageService,
+		CodeRepository codeRepository
+	) {
 		return args -> {
 			storageService.init();
+			codeRepository.saveAll(getAllCodes());
 		};
 	}
 }

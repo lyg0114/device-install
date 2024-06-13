@@ -38,7 +38,6 @@ import lombok.extern.slf4j.Slf4j;
 public class ModemApiController {
 
 	private final ModemService modemService;
-	private final ProgressWebSocketHandler progressWebSocketHandler;
 	private final ModemExcelService modemExcelService;
 
 	/**

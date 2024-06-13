@@ -73,7 +73,6 @@ public class ModemExcelService {
 
 				int progress = (i + 1) * 99 / totalRows;
 				progressWebSocketHandler.sendProgressUpdate(sessionId, Integer.toString(progress));
-
 			}
 		} catch (IOException e) {
 			// TODO : 적절한 예외처리 로직 필요
