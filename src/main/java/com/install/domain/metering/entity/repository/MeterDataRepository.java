@@ -1,7 +1,8 @@
 package com.install.domain.metering.entity.repository;
 
-import com.install.domain.metering.entity.MeterData;
 import org.springframework.data.jpa.repository.JpaRepository;
+
+import com.install.domain.metering.entity.MeterData;
 
 /**
  * @author : iyeong-gyo

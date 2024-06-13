@@ -1,9 +1,11 @@
 package com.install.domain.modem.entity.repository;
 
+import java.util.Optional;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+
 import com.install.domain.modem.entity.Modem;
 import com.install.domain.modem.entity.repository.query.ModemRepositoryCustom;
-import java.util.Optional;
-import org.springframework.data.jpa.repository.JpaRepository;
 
 /**
  * @author : iyeong-gyo
@@ -12,9 +14,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
  */
 public interface ModemRepository extends JpaRepository<Modem, Long>, ModemRepositoryCustom {
 
-  Optional<Modem> findByModemNo(String modemNo);
+	Optional<Modem> findByModemNo(String modemNo);
 
-  boolean existsByModemNo(String modemNo);
+	boolean existsByModemNo(String modemNo);
 
-  boolean existsByImei(String imei);
+	boolean existsByImei(String imei);
 }

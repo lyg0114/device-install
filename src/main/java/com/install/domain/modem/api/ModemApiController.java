@@ -1,10 +1,7 @@
 package com.install.domain.modem.api;
 
-import com.install.domain.modem.dto.ModemDto;
-import com.install.domain.modem.service.ModemService;
-import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import java.util.UUID;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -20,6 +17,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.install.domain.modem.dto.ModemDto;
+import com.install.domain.modem.service.ModemExcelService;
+import com.install.domain.modem.service.ModemService;
+
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * @author : iyeong-gyo
  * @package : com.install.domain.modem.api
@@ -31,72 +36,78 @@ import org.springframework.web.multipart.MultipartFile;
 @RestController
 public class ModemApiController {
 
-  private final ModemService modemService;
+	private final ModemService modemService;
+	private final ModemExcelService modemExcelService;
 
-  /**
-   *  - 단말기 설치 현황 카운트
-   */
-  @GetMapping("/count")
-  public ResponseEntity<ModemDto.ModemInstallCount> modeminstallCount() {
+	/**
+	 * - 단말기 설치 현황 카운트
+	 */
+	@GetMapping("/count")
+	public ResponseEntity<ModemDto.ModemInstallCount> modeminstallCount() {
 
-    return ResponseEntity
-        .status(HttpStatus.OK)
-        .body(modemService.modeminstallCount());
-  }
+		return ResponseEntity
+			.status(HttpStatus.OK)
+			.body(modemService.modeminstallCount());
+	}
 
-  /**
-   * - 단말기 리스트 조회
-   */
-  @GetMapping
-  public ResponseEntity<Page<ModemDto.ModemResponse>> searchModems(
-      ModemDto.ModemSearchCondition condition, Pageable pageable) {
+	/**
+	 * - 단말기 리스트 조회
+	 */
+	@GetMapping
+	public ResponseEntity<Page<ModemDto.ModemResponse>> searchModems(
+		ModemDto.ModemSearchCondition condition, Pageable pageable) {
 
-    return ResponseEntity
-        .status(HttpStatus.OK)
-        .body(modemService.searchModems(condition,pageable));
-  }
+		return ResponseEntity
+			.status(HttpStatus.OK)
+			.body(modemService.searchModems(condition, pageable));
+	}
 
-  /**
-   * - 단말기 등록
-   */
-  @PostMapping
-  public ResponseEntity<Void> addModem(@RequestBody @Valid ModemDto.ModemRequest requestDto) {
+	/**
+	 * - 단말기 등록
+	 */
+	@PostMapping
+	public ResponseEntity<Void> addModem(@RequestBody @Valid ModemDto.ModemRequest requestDto) {
 
-    modemService.addModem(requestDto);
-    return ResponseEntity.ok().build();
-  }
+		modemService.addModem(requestDto);
+		return ResponseEntity.ok().build();
+	}
 
-  /**
-   * - 단말기 수정
-   */
-  @PatchMapping("/{modemId}")
-  public ResponseEntity<Void> updateModem(
-      @PathVariable Long modemId,
-      @RequestBody @Valid ModemDto.ModemRequest requestDto) {
+	/**
+	 * - 단말기 수정
+	 */
+	@PatchMapping("/{modemId}")
+	public ResponseEntity<Void> updateModem(
+		@PathVariable Long modemId,
+		@RequestBody @Valid ModemDto.ModemRequest requestDto) {
 
-    modemService.updateModem(modemId, requestDto);
-    return ResponseEntity.ok().build();
-  }
+		modemService.updateModem(modemId, requestDto);
+		return ResponseEntity.ok().build();
+	}
 
-  /**
-   * - 단말기 삭제
-   */
-  @DeleteMapping("/{modemId}")
-  public ResponseEntity<Void> deleteModem(@PathVariable Long modemId) {
+	/**
+	 * - 단말기 삭제
+	 */
+	@DeleteMapping("/{modemId}")
+	public ResponseEntity<Void> deleteModem(@PathVariable Long modemId) {
 
-    modemService.deleteModem(modemId);
-    return ResponseEntity.ok()
-        .build();
-  }
+		modemService.deleteModem(modemId);
+		return ResponseEntity.ok()
+			.build();
+	}
 
-  /**
-   * - 단말기 일괄 엑셀 등록
-   */
-  @PostMapping("/excel")
-  public ResponseEntity<Void> addModemsByExcel(@RequestParam("file") MultipartFile file) {
+	/**
+	 * - 단말기 일괄 엑셀 등록
+	 */
+	@PostMapping("/excel")
+	public ResponseEntity<String> addModemsByExcel(@RequestParam("file") MultipartFile file) {
+		String sessionId = UUID.randomUUID().toString();
+		// TODO : 호출할때마다 쓰레드 생성하지 말고 쓰레드 풀에서 쓰레드 가져와서 작동하도록 개선 필요
+		new Thread(() -> {
+			modemExcelService.uploadModemExcel(file, sessionId);
+		}).start();
 
-    // business logic
+		return ResponseEntity
+			.ok(sessionId);
+	}
 
-    return ResponseEntity.ok().build();
-  }
 }

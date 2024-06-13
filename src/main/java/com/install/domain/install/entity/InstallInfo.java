@@ -1,8 +1,12 @@
 package com.install.domain.install.entity;
 
-import static jakarta.persistence.FetchType.LAZY;
-import static jakarta.persistence.GenerationType.IDENTITY;
-import static lombok.AccessLevel.PROTECTED;
+import static jakarta.persistence.FetchType.*;
+import static jakarta.persistence.GenerationType.*;
+import static lombok.AccessLevel.*;
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.install.domain.code.entity.Code;
 import com.install.domain.common.BaseTimeEntity;
@@ -10,6 +14,7 @@ import com.install.domain.common.file.entity.FileInfo;
 import com.install.domain.consumer.entity.Consumer;
 import com.install.domain.member.entity.Member;
 import com.install.domain.modem.entity.Modem;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -17,9 +22,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -37,35 +39,35 @@ import lombok.NoArgsConstructor;
 @Entity
 public class InstallInfo extends BaseTimeEntity {
 
-  @Id
-  @GeneratedValue(strategy = IDENTITY)
-  @Column(name = "install_info_id")
-  private Long id;
+	@Id
+	@GeneratedValue(strategy = IDENTITY)
+	@Column(name = "install_info_id")
+	private Long id;
 
-  // TODO : workTime 타임 포맷 셋팅하기
-  @Column(name = "work_time")
-  private LocalDateTime workTime;
+	// TODO : workTime 타임 포맷 셋팅하기
+	@Column(name = "work_time")
+	private LocalDateTime workTime;
 
-  @Column(name = "comment")
-  private String comment;
+	@Column(name = "comment")
+	private String comment;
 
-  @ManyToOne(fetch = LAZY)
-  @JoinColumn(name = "consumer_id")
-  private Consumer consumer;
+	@ManyToOne(fetch = LAZY)
+	@JoinColumn(name = "consumer_id")
+	private Consumer consumer;
 
-  @ManyToOne(fetch = LAZY)
-  @JoinColumn(name = "modem_id")
-  private Modem modem;
+	@ManyToOne(fetch = LAZY)
+	@JoinColumn(name = "modem_id")
+	private Modem modem;
 
-  @ManyToOne(fetch = LAZY)
-  @JoinColumn(name = "work_type_cd")
-  private Code workTypeCd;
+	@ManyToOne(fetch = LAZY)
+	@JoinColumn(name = "work_type_cd")
+	private Code workTypeCd;
 
-  @ManyToOne(fetch = LAZY)
-  @JoinColumn(name = "member_id")
-  private Member worker;
+	@ManyToOne(fetch = LAZY)
+	@JoinColumn(name = "member_id")
+	private Member worker;
 
-  @Builder.Default
-  @OneToMany(mappedBy = "installInfo")
-  private List<FileInfo> fileInfos = new ArrayList<>();
+	@Builder.Default
+	@OneToMany(mappedBy = "installInfo")
+	private List<FileInfo> fileInfos = new ArrayList<>();
 }

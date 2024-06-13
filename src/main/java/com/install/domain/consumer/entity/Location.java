@@ -21,10 +21,10 @@ import lombok.Setter;
 @Embeddable
 public class Location {
 
-  @Column(name = "geo_x")
-  private String geoX;
+	@Column(name = "geo_x")
+	private String geoX;
 
-  @Column(name = "geo_y")
-  private String geoY;
+	@Column(name = "geo_y")
+	private String geoY;
 
 }

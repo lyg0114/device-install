@@ -1,9 +1,11 @@
 package com.install.domain.consumer.entity.repository;
 
+import java.util.Optional;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+
 import com.install.domain.consumer.entity.Consumer;
 import com.install.domain.consumer.entity.repository.query.ConsumerRepositoryCustom;
-import java.util.Optional;
-import org.springframework.data.jpa.repository.JpaRepository;
 
 /**
  * @author : iyeong-gyo
@@ -11,11 +13,11 @@ import org.springframework.data.jpa.repository.JpaRepository;
  * @since : 04.06.24
  */
 public interface ConsumerRepository extends JpaRepository<Consumer, Long>,
-    ConsumerRepositoryCustom {
+	ConsumerRepositoryCustom {
 
-  boolean existsByconsumerNo(String consumerNo);
+	boolean existsByconsumerNo(String consumerNo);
 
-  boolean existsByMeterNo(String meterNo);
+	boolean existsByMeterNo(String meterNo);
 
-  Optional<Consumer> findByConsumerNo(String consumerNo);
+	Optional<Consumer> findByConsumerNo(String consumerNo);
 }

@@ -1,6 +1,6 @@
 package com.install.domain.code.dto;
 
-import static lombok.AccessLevel.PRIVATE;
+import static lombok.AccessLevel.*;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -19,6 +19,6 @@ import lombok.ToString;
 @AllArgsConstructor(access = PRIVATE)
 public class CodeDto {
 
-  private String code;
-  private String name;
+	private String code;
+	private String name;
 }

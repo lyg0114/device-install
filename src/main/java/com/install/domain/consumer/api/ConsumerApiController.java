@@ -1,11 +1,5 @@
 package com.install.domain.consumer.api;
 
-
-import com.install.domain.consumer.dto.ConsumerDto;
-import com.install.domain.consumer.service.ConsumerService;
-import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -21,6 +15,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.install.domain.consumer.dto.ConsumerDto;
+import com.install.domain.consumer.service.ConsumerService;
+
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * @author : iyeong-gyo
  * @package : com.install.domain.consumer.api
@@ -32,64 +33,60 @@ import org.springframework.web.multipart.MultipartFile;
 @RestController
 public class ConsumerApiController {
 
-  private final ConsumerService consumerService;
+	private final ConsumerService consumerService;
 
-  /**
-   * - 고객정보 리스트 조회
-   */
-  @GetMapping
-  public ResponseEntity<Page<ConsumerDto.ConsumerResponse>> searchConsumers(
-      ConsumerDto.ConsumerSearchCondition condition, Pageable pageable
-  ) {
+	/**
+	 * - 고객정보 리스트 조회
+	 */
+	@GetMapping
+	public ResponseEntity<Page<ConsumerDto.ConsumerResponse>> searchConsumers(ConsumerDto.ConsumerSearchCondition condition, Pageable pageable) {
+		return ResponseEntity
+			.status(HttpStatus.OK)
+			.body(consumerService.searchConsumers(condition, pageable));
+	}
 
-    return ResponseEntity
-        .status(HttpStatus.OK)
-        .body(consumerService.searchConsumers(condition, pageable));
-  }
+	/**
+	 * - 고객정보 등록
+	 */
+	@PostMapping
+	public ResponseEntity<Void> addConsumer(@RequestBody @Valid ConsumerDto.ConsumerRequest requestDto) {
 
-  /**
-   * - 고객정보 등록
-   */
-  @PostMapping
-  public ResponseEntity<Void> addConsumer(
-      @RequestBody @Valid ConsumerDto.ConsumerRequest requestDto) {
+		consumerService.addConsumer(requestDto);
+		return ResponseEntity.ok().build();
+	}
 
-    consumerService.addConsumer(requestDto);
-    return ResponseEntity.ok().build();
-  }
+	/**
+	 * - 고객정보 수정
+	 */
+	@PatchMapping("/{consumerId}")
+	public ResponseEntity<Void> updateConsumer(
+		@PathVariable Long consumerId,
+		@RequestBody @Valid ConsumerDto.ConsumerRequest requestDto
+	) {
 
-  /**
-   * - 고객정보 수정
-   */
-  @PatchMapping("/{consumerId}")
-  public ResponseEntity<Void> updateConsumer(
-      @PathVariable Long consumerId,
-      @RequestBody @Valid ConsumerDto.ConsumerRequest requestDto
-  ) {
+		consumerService.updateConsumer(consumerId, requestDto);
+		return ResponseEntity.ok().build();
+	}
 
-    consumerService.updateConsumer(consumerId, requestDto);
-    return ResponseEntity.ok().build();
-  }
+	/**
+	 * - 고객정보 삭제
+	 */
+	@DeleteMapping("/{consumerId}")
+	public ResponseEntity<Void> deleteItem(@PathVariable Long consumerId) {
 
-  /**
-   * - 고객정보 삭제
-   */
-  @DeleteMapping("/{consumerId}")
-  public ResponseEntity<Void> deleteItem(@PathVariable Long consumerId) {
+		consumerService.deleteConsumer(consumerId);
+		return ResponseEntity.ok().build();
+	}
 
-    consumerService.deleteConsumer(consumerId);
-    return ResponseEntity.ok().build();
-  }
+	/**
+	 * - 고객정보 일괄 엑셀 등록
+	 */
+	@PostMapping("/excel")
+	public ResponseEntity<Void> addConsumersByExcel(@RequestParam("file") MultipartFile file) {
 
-  /**
-   * - 고객정보 일괄 엑셀 등록
-   */
-  @PostMapping("/excel")
-  public ResponseEntity<Void> addConsumersByExcel(@RequestParam("file") MultipartFile file) {
+		// business logic
 
-    // business logic
-
-    return ResponseEntity.ok().build();
-  }
+		return ResponseEntity.ok().build();
+	}
 
 }

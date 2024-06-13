@@ -1,16 +1,17 @@
 package com.install.domain.modem.entity;
 
-import static jakarta.persistence.FetchType.LAZY;
-import static jakarta.persistence.GenerationType.IDENTITY;
-import static java.util.Objects.isNull;
-import static lombok.AccessLevel.PROTECTED;
-import static org.springframework.util.StringUtils.hasText;
+import static jakarta.persistence.FetchType.*;
+import static jakarta.persistence.GenerationType.*;
+import static java.util.Objects.*;
+import static lombok.AccessLevel.*;
+import static org.springframework.util.StringUtils.*;
 
 import com.install.domain.code.entity.Code;
 import com.install.domain.common.BaseTimeEntity;
 import com.install.domain.consumer.entity.Consumer;
 import com.install.domain.modem.dto.ModemDto.ModemRequest;
 import com.install.domain.modem.dto.ModemDto.ModemResponse;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -35,76 +36,76 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor(access = PROTECTED)
 @Table(name = "modem",
-    uniqueConstraints = {
-        @UniqueConstraint(columnNames = {"modem_no"})
-    }
+	uniqueConstraints = {
+		@UniqueConstraint(columnNames = {"modem_no"})
+	}
 )
 @Entity
 public class Modem extends BaseTimeEntity {
 
-  @Id
-  @GeneratedValue(strategy = IDENTITY)
-  @Column(name = "modem_id")
-  private Long id;
+	@Id
+	@GeneratedValue(strategy = IDENTITY)
+	@Column(name = "modem_id")
+	private Long id;
 
-  @Column(name = "modem_no")
-  private String modemNo;
+	@Column(name = "modem_no")
+	private String modemNo;
 
-  @Column(name = "imei")
-  private String imei;
+	@Column(name = "imei")
+	private String imei;
 
-  @Column(name = "build_company")
-  private String buildCompany;
+	@Column(name = "build_company")
+	private String buildCompany;
 
-  @ManyToOne(fetch= LAZY)
-  @JoinColumn(name = "modem_type_cd")
-  private Code modemTypeCd;
+	@ManyToOne(fetch = LAZY)
+	@JoinColumn(name = "modem_type_cd")
+	private Code modemTypeCd;
 
-  @ManyToOne(fetch= LAZY)
-  @JoinColumn(name = "modem_status_cd")
-  private Code modemStatusCd;
+	@ManyToOne(fetch = LAZY)
+	@JoinColumn(name = "modem_status_cd")
+	private Code modemStatusCd;
 
-  @OneToOne(mappedBy = "installedModem")
-  private Consumer installedConsumer;
+	@OneToOne(mappedBy = "installedModem")
+	private Consumer installedConsumer;
 
-  public void updateModem(ModemRequest requestDto) {
-    if (hasText(requestDto.getModemNo())) {
-      this.modemNo = requestDto.getModemNo();
-    }
+	public void updateModem(ModemRequest requestDto) {
+		if (hasText(requestDto.getModemNo())) {
+			this.modemNo = requestDto.getModemNo();
+		}
 
-    if (hasText(requestDto.getImei())) {
-      this.imei = requestDto.getImei();
-    }
+		if (hasText(requestDto.getImei())) {
+			this.imei = requestDto.getImei();
+		}
 
-    if (hasText(requestDto.getBuildCompany())) {
-      this.buildCompany = requestDto.getBuildCompany();
-    }
+		if (hasText(requestDto.getBuildCompany())) {
+			this.buildCompany = requestDto.getBuildCompany();
+		}
 
-    if (hasText(requestDto.getModemTypeCd())) {
-      this.modemTypeCd = createCode(requestDto.getModemTypeCd());
-    }
+		if (hasText(requestDto.getModemTypeCd())) {
+			this.modemTypeCd = createCode(requestDto.getModemTypeCd());
+		}
 
-    if (hasText(requestDto.getModemStatusCd())) {
-      this.modemStatusCd = createCode(requestDto.getModemStatusCd());
-    }
-  }
+		if (hasText(requestDto.getModemStatusCd())) {
+			this.modemStatusCd = createCode(requestDto.getModemStatusCd());
+		}
+	}
 
-  private Code createCode(String code) {
-    return Code.builder().code(code).build();
-  }
+	private Code createCode(String code) {
+		return Code.builder().code(code).build();
+	}
 
-  public void installedConsumer(Consumer installedConsumer) {
-    this.installedConsumer = installedConsumer;
-  }
+	public void installedConsumer(Consumer installedConsumer) {
+		this.installedConsumer = installedConsumer;
+	}
 
-  public ModemResponse toResponse() {
-    return ModemResponse.builder()
-        .modemNo(this.modemNo)
-        .consumerNo(!isNull(this.installedConsumer) ? this.installedConsumer.getConsumerNo() : null)
-        .imei(this.imei)
-        .buildCompany(this.buildCompany)
-        .modemTypeCd(this.modemTypeCd.toDto())
-        .modemStatusCd(this.modemStatusCd.toDto())
-        .build();
-  }
+	public ModemResponse toResponse() {
+		return ModemResponse.builder()
+			.modemNo(this.modemNo)
+			.consumerNo(!isNull(this.installedConsumer) ? this.installedConsumer.getConsumerNo() : null)
+			.imei(this.imei)
+			.buildCompany(this.buildCompany)
+			.modemTypeCd(this.modemTypeCd.toDto())
+			.modemStatusCd(this.modemStatusCd.toDto())
+			.build();
+	}
 }

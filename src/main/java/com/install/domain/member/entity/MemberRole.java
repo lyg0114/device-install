@@ -1,10 +1,11 @@
 package com.install.domain.member.entity;
 
-import static jakarta.persistence.FetchType.LAZY;
-import static jakarta.persistence.GenerationType.IDENTITY;
-import static lombok.AccessLevel.PROTECTED;
+import static jakarta.persistence.FetchType.*;
+import static jakarta.persistence.GenerationType.*;
+import static lombok.AccessLevel.*;
 
 import com.install.domain.common.BaseTimeEntity;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -25,16 +26,16 @@ import lombok.NoArgsConstructor;
 @Entity
 public class MemberRole extends BaseTimeEntity {
 
-  @Id
-  @GeneratedValue(strategy = IDENTITY)
-  @Column(name = "member_role_id")
-  private Long id;
+	@Id
+	@GeneratedValue(strategy = IDENTITY)
+	@Column(name = "member_role_id")
+	private Long id;
 
-  @ManyToOne(fetch = LAZY)
-  @JoinColumn(name = "member_id")
-  private Member member;
+	@ManyToOne(fetch = LAZY)
+	@JoinColumn(name = "member_id")
+	private Member member;
 
-  @ManyToOne(fetch = LAZY)
-  @JoinColumn(name = "role_id")
-  private Role role;
+	@ManyToOne(fetch = LAZY)
+	@JoinColumn(name = "role_id")
+	private Role role;
 }
