@@ -45,6 +45,8 @@ public enum CustomErrorCode {
 
 	// Modem
 	MODEM_NOT_EXIST(BAD_REQUEST, "단말기 정보를 찾을 수 없습니다."),
+	BAD_MODEM_NUMBE(BAD_REQUEST, "잘못된 단말기 번호 입니다."),
+	BAD_IMEI_NUMBE(BAD_REQUEST, "잘못된 IMEI 번호 입니다."),
 	MODEM_NO_ALREADY_EXIST(BAD_REQUEST, "이미 존재하는 단말기번호 입니다."),
 	IMEI_ALREADY_EXIST(BAD_REQUEST, "이미 존재하는 IMEI 입니다."),
 

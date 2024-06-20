@@ -98,6 +98,7 @@ public class ModemApiController {
 	/**
 	 * - 단말기 일괄 엑셀 등록
 	 */
+	// TODO : 동시에 두명이 엑셀을 업로드 했을때 예외 처리 필요
 	@PostMapping("/excel")
 	public ResponseEntity<String> addModemsByExcel(@RequestParam("file") MultipartFile file) {
 		String sessionId = UUID.randomUUID().toString();

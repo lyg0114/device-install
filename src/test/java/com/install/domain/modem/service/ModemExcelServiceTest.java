@@ -22,6 +22,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.install.domain.code.entity.repository.CodeRepository;
 import com.install.domain.modem.entity.Modem;
 import com.install.domain.modem.entity.repository.ModemRepository;
+import com.install.global.exception.CustomExcelException;
 import com.install.global.websocket.handler.ProgressWebSocketHandler;
 
 import jakarta.persistence.EntityManager;
@@ -71,6 +72,27 @@ class ModemExcelServiceTest {
 		assertThat(findModems.get(0).getModemStatusCd().getCode()).isEqualTo(MODEM_STAUTS_NORMAL.getCode());
 	}
 
+	@Test
+	void 단말기_엑셀_일괄업로드_예외처리에_성공한다() throws IOException {
+		//given
+		doNothing().when(progressWebSocketHandler).sendProgressUpdate(any(), any());
+		doNothing().when(progressWebSocketHandler).closeSession(any());
+
+		String sessionId = UUID.randomUUID().toString();
+		MultipartFile file = createMockImageFile();
+		createAlreadyInsertModem();
+		em.flush();
+		em.clear();
+
+		//when
+		modemExcelService.uploadModemExcel(file, sessionId);
+
+		//then
+		List<CustomExcelException> excelExceptions = modemExcelService.getExcelExceptions();
+		assertThat(excelExceptions.size()).isEqualTo(1);
+		assertThat(excelExceptions.get(0).getTargetInfo()).isEqualTo("2111908|:|1|:|0");
+	}
+
 	// MockExcelFile 생성
 	private MultipartFile createMockImageFile() {
 		String fileName = "modem-upload.xlsx";
@@ -92,5 +114,15 @@ class ModemExcelServiceTest {
 
 	private void createCodes() {
 		codeRepository.saveAll(getAllCodes());
+	}
+
+	private void createAlreadyInsertModem() {
+		modemRepository.save(Modem.builder()
+			.modemNo("2111908")
+			.imei("imei-123")
+			.buildCompany("삼성")
+			.modemTypeCd(MODEM_TYPE_NBIOT.getCodeEntity())
+			.modemStatusCd(MODEM_STAUTS_NORMAL.getCodeEntity())
+			.build());
 	}
 }

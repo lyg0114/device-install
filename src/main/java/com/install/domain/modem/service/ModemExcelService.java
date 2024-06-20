@@ -1,8 +1,10 @@
 package com.install.domain.modem.service;
 
 import static com.install.domain.code.entity.CodeSet.*;
+import static com.install.global.exception.CustomErrorCode.*;
 import static java.lang.String.valueOf;
 import static org.apache.poi.ss.usermodel.DateUtil.*;
+import static org.springframework.http.HttpStatus.*;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -19,9 +21,10 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.install.domain.modem.dto.ModemDto.ModemRequest;
 import com.install.domain.modem.entity.repository.ModemRepository;
+import com.install.global.exception.CustomExcelException;
 import com.install.global.websocket.handler.ProgressWebSocketHandler;
 
-import lombok.RequiredArgsConstructor;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -30,22 +33,28 @@ import lombok.extern.slf4j.Slf4j;
  * @since : 12.06.24
  */
 @Slf4j
+@Getter
 @Transactional
-@RequiredArgsConstructor
 @Service
 public class ModemExcelService {
 
 	private final ModemRepository modemRepository;
 	private final ProgressWebSocketHandler progressWebSocketHandler;
+	private final List<CustomExcelException> excelExceptions;
+
+	public ModemExcelService(ModemRepository modemRepository, ProgressWebSocketHandler progressWebSocketHandler) {
+		this.modemRepository = modemRepository;
+		this.progressWebSocketHandler = progressWebSocketHandler;
+		this.excelExceptions = new ArrayList<>();
+	}
 
 	public void uploadModemExcel(MultipartFile file, String sessionId) {
 		try {
 			modemRepository.bulkInsertModem(readExcelFile(file, sessionId));
 			progressWebSocketHandler.sendProgressUpdate(sessionId, Integer.toString(100));
 			progressWebSocketHandler.closeSession(sessionId);
-		} catch (IOException e) {
-			// TODO : 적절한 예외처리 로직 필요
-			throw new RuntimeException(e);
+		} catch (IOException ex) {
+			log.error("[IOException] errorCode: {} | errorMessage: {} | cause: {} ", BAD_REQUEST, "소켓 연결에 실패하였습니다.", ex.getCause());
 		}
 	}
 
@@ -58,25 +67,29 @@ public class ModemExcelService {
 			boolean firstRow = true;
 
 			for (int i = 0; i < totalRows; i++) {
-				if (firstRow) {
-					firstRow = false;
-					continue;
+				try {
+					if (firstRow) {
+						firstRow = false;
+						continue;
+					}
+					requests.add(ModemRequest.builder()
+						.modemNo(validateModemNo(extractedData(sheet.getRow(i).getCell(0)), i, 0))
+						.imei(validateImei(extractedData(sheet.getRow(i).getCell(1)), i, 1))
+						.buildCompany(extractedData(sheet.getRow(i).getCell(2)))
+						.modemTypeCd(MODEM_TYPE_NBIOT.getCode())
+						.modemStatusCd(MODEM_STAUTS_NORMAL.getCode())
+						.build());
+
+					int progress = (i + 1) * 99 / totalRows;
+					progressWebSocketHandler.sendProgressUpdate(sessionId, Integer.toString(progress));
+				} catch (CustomExcelException ex) {
+					excelExceptions.add(ex);
+					log.error("[CustomExcelException] errorCode: {} | errorMessage: {} ", ex.getErrorCode(), ex.getErrorMessage());
+					progressWebSocketHandler.sendProgressUpdate(sessionId, ex.getTargetInfo());
 				}
-
-				requests.add(ModemRequest.builder()
-					.modemNo(extractedData(sheet.getRow(i).getCell(0)))
-					.imei(extractedData(sheet.getRow(i).getCell(1)))
-					.buildCompany(extractedData(sheet.getRow(i).getCell(2)))
-					.modemTypeCd(MODEM_TYPE_NBIOT.getCode())
-					.modemStatusCd(MODEM_STAUTS_NORMAL.getCode())
-					.build());
-
-				int progress = (i + 1) * 99 / totalRows;
-				progressWebSocketHandler.sendProgressUpdate(sessionId, Integer.toString(progress));
 			}
-		} catch (IOException e) {
-			// TODO : 적절한 예외처리 로직 필요
-			throw new RuntimeException(e);
+		} catch (IOException ex) {
+			log.error("[CustomExcelException] errorCode: {} | errorMessage: {} ", BAD_REQUEST, "엑셀파일 읽기를 실패했습니다.");
 		}
 
 		return requests;
@@ -91,6 +104,23 @@ public class ModemExcelService {
 			case FORMULA -> value = cell.getCellFormula();
 			default -> value = "";
 		}
+
 		return value;
+	}
+
+	private String validateModemNo(String modemNo, int row, int col) {
+		if (modemRepository.existsByModemNo(modemNo)) {
+			throw new CustomExcelException(BAD_MODEM_NUMBE, modemNo, row, col);
+		}
+
+		return modemNo;
+	}
+
+	private String validateImei(String imei, int row, int col) {
+		if (modemRepository.existsByImei(imei)) {
+			throw new CustomExcelException(BAD_IMEI_NUMBE, imei, row, col);
+		}
+
+		return imei;
 	}
 }
