@@ -7,6 +7,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Profile;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -38,12 +39,16 @@ public class InstallApplication {
 	}
 
 	@Bean
-	public CommandLineRunner fileInit(
-		StorageService storageService,
-		CodeRepository codeRepository
-	) {
+	public CommandLineRunner fileInit(StorageService storageService) {
 		return args -> {
 			storageService.init();
+		};
+	}
+
+	@Profile("local")
+	@Bean
+	public CommandLineRunner codeInit(CodeRepository codeRepository) {
+		return args -> {
 			codeRepository.saveAll(getAllCodes());
 		};
 	}
