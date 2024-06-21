@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -40,12 +41,12 @@ public class ModemExcelService {
 
 	private final ModemRepository modemRepository;
 	private final ProgressWebSocketHandler progressWebSocketHandler;
-	private final List<CustomExcelException> excelExceptions;
+	private final ConcurrentHashMap<String, List<CustomExcelException>> excelExceptionMap;
 
 	public ModemExcelService(ModemRepository modemRepository, ProgressWebSocketHandler progressWebSocketHandler) {
 		this.modemRepository = modemRepository;
 		this.progressWebSocketHandler = progressWebSocketHandler;
-		this.excelExceptions = new ArrayList<>();
+		this.excelExceptionMap = new ConcurrentHashMap<>();
 	}
 
 	public void uploadModemExcel(MultipartFile file, String sessionId) {
@@ -60,6 +61,8 @@ public class ModemExcelService {
 
 	public List<ModemRequest> readExcelFile(MultipartFile file, String sessionId) {
 		List<ModemRequest> requests = new ArrayList<>();
+		List<CustomExcelException> excelExceptionList = new ArrayList<>();
+		excelExceptionMap.put(sessionId, excelExceptionList);
 		try (InputStream is = file.getInputStream(); Workbook workbook = new XSSFWorkbook(is)) {
 			Sheet sheet = workbook.getSheetAt(0);
 			int totalRows = sheet.getLastRowNum() + 1;
@@ -83,11 +86,12 @@ public class ModemExcelService {
 					int progress = (i + 1) * 99 / totalRows;
 					progressWebSocketHandler.sendProgressUpdate(sessionId, Integer.toString(progress));
 				} catch (CustomExcelException ex) {
-					excelExceptions.add(ex);
+					excelExceptionMap.get(sessionId).add(ex);
 					log.error("[CustomExcelException] errorCode: {} | errorMessage: {} ", ex.getErrorCode(), ex.getErrorMessage());
 					progressWebSocketHandler.sendProgressUpdate(sessionId, ex.getTargetInfo());
 				}
 			}
+
 		} catch (IOException ex) {
 			log.error("[CustomExcelException] errorCode: {} | errorMessage: {} ", BAD_REQUEST, "엑셀파일 읽기를 실패했습니다.");
 		}

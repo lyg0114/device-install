@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -88,9 +89,10 @@ class ModemExcelServiceTest {
 		modemExcelService.uploadModemExcel(file, sessionId);
 
 		//then
-		List<CustomExcelException> excelExceptions = modemExcelService.getExcelExceptions();
-		assertThat(excelExceptions.size()).isEqualTo(1);
-		assertThat(excelExceptions.get(0).getTargetInfo()).isEqualTo("2111908|:|1|:|0");
+		ConcurrentHashMap<String, List<CustomExcelException>> excelExceptionMap = modemExcelService.getExcelExceptionMap();
+		List<CustomExcelException> excelExceptionList = excelExceptionMap.get(sessionId);
+		assertThat(excelExceptionList.size()).isEqualTo(1);
+		assertThat(excelExceptionList.get(0).getTargetInfo()).isEqualTo("2111908|:|1|:|0");
 	}
 
 	// MockExcelFile 생성
