@@ -92,7 +92,6 @@ class ModemExcelServiceTest {
 		ConcurrentHashMap<String, List<CustomExcelException>> excelExceptionMap = modemExcelService.getExcelExceptionMap();
 		List<CustomExcelException> excelExceptionList = excelExceptionMap.get(sessionId);
 		assertThat(excelExceptionList.size()).isEqualTo(1);
-		assertThat(excelExceptionList.get(0).getTargetInfo()).isEqualTo("2111908|:|1|:|0");
 	}
 
 	// MockExcelFile 생성

@@ -1,31 +1,26 @@
 package com.install.global.exception;
 
+import java.util.ArrayList;
+
+import lombok.Getter;
+
 /**
  * @author : iyeong-gyo
  * @package : com.install.global.exception
  * @since : 20.06.24
  */
+@Getter
 public class CustomExcelException extends CustomException {
 
 	private final int row;
 	private final int col;
 	private final String value;
-	private final String splitStr = "|:|";
 
 	public CustomExcelException(CustomErrorCode errorCode, String value, int row, int col) {
 		super(errorCode);
 		this.value = value;
 		this.row = row;
 		this.col = col;
-	}
-
-	public String getTargetInfo() {
-		return new StringBuilder(value)
-			.append(splitStr)
-			.append(row)
-			.append(splitStr)
-			.append(col)
-			.toString();
 	}
 
 	@Override

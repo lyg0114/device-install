@@ -46,9 +46,16 @@
 
     function createWebSocketLink(sessionId) {
         var socket = new WebSocket("ws://localhost:8080/progress/" + sessionId);
+        // 예외처리해야할 데이터 저장, 추후 사용자에게 적절하게 표시
+        let exBuffer = [];
 
         socket.onmessage = function (event) {
-            var current = parseInt(event.data, 10);
+            let jsonObj = JSON.parse(event.data);
+            if (!jsonObj.success) { // 정상 업로드가 아닐 경우 exBuffer에 업로드 실패 데이터 저장.
+                exBuffer.push(jsonObj);
+            }
+
+            let current = parseInt(jsonObj.progress, 10);
             $('#progress').text("progress : " + current + "%");
             if (current >= 100) {
                 $('#complete').text('Upload successful!');

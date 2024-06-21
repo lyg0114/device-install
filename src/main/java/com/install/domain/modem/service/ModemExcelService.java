@@ -23,6 +23,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.install.domain.modem.dto.ModemDto.ModemRequest;
 import com.install.domain.modem.entity.repository.ModemRepository;
 import com.install.global.exception.CustomExcelException;
+import com.install.global.websocket.dto.MessageDto;
 import com.install.global.websocket.handler.ProgressWebSocketHandler;
 
 import lombok.Getter;
@@ -67,8 +68,12 @@ public class ModemExcelService {
 			int progress = 0;
 
 			for (int i = 0; i < totalRows; i++) {
+				// 업로드 진행률 계산
+				progress = (i + 1) * 99 / totalRows;
+
 				try {
 
+					// 첫번째줄 skip ( 메타 정보 )
 					if (firstRow) {
 						firstRow = false;
 						continue;
@@ -82,22 +87,41 @@ public class ModemExcelService {
 						.modemStatusCd(MODEM_STAUTS_NORMAL.getCode())
 						.build());
 
-					progress = (i + 1) * 99 / totalRows;
 				} catch (CustomExcelException ex) {
-					progress = (i + 1) * 99 / totalRows;
+					// 잘못된 입력으로 예외상황 발생
+					// 테스트 검증을 위한 ConcurrentHashMap
 					excelExceptionMap.get(sessionId).add(ex);
 					log.error("[CustomExcelException] errorCode: {} | errorMessage: {} ", ex.getErrorCode(), ex.getErrorMessage());
+					// 유효성 처리 데이터 전달
+					progressWebSocketHandler.sendProgressUpdate(sessionId, MessageDto.builder()
+						.isSuccess(false)
+						.row(ex.getRow())
+						.col(ex.getCol())
+						.value(ex.getValue())
+						.progress(progress)
+						.build()
+					);
 				}
 
-				progressWebSocketHandler.sendProgressUpdate(sessionId, Integer.toString(progress));
+				progressWebSocketHandler.sendProgressUpdate(sessionId, MessageDto.builder()
+					.isSuccess(true)
+					.progress(progress)
+					.build()
+				);
 			}
 
-			progressWebSocketHandler.sendProgressUpdate(sessionId, Integer.toString(100));
+			// 마지막 작업 100%
+			progressWebSocketHandler.sendProgressUpdate(sessionId, MessageDto.builder()
+				.isSuccess(true)
+				.progress(100)
+				.build()
+			);
 
 		} catch (IOException ex) {
 			log.error("[CustomExcelException] errorCode: {} | errorMessage: {} ", BAD_REQUEST, "엑셀파일 읽기를 실패했습니다.");
 		}
 
+		// websocket 연결 종료
 		colseWebSocketSession(sessionId);
 
 		return requests;

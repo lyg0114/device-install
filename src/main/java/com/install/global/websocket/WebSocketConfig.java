@@ -6,6 +6,7 @@ import org.springframework.web.socket.config.annotation.EnableWebSocket;
 import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
 import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.install.global.websocket.handler.ProgressWebSocketHandler;
 
 /**
@@ -24,6 +25,11 @@ public class WebSocketConfig implements WebSocketConfigurer {
 
 	@Bean
 	public ProgressWebSocketHandler progressWebSocketHandler() {
-		return new ProgressWebSocketHandler();
+		return new ProgressWebSocketHandler(objectMapper());
+	}
+
+	@Bean
+	public ObjectMapper objectMapper() {
+		return new ObjectMapper();
 	}
 }
