@@ -10,6 +10,9 @@ import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.install.global.websocket.dto.MessageDto;
+
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -20,7 +23,13 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ProgressWebSocketHandler extends TextWebSocketHandler {
 
-	private final ConcurrentHashMap<String, WebSocketSession> sessions = new ConcurrentHashMap<>();
+	private final ConcurrentHashMap<String, WebSocketSession> sessions;
+	private final ObjectMapper mapper;
+
+	public ProgressWebSocketHandler(ObjectMapper mapper) {
+		this.sessions = new ConcurrentHashMap<>();
+		this.mapper = mapper;
+	}
 
 	@Override
 	public void afterConnectionEstablished(WebSocketSession session) {
@@ -36,10 +45,10 @@ public class ProgressWebSocketHandler extends TextWebSocketHandler {
 		log.info("Connection closed for session ID: {}", sessionId);
 	}
 
-	public void sendProgressUpdate(String sessionId, String message) throws IOException {
+	public void sendProgressUpdate(String sessionId, MessageDto message) throws IOException {
 		WebSocketSession session = sessions.get(sessionId);
 		if (session != null && session.isOpen()) {
-			session.sendMessage(new TextMessage(message));
+			session.sendMessage(new TextMessage(mapper.writeValueAsString(message)));
 		}
 	}
 
