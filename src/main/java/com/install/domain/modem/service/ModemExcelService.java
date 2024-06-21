@@ -52,7 +52,6 @@ public class ModemExcelService {
 	public void uploadModemExcel(MultipartFile file, String sessionId) {
 		try {
 			modemRepository.bulkInsertModem(readExcelFile(file, sessionId));
-			progressWebSocketHandler.sendProgressUpdate(sessionId, Integer.toString(100));
 			progressWebSocketHandler.closeSession(sessionId);
 		} catch (IOException ex) {
 			log.error("[IOException] errorCode: {} | errorMessage: {} | cause: {} ", BAD_REQUEST, "소켓 연결에 실패하였습니다.", ex.getCause());
@@ -68,13 +67,16 @@ public class ModemExcelService {
 			int totalRows = sheet.getLastRowNum() + 1;
 
 			boolean firstRow = true;
+			int progress = 0;
 
 			for (int i = 0; i < totalRows; i++) {
 				try {
+
 					if (firstRow) {
 						firstRow = false;
 						continue;
 					}
+
 					requests.add(ModemRequest.builder()
 						.modemNo(validateModemNo(extractedData(sheet.getRow(i).getCell(0)), i, 0))
 						.imei(validateImei(extractedData(sheet.getRow(i).getCell(1)), i, 1))
@@ -83,14 +85,17 @@ public class ModemExcelService {
 						.modemStatusCd(MODEM_STAUTS_NORMAL.getCode())
 						.build());
 
-					int progress = (i + 1) * 99 / totalRows;
-					progressWebSocketHandler.sendProgressUpdate(sessionId, Integer.toString(progress));
+					progress = (i + 1) * 99 / totalRows;
 				} catch (CustomExcelException ex) {
+					progress = (i + 1) * 99 / totalRows;
 					excelExceptionMap.get(sessionId).add(ex);
 					log.error("[CustomExcelException] errorCode: {} | errorMessage: {} ", ex.getErrorCode(), ex.getErrorMessage());
-					progressWebSocketHandler.sendProgressUpdate(sessionId, ex.getTargetInfo());
 				}
+
+				progressWebSocketHandler.sendProgressUpdate(sessionId, Integer.toString(progress));
 			}
+
+			progressWebSocketHandler.sendProgressUpdate(sessionId, Integer.toString(100));
 
 		} catch (IOException ex) {
 			log.error("[CustomExcelException] errorCode: {} | errorMessage: {} ", BAD_REQUEST, "엑셀파일 읽기를 실패했습니다.");
