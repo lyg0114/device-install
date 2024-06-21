@@ -1,6 +1,9 @@
 package com.install.domain.modem.api;
 
+import static java.util.concurrent.Executors.*;
+
 import java.util.UUID;
+import java.util.concurrent.ExecutorService;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -38,6 +41,7 @@ public class ModemApiController {
 
 	private final ModemService modemService;
 	private final ModemExcelService modemExcelService;
+	private final ExecutorService executorService = newFixedThreadPool(10);
 
 	/**
 	 * - 단말기 설치 현황 카운트
@@ -96,19 +100,31 @@ public class ModemApiController {
 	}
 
 	/**
+	 * - 단말기 일괄 엑셀 등록을 위한 세션 ID 생성
+	 */
+	@GetMapping("/excel/session")
+	public ResponseEntity<String> createSession() {
+		return ResponseEntity
+			.ok(UUID.randomUUID().toString());
+	}
+
+	/**
 	 * - 단말기 일괄 엑셀 등록
 	 */
 	// TODO : 동시에 두명이 엑셀을 업로드 했을때 예외 처리 필요
 	@PostMapping("/excel")
-	public ResponseEntity<String> addModemsByExcel(@RequestParam("file") MultipartFile file) {
-		String sessionId = UUID.randomUUID().toString();
-		// TODO : 호출할때마다 쓰레드 생성하지 말고 쓰레드 풀에서 쓰레드 가져와서 작동하도록 개선 필요
-		new Thread(() -> {
-			modemExcelService.uploadModemExcel(file, sessionId);
-		}).start();
-
-		return ResponseEntity
-			.ok(sessionId);
+	public ResponseEntity<Void> addModemsByExcel(@RequestParam("file") MultipartFile file, @RequestParam("sessionId") String sessionId) {
+		executorService.submit(() -> modemExcelService.uploadModemExcel(file, sessionId));
+		sleep(100);
+		return ResponseEntity.ok()
+			.build();
 	}
 
+	private static void sleep(long mill) {
+		try {
+			Thread.sleep(mill);
+		} catch (InterruptedException e) {
+			throw new RuntimeException(e);
+		}
+	}
 }

@@ -18,53 +18,83 @@
 </form>
 
 <script>
+    // 1.세션 ID 생성
+    // 2.세션 ID 기반 websocket 연결
+    // 3.소켓 연결이 완료 후 엑셀 파일 업로드 진행
     $(document).ready(function () {
         $('#send').on('click', function (event) {
             event.preventDefault();
-            var fileInput = $('#file-input')[0];
-            if (fileInput.files.length === 0) {
-                alert("Please select a file!");
-                return;
-            }
-
-            var formData = new FormData();
-            formData.append('file', fileInput.files[0]);
-
-            $.ajax({
-                url: 'http://localhost:8080/api/modems/v1/excel',
-                type: 'POST',
-                data: formData,
-                contentType: false,
-                processData: false,
-                success: function (sessionId) {
-                    var socket = new WebSocket("ws://localhost:8080/progress/" + sessionId);
-
-                    socket.onmessage = function (event) {
-                        var current = parseInt(event.data, 10);
-                        $('#progress').text("progress : " + current + "%");
-                        if (current >= 100) {
-                            $('#complete').text('Upload successful!');
-                        }
-                    };
-
-                    socket.onopen = function () {
-                        console.log("WebSocket connection opened.");
-                    };
-
-                    socket.onclose = function () {
-                        console.log("WebSocket connection closed.");
-                    };
-
-                    socket.onerror = function (error) {
-                        console.log("WebSocket error: " + error);
-                    };
-                },
-                error: function () {
-                    $('#progress').text('Upload failed!');
-                }
-            });
+            modemExcelUpload();
         });
     });
+
+    function modemExcelUpload() {
+
+        // 세션 ID 생성
+        $.ajax({
+            url: 'http://localhost:8080/api/modems/v1/excel/session',
+            type: 'GET',
+            success: function (sessionId) {
+                // 세션 ID 기반으로 websocket 연결
+                createWebSocketLink(sessionId);
+            },
+            error: function () {
+                $('#progress').text('Upload failed!');
+            }
+        });
+    }
+
+    function createWebSocketLink(sessionId) {
+        var socket = new WebSocket("ws://localhost:8080/progress/" + sessionId);
+
+        socket.onmessage = function (event) {
+            var current = parseInt(event.data, 10);
+            $('#progress').text("progress : " + current + "%");
+            if (current >= 100) {
+                $('#complete').text('Upload successful!');
+            }
+        };
+
+        socket.onopen = function () {
+            console.log("WebSocket connection opened.");
+            // 소켓 연결이 완료 되면 엑셀 파일 업로드 진행
+            fileUpload(sessionId);
+        };
+
+        socket.onclose = function () {
+            console.log("WebSocket connection closed.");
+        };
+
+        socket.onerror = function (error) {
+            console.log("WebSocket error: " + error);
+        };
+    }
+
+    function fileUpload(sessionId) {
+        var fileInput = $('#file-input')[0];
+        if (fileInput.files.length === 0) {
+            alert("Please select a file!");
+            return;
+        }
+
+        var formData = new FormData();
+        formData.append('file', fileInput.files[0]);
+        formData.append("sessionId", sessionId)
+
+        $.ajax({
+            url: 'http://localhost:8080/api/modems/v1/excel',
+            type: 'POST',
+            data: formData,
+            contentType: false,
+            processData: false,
+            success: function (sessionId) {
+            },
+            error: function () {
+                $('#progress').text('Upload failed!');
+            }
+        });
+    }
+
 </script>
 </body>
 </html>

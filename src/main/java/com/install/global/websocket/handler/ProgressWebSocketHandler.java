@@ -36,6 +36,7 @@ public class ProgressWebSocketHandler extends TextWebSocketHandler {
 		log.info("Connection closed for session ID: {}", sessionId);
 	}
 
+	// TODO : client쪽에 데이터 전달시 단순 text가 아닌 json 형태의 데이터 전달 할 수 있도록 개선 필요.
 	public void sendProgressUpdate(String sessionId, String message) throws IOException {
 		WebSocketSession session = sessions.get(sessionId);
 		if (session != null && session.isOpen()) {

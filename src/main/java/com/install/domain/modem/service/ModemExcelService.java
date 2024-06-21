@@ -50,18 +50,15 @@ public class ModemExcelService {
 	}
 
 	public void uploadModemExcel(MultipartFile file, String sessionId) {
-		try {
-			modemRepository.bulkInsertModem(readExcelFile(file, sessionId));
-			progressWebSocketHandler.closeSession(sessionId);
-		} catch (IOException ex) {
-			log.error("[IOException] errorCode: {} | errorMessage: {} | cause: {} ", BAD_REQUEST, "소켓 연결에 실패하였습니다.", ex.getCause());
-		}
+		List<ModemRequest> targetModems = readExcelFile(file, sessionId);
+		modemRepository.bulkInsertModem(targetModems);
 	}
 
 	public List<ModemRequest> readExcelFile(MultipartFile file, String sessionId) {
 		List<ModemRequest> requests = new ArrayList<>();
 		List<CustomExcelException> excelExceptionList = new ArrayList<>();
 		excelExceptionMap.put(sessionId, excelExceptionList);
+
 		try (InputStream is = file.getInputStream(); Workbook workbook = new XSSFWorkbook(is)) {
 			Sheet sheet = workbook.getSheetAt(0);
 			int totalRows = sheet.getLastRowNum() + 1;
@@ -101,7 +98,17 @@ public class ModemExcelService {
 			log.error("[CustomExcelException] errorCode: {} | errorMessage: {} ", BAD_REQUEST, "엑셀파일 읽기를 실패했습니다.");
 		}
 
+		colseWebSocketSession(sessionId);
+
 		return requests;
+	}
+
+	private void colseWebSocketSession(String sessionId) {
+		try {
+			progressWebSocketHandler.closeSession(sessionId);
+		} catch (IOException e) {
+			log.error("[CustomExcelException] errorCode: {} | errorMessage: {} ", BAD_REQUEST, "엑셀파일 읽기를 실패했습니다.");
+		}
 	}
 
 	private String extractedData(Cell cell) {
