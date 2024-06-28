@@ -1,8 +1,11 @@
 package com.install.domain.consumer.entity.repository.query;
 
+import java.util.List;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import com.install.domain.consumer.dto.ConsumerDto.ConsumerRequest;
 import com.install.domain.consumer.dto.ConsumerDto.ConsumerSearchCondition;
 import com.install.domain.consumer.entity.Consumer;
 
@@ -14,4 +17,6 @@ import com.install.domain.consumer.entity.Consumer;
 public interface ConsumerRepositoryCustom {
 
 	Page<Consumer> searchConsumer(ConsumerSearchCondition condition, Pageable pageable);
+
+	void bulkInsert(List<ConsumerRequest> targetModems);
 }
