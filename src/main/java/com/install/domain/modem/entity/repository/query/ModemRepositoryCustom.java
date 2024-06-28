@@ -5,7 +5,6 @@ import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-import com.install.domain.modem.dto.ModemDto;
 import com.install.domain.modem.dto.ModemDto.ModemInstallCount;
 import com.install.domain.modem.dto.ModemDto.ModemRequest;
 import com.install.domain.modem.dto.ModemDto.ModemSearchCondition;
@@ -22,5 +21,5 @@ public interface ModemRepositoryCustom {
 
 	ModemInstallCount modeminstallCount();
 
-	void bulkInsertModem(List<ModemRequest> requests);
+	void bulkInsert(List<ModemRequest> requests);
 }

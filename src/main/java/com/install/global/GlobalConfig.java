@@ -1,6 +1,9 @@
 package com.install.global;
 
 import static com.install.domain.code.entity.CodeSet.*;
+import static java.util.concurrent.Executors.*;
+
+import java.util.concurrent.ExecutorService;
 
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
@@ -41,6 +44,10 @@ public class GlobalConfig {
 		};
 	}
 
+	@Bean
+	public ExecutorService executorService() {
+		return newFixedThreadPool(10);
+	}
 
 	@Profile("local")
 	@Bean

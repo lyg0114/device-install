@@ -52,7 +52,7 @@ public class ModemExcelService {
 
 	public void uploadModemExcel(MultipartFile file, String sessionId) {
 		List<ModemRequest> targetModems = readExcelFile(file, sessionId);
-		modemRepository.bulkInsertModem(targetModems);
+		modemRepository.bulkInsert(targetModems);
 	}
 
 	public List<ModemRequest> readExcelFile(MultipartFile file, String sessionId) {

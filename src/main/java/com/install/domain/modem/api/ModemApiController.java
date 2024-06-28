@@ -41,7 +41,7 @@ public class ModemApiController {
 
 	private final ModemService modemService;
 	private final ModemExcelService modemExcelService;
-	private final ExecutorService executorService = newFixedThreadPool(10);
+	private final ExecutorService executorService;
 
 	/**
 	 * - 단말기 설치 현황 카운트
@@ -111,7 +111,6 @@ public class ModemApiController {
 	/**
 	 * - 단말기 일괄 엑셀 등록
 	 */
-	// TODO : 동시에 두명이 엑셀을 업로드 했을때 예외 처리 필요
 	@PostMapping("/excel")
 	public ResponseEntity<Void> addModemsByExcel(@RequestParam("file") MultipartFile file, @RequestParam("sessionId") String sessionId) {
 		executorService.submit(() -> modemExcelService.uploadModemExcel(file, sessionId));

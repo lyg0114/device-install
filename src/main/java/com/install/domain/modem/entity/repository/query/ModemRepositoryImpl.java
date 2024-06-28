@@ -78,7 +78,7 @@ public class ModemRepositoryImpl implements ModemRepositoryCustom {
 	}
 
 	@Override
-	public void bulkInsertModem(List<ModemDto.ModemRequest> requests) {
+	public void bulkInsert(List<ModemDto.ModemRequest> requests) {
 		String sql = "INSERT INTO modem (created_at, modem_no, imei, build_company, modem_status_cd, modem_type_cd) "
 			+ "VALUES (?,?,?,?,?,?)";
 
