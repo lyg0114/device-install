@@ -55,7 +55,7 @@ public class ConsumerService {
 	}
 
 	private void validateDuplicateConsumerNo(String consumerNo) {
-		if (consumerRepository.existsByconsumerNo(consumerNo)) {
+		if (consumerRepository.existsByConsumerNo(consumerNo)) {
 			throw new CustomException(CONSUMER_NO_ALREADY_EXIST);
 		}
 	}

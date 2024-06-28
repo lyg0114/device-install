@@ -15,7 +15,7 @@ import com.install.domain.consumer.entity.repository.query.ConsumerRepositoryCus
 public interface ConsumerRepository extends JpaRepository<Consumer, Long>,
 	ConsumerRepositoryCustom {
 
-	boolean existsByconsumerNo(String consumerNo);
+	boolean existsByConsumerNo(String consumerNo);
 
 	boolean existsByMeterNo(String meterNo);
 
