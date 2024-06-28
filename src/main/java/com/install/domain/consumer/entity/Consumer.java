@@ -120,4 +120,17 @@ public class Consumer extends BaseTimeEntity {
 			.geoY(!isNull(location) ? location.getGeoY() : null)
 			.build();
 	}
+
+	@Override
+	public String toString() {
+		return "Consumer{" +
+			"id=" + id +
+			", consumerNo='" + consumerNo + '\'' +
+			", consumerName='" + consumerName + '\'' +
+			", meterNo='" + meterNo + '\'' +
+			", installDate=" + installDate +
+			", address=" + address +
+			", location=" + location +
+			'}';
+	}
 }

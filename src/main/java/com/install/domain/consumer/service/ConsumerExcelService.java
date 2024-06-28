@@ -81,8 +81,8 @@ public class ConsumerExcelService {
 
 					requests.add(ConsumerRequest.builder()
 						.consumerNo(validateConsumerNo(extractedData(sheet.getRow(i).getCell(0)), i, 0))
-						.meterNo(validateMeterNo(extractedData(sheet.getRow(i).getCell(1)), i, 1))
-						.consumerName(validateConsumerName(extractedData(sheet.getRow(i).getCell(2)), i, 2))
+						.consumerName(validateConsumerName(extractedData(sheet.getRow(i).getCell(1)), i, 1))
+						.meterNo(validateMeterNo(extractedData(sheet.getRow(i).getCell(2)), i, 2))
 						.city(extractedData(sheet.getRow(i).getCell(3)))
 						.street(extractedData(sheet.getRow(i).getCell(4)))
 						.zipcode(extractedData(sheet.getRow(i).getCell(5)))
