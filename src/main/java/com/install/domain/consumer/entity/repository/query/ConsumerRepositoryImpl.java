@@ -94,8 +94,14 @@ public class ConsumerRepositoryImpl implements ConsumerRepositoryCustom {
 			+ "VALUES (?,?,?,?,?,?,?)";
 
 		LocalDateTime now = LocalDateTime.now();
-		jdbcTemplate.batchUpdate(sql, requests, requests.size(), (ps, modemRequest) -> {
+		jdbcTemplate.batchUpdate(sql, requests, requests.size(), (ps, consumerRequest) -> {
 			ps.setString(1, now.toString());
+			ps.setString(2, consumerRequest.getConsumerNo());
+			ps.setString(3, consumerRequest.getConsumerName());
+			ps.setString(4, consumerRequest.getMeterNo());
+			ps.setString(5, consumerRequest.getCity());
+			ps.setString(6, consumerRequest.getStreet());
+			ps.setString(7, consumerRequest.getZipcode());
 		});
 	}
 }

@@ -42,6 +42,7 @@ public enum CustomErrorCode {
 	CONSUMER_NOT_EXIST(BAD_REQUEST, "고객정보를 찾을 수 없습니다."),
 	CONSUMER_NO_ALREADY_EXIST(BAD_REQUEST, "이미 존재하는 고객번호 입니다."),
 	METER_NO_ALREADY_EXIST(BAD_REQUEST, "이미 존재하는 계량기 입니다."),
+	CONSUMER_NAME_SHOUD_NOT_NULL(BAD_REQUEST, "고객번호를 입력해 주세요"),
 
 	// Modem
 	MODEM_NOT_EXIST(BAD_REQUEST, "단말기 정보를 찾을 수 없습니다."),

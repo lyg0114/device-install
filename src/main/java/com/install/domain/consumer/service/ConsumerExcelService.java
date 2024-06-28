@@ -1,8 +1,10 @@
 package com.install.domain.consumer.service;
 
+import static com.install.global.exception.CustomErrorCode.*;
 import static java.lang.String.valueOf;
 import static org.apache.poi.ss.usermodel.DateUtil.*;
 import static org.springframework.http.HttpStatus.*;
+import static org.springframework.util.StringUtils.*;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -78,6 +80,14 @@ public class ConsumerExcelService {
 					}
 
 					requests.add(ConsumerRequest.builder()
+						.consumerNo(validateConsumerNo(extractedData(sheet.getRow(i).getCell(0)), i, 0))
+						.meterNo(validateMeterNo(extractedData(sheet.getRow(i).getCell(1)), i, 1))
+						.consumerName(validateConsumerName(extractedData(sheet.getRow(i).getCell(2)), i, 2))
+						.city(extractedData(sheet.getRow(i).getCell(3)))
+						.street(extractedData(sheet.getRow(i).getCell(4)))
+						.zipcode(extractedData(sheet.getRow(i).getCell(5)))
+						.geoX(extractedData(sheet.getRow(i).getCell(6)))
+						.geoY(extractedData(sheet.getRow(i).getCell(7)))
 						.build());
 
 				} catch (CustomExcelException ex) {
@@ -115,6 +125,7 @@ public class ConsumerExcelService {
 		}
 
 		// websocket 연결 종료
+		// TODO : DB Insert 에 문제가 발생했을경우를 고려해서 개선 필요
 		colseWebSocketSession(sessionId);
 
 		return requests;
@@ -141,13 +152,24 @@ public class ConsumerExcelService {
 		return value;
 	}
 
-	private String validateModemNo(String modemNo, int row, int col) {
-		//TODO : 예외처리 로직
-		return null;
+	private String validateConsumerNo(String consumerNo, int row, int col) {
+		if (consumerRepository.existsByConsumerNo(consumerNo)) {
+			throw new CustomExcelException(CONSUMER_NOT_EXIST, consumerNo, row, col);
+		}
+		return consumerNo;
 	}
 
-	private String validateImei(String imei, int row, int col) {
-		//TODO : 예외처리 로직
-		return null;
+	private String validateConsumerName(String consumerNo, int row, int col) {
+		if (!hasText(consumerNo)) {
+			throw new CustomExcelException(CONSUMER_NAME_SHOUD_NOT_NULL, consumerNo, row, col);
+		}
+		return consumerNo;
+	}
+
+	private String validateMeterNo(String meterNo, int row, int col) {
+		if (consumerRepository.existsByMeterNo(meterNo)) {
+			throw new CustomExcelException(METER_NO_ALREADY_EXIST, meterNo, row, col);
+		}
+		return meterNo;
 	}
 }
