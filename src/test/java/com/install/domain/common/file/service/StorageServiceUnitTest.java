@@ -20,7 +20,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 
-import com.install.domain.common.file.config.StorageProperties;
+import com.install.domain.common.config.StorageProperties;
 import com.install.domain.common.file.entity.FileInfo;
 import com.install.domain.common.file.entity.repository.FileInfoRepository;
 

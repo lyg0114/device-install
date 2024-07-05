@@ -68,7 +68,7 @@ class ConsumerExcelServiceTest {
 
 		//then
 		List<Consumer> findConsumers = consumerRepository.findAll();
-		assertThat(findConsumers.size()).isEqualTo(2);
+		assertThat(findConsumers.size()).isEqualTo(100);
 		assertThat(findConsumers.get(0).getConsumerNo()).isEqualTo("consumerNo-1");
 		assertThat(findConsumers.get(0).getConsumerName()).isEqualTo("consumerName-1");
 		assertThat(findConsumers.get(0).getMeterNo()).isEqualTo("meterNo-1");

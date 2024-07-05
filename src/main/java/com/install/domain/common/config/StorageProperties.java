@@ -1,16 +1,14 @@
-package com.install.domain.common.file.config;
+package com.install.domain.common.config;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import lombok.Getter;
+import lombok.Setter;
 
 @Getter
+@Setter
 @ConfigurationProperties("storage")
 public class StorageProperties {
 
 	private String location;
-
-	public void setLocation(String location) {
-		this.location = location;
-	}
 }

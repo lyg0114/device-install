@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.install.domain.common.config.MaxBufferSizeProperties;
 import com.install.domain.consumer.dto.ConsumerDto.ConsumerRequest;
 import com.install.domain.consumer.entity.repository.ConsumerRepository;
 import com.install.global.exception.CustomExcelException;
@@ -43,16 +44,25 @@ public class ConsumerExcelService {
 	private final ConsumerRepository consumerRepository;
 	private final ProgressWebSocketHandler progressWebSocketHandler;
 	private final ConcurrentHashMap<String, List<CustomExcelException>> excelExceptionMap;
+	private final int maxBufferSize;
 
-	public ConsumerExcelService(ConsumerRepository consumerRepository, ProgressWebSocketHandler progressWebSocketHandler) {
+	public ConsumerExcelService(
+		ConsumerRepository consumerRepository, ProgressWebSocketHandler progressWebSocketHandler, MaxBufferSizeProperties properties
+	) {
 		this.consumerRepository = consumerRepository;
 		this.progressWebSocketHandler = progressWebSocketHandler;
 		this.excelExceptionMap = new ConcurrentHashMap<>();
+		this.maxBufferSize = properties.getMaxBufferSize();
 	}
 
 	public void uploadConsumerExcel(MultipartFile file, String sessionId) {
 		List<ConsumerRequest> targetConsumers = readExcelFile(file, sessionId);
-		consumerRepository.bulkInsert(targetConsumers);
+		// targetConsumers 리스트를 maxBufferSize 크기로 나누어 배치 삽입
+		for (int i = 0; i < targetConsumers.size(); i += maxBufferSize) {
+			int end = Math.min(i + maxBufferSize, targetConsumers.size());
+			List<ConsumerRequest> batchList = targetConsumers.subList(i, end);
+			consumerRepository.bulkInsert(batchList);
+		}
 	}
 
 	public List<ConsumerRequest> readExcelFile(MultipartFile file, String sessionId) {

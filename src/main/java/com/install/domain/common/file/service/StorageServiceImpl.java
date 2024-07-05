@@ -17,7 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.install.domain.common.file.config.StorageProperties;
+import com.install.domain.common.config.StorageProperties;
 import com.install.domain.common.file.entity.FileInfo;
 import com.install.domain.common.file.entity.repository.FileInfoRepository;
 import com.install.global.exception.CustomException;

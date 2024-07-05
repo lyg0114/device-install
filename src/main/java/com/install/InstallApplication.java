@@ -5,11 +5,13 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
-import com.install.domain.common.file.config.StorageProperties;
+import com.install.domain.common.config.MaxBufferSizeProperties;
+import com.install.domain.common.config.StorageProperties;
 
 @EnableJpaAuditing
 @SpringBootApplication
-@EnableConfigurationProperties(StorageProperties.class)
+@EnableConfigurationProperties(
+	{StorageProperties.class, MaxBufferSizeProperties.class})
 public class InstallApplication {
 
 	public static void main(String[] args) {
