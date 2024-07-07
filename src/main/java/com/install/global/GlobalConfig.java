@@ -1,6 +1,7 @@
 package com.install.global;
 
 import static com.install.domain.code.entity.CodeSet.*;
+import static com.install.global.Constant.*;
 import static java.util.concurrent.Executors.*;
 
 import java.util.concurrent.ExecutorService;
@@ -49,7 +50,7 @@ public class GlobalConfig {
 		return newFixedThreadPool(10);
 	}
 
-	@Profile("local")
+	@Profile({PROFILE_LOCAL})
 	@Bean
 	public CommandLineRunner codeInit(CodeRepository codeRepository) {
 		return args -> {
