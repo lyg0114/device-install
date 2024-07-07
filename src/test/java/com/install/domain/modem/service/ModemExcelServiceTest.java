@@ -65,7 +65,7 @@ class ModemExcelServiceTest {
 
 		//then
 		List<Modem> findModems = modemRepository.findAll();
-		assertThat(findModems.size()).isEqualTo(6);
+		assertThat(findModems.size()).isEqualTo(100);
 		assertThat(findModems.get(0).getModemNo()).isEqualTo("2111908");
 		assertThat(findModems.get(0).getImei()).isEqualTo("imei-123");
 		assertThat(findModems.get(0).getBuildCompany()).isEqualTo("삼성");

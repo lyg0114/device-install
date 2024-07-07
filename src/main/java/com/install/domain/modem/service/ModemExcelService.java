@@ -20,6 +20,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.install.domain.common.config.MaxBufferSizeProperties;
+import com.install.domain.consumer.dto.ConsumerDto;
 import com.install.domain.modem.dto.ModemDto.ModemRequest;
 import com.install.domain.modem.entity.repository.ModemRepository;
 import com.install.global.exception.CustomExcelException;
@@ -43,16 +45,24 @@ public class ModemExcelService {
 	private final ModemRepository modemRepository;
 	private final ProgressWebSocketHandler progressWebSocketHandler;
 	private final ConcurrentHashMap<String, List<CustomExcelException>> excelExceptionMap;
+	private final int maxBufferSize;
 
-	public ModemExcelService(ModemRepository modemRepository, ProgressWebSocketHandler progressWebSocketHandler) {
+	public ModemExcelService(
+		ModemRepository modemRepository, ProgressWebSocketHandler progressWebSocketHandler, MaxBufferSizeProperties properties
+	) {
 		this.modemRepository = modemRepository;
 		this.progressWebSocketHandler = progressWebSocketHandler;
 		this.excelExceptionMap = new ConcurrentHashMap<>();
+		this.maxBufferSize = properties.getMaxBufferSize();
 	}
 
 	public void uploadModemExcel(MultipartFile file, String sessionId) {
 		List<ModemRequest> targetModems = readExcelFile(file, sessionId);
-		modemRepository.bulkInsert(targetModems);
+		for (int i = 0; i < targetModems.size(); i += maxBufferSize) {
+			int end = Math.min(i + maxBufferSize, targetModems.size());
+			List<ModemRequest> batchList = targetModems.subList(i, end);
+			modemRepository.bulkInsert(batchList);
+		}
 	}
 
 	public List<ModemRequest> readExcelFile(MultipartFile file, String sessionId) {
